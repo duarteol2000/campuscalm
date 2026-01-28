@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">Agenda</h1>
+    <div class="text-muted">Eventos dos proximos {{ range_days }} dias</div>
+  </div>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-4 col-md-3">
+    <input class="form-control form-control-sm" type="text" name="q" placeholder="Buscar evento"
+           value="{{ search_query }}">
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <select class="form-select form-select-sm" name="type">
+      <option value="">Todos os tipos</option>
+      {% for value,label in event_type_choices %}
+        <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <select class="form-select form-select-sm" name="range">
+      <option value="7" {% if range_days == "7" %}selected{% endif %}>Proximos 7 dias</option>
+      <option value="15" {% if range_days == "15" %}selected{% endif %}>Proximos 15 dias</option>
+      <option value="30" {% if range_days == "30" %}selected{% endif %}>Proximos 30 dias</option>
+      <option value="60" {% if range_days == "60" %}selected{% endif %}>Proximos 60 dias</option>
+      <option value="90" {% if range_days == "90" %}selected{% endif %}>Proximos 90 dias</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
+    <a class="btn btn-sm btn-link" href="/agenda/?clear=1">Limpar</a>
+  </div>
+</form>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold">Eventos</div>
+      <div class="card-body">
+        {% if events %}
+          <ul class="list-group list-group-flush">
+            {% for event in events %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ event.title }}</div>
+                  <div class="text-muted small">{{ event.event_type }}</div>
+                </div>
+                <span class="text-muted small">{{ event.start_at|date:"d/m/Y H:i" }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-muted">Nenhum evento nos proximos dias.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold">Lembretes ativos</div>
+      <div class="card-body">
+        {% if reminder_rules %}
+          <ul class="list-group list-group-flush">
+            {% for rule in reminder_rules %}
+              <li class="list-group-item d-flex justify-content-between">
+                <span>{{ rule.target_type }}</span>
+                <span class="text-muted small">{{ rule.remind_before_minutes }} min antes</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-muted">Nenhuma regra ativa.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

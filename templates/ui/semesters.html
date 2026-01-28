@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">Semestres</h1>
+    <div class="text-muted">Resumo das disciplinas e progresso</div>
+  </div>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-4 col-md-2">
+    <select class="form-select form-select-sm" name="status">
+      <option value="">Todos os status</option>
+      <option value="ACTIVE" {% if status_filter == "ACTIVE" %}selected{% endif %}>Ativo</option>
+      <option value="FINISHED" {% if status_filter == "FINISHED" %}selected{% endif %}>Finalizado</option>
+    </select>
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <input class="form-control form-control-sm" type="text" name="course" placeholder="Filtrar por disciplina"
+           value="{{ course_query }}">
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <input class="form-control form-control-sm" type="text" name="teacher" placeholder="Filtrar por professor"
+           value="{{ teacher_query }}">
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
+    <a class="btn btn-sm btn-link" href="/semesters/?clear=1">Limpar</a>
+  </div>
+</form>
+
+{% if semesters %}
+  {% for semester in semesters %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-header bg-white d-flex justify-content-between">
+        <div class="fw-semibold">{{ semester.name }}</div>
+        <div class="text-muted small">{{ semester.start_date|date:"d/m/Y" }} - {{ semester.end_date|date:"d/m/Y" }}</div>
+      </div>
+      <div class="card-body">
+        {% if semester.courses %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Disciplina</th>
+                  <th>Professor</th>
+                  <th>Status</th>
+                  <th>Media atual</th>
+                  <th>Progresso</th>
+                  <th>Falta para passar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for course in semester.courses %}
+                  <tr>
+                    <td>{{ course.title }}</td>
+                    <td>{{ course.teacher|default:"-" }}</td>
+                    <td>
+                      {% if course.status == "PASSED" %}
+                        <span class="badge text-bg-success">Aprovado</span>
+                      {% elif course.status == "FAILED" %}
+                        <span class="badge text-bg-danger">Reprovado</span>
+                      {% else %}
+                        <span class="badge text-bg-secondary">Em andamento</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ course.current_average }}</td>
+                    <td style="min-width: 180px;">
+                      <div class="d-flex justify-content-between">
+                        <span class="small text-muted">{{ course.progress_percent }}%</span>
+                      </div>
+                      <div class="progress mt-1" style="height: 6px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ course.progress_percent_css }}%;"></div>
+                      </div>
+                    </td>
+                    <td>{{ course.needed_to_pass }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted">Nenhuma disciplina cadastrada.</div>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="alert alert-info">Nenhum semestre cadastrado.</div>
+{% endif %}
+{% endblock %}

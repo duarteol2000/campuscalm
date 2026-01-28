@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">Mensagens</h1>
+    <div class="text-muted">Avisos e comunicados in-app</div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if messages %}
+      <div class="list-group list-group-flush">
+        {% for msg in messages %}
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">{{ msg.title }}</div>
+                <div class="text-muted small">{{ msg.scheduled_for|date:"d/m/Y H:i" }}</div>
+              </div>
+              <span class="badge text-bg-light text-muted">{{ msg.status }}</span>
+            </div>
+            <div class="mt-2 text-muted">{{ msg.message|linebreaksbr }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-muted">Nenhuma mensagem registrada.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

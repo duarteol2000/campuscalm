@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">Tarefas</h1>
+    <div class="text-muted">Lista de tarefas academicas</div>
+  </div>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-4 col-md-3">
+    <input class="form-control form-control-sm" type="text" name="q" placeholder="Buscar tarefa"
+           value="{{ search_query }}">
+  </div>
+  <div class="col-sm-4 col-md-2">
+    <select class="form-select form-select-sm" name="stress">
+      <option value="">Stress</option>
+      <option value="1" {% if stress_filter == "1" %}selected{% endif %}>1</option>
+      <option value="2" {% if stress_filter == "2" %}selected{% endif %}>2</option>
+      <option value="3" {% if stress_filter == "3" %}selected{% endif %}>3</option>
+      <option value="4" {% if stress_filter == "4" %}selected{% endif %}>4</option>
+      <option value="5" {% if stress_filter == "5" %}selected{% endif %}>5</option>
+    </select>
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <select class="form-select form-select-sm" name="status">
+      <option value="">Todos os status</option>
+      <option value="TODO" {% if status_filter == "TODO" %}selected{% endif %}>A fazer</option>
+      <option value="DOING" {% if status_filter == "DOING" %}selected{% endif %}>Em andamento</option>
+      <option value="DONE" {% if status_filter == "DONE" %}selected{% endif %}>Concluida</option>
+    </select>
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <select class="form-select form-select-sm" name="due">
+      <option value="">Todas as datas</option>
+      <option value="overdue" {% if due_filter == "overdue" %}selected{% endif %}>Atrasadas</option>
+      <option value="today" {% if due_filter == "today" %}selected{% endif %}>Hoje</option>
+      <option value="week" {% if due_filter == "week" %}selected{% endif %}>Proxima semana</option>
+      <option value="month" {% if due_filter == "month" %}selected{% endif %}>Proximo mes</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
+    <a class="btn btn-sm btn-link" href="/tasks/?clear=1">Limpar</a>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if tasks %}
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Titulo</th>
+              <th>Entrega</th>
+              <th>Stress</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ task.title }}</div>
+                  <div class="text-muted small">{{ task.description|default:"" }}</div>
+                </td>
+                <td>{{ task.due_date|date:"d/m/Y" }}</td>
+                <td>{{ task.stress_level }}</td>
+                <td>
+                  {% if task.status == "DONE" %}
+                    <span class="badge text-bg-success">Concluida</span>
+                  {% elif task.status == "DOING" %}
+                    <span class="badge text-bg-primary">Em andamento</span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">A fazer</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">Nenhuma tarefa cadastrada.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

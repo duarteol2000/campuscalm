@@ -1,0 +1,154 @@
+:root {
+  --sidebar-width: 220px;
+  --sidebar-bg: #ffffff;
+  --primary-soft: #e8f0fb;
+  --brand: #1d4ed8;
+}
+
+body {
+  font-family: "Sora", system-ui, sans-serif;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding-top: 0;
+  box-shadow: 0 0 12px rgba(15, 23, 42, 0.04);
+}
+
+.content {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+}
+
+.nav-link {
+  color: #334155;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 4px;
+}
+
+.nav-link:hover {
+  background: var(--primary-soft);
+  border-radius: 6px;
+}
+
+.nav-link.active {
+  background: #dbe7f8;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.card {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.card-soft-blue {
+  background-color: #edf4ff !important;
+  border-color: #dce9ff !important;
+}
+
+.card-soft-green {
+  background-color: #eef8f2 !important;
+  border-color: #d8eee2 !important;
+}
+
+.card-soft-amber {
+  background-color: #fff5ec !important;
+  border-color: #f7e6d6 !important;
+}
+
+.card-soft-purple {
+  background-color: #f3f0ff !important;
+  border-color: #e5defa !important;
+}
+
+.bg-auth {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #e2e8f0, #f8fafc 60%);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-card {
+  background: #ffffff;
+  border-radius: 16px;
+  width: min(420px, 100%);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.auth-header {
+  padding: 28px 28px 16px;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  color: #fff;
+}
+
+.auth-logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.2px;
+}
+
+.auth-subtitle {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.brand-logo-large {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: -32px;
+}
+
+.auth-logo-img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.auth-body {
+  padding: 24px 28px 28px;
+}
+
+.bg-auth::before,
+.bg-auth::after {
+  content: "";
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.25), transparent 60%);
+  filter: blur(2px);
+}
+
+.bg-auth::before {
+  top: -80px;
+  right: -120px;
+}
+
+.bg-auth::after {
+  bottom: -100px;
+  left: -120px;
+}

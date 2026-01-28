@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">Onboarding</h1>
+    <div class="text-muted">Etapas para completar a configuracao</div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <ul class="list-group list-group-flush">
+      {% for step in steps %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold">{{ step.label }}</div>
+            <div class="text-muted small">{{ step.message }}</div>
+          </div>
+          {% if step.missing %}
+            <span class="badge text-bg-warning">⚠</span>
+          {% else %}
+            <span class="badge text-bg-success">✓</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% if required_actions %}
+<div class="card shadow-sm mt-3">
+  <div class="card-header bg-white fw-semibold">Acoes recomendadas</div>
+  <div class="card-body">
+    <ul class="mb-0">
+      {% for action in required_actions %}
+        <li>{{ action }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+
+<div class="card shadow-sm mt-3">
+  <div class="card-header bg-white fw-semibold">Sugestoes rapidas</div>
+  <div class="card-body">
+    <ul class="mb-0">
+      <li><a href="/semesters/">Ver semestres</a></li>
+      <li><a href="/tasks/">Ver tarefas</a></li>
+      <li><a href="/agenda/">Ver agenda</a></li>
+      <li><a href="/api/semester/assessments/">Cadastrar avaliacao (API)</a></li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

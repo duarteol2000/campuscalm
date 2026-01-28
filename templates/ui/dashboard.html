@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h1 class="h4 mb-1">Dashboard</h1>
+    <div class="text-muted">Resumo da semana</div>
+  </div>
+  <form class="d-flex" method="get">
+    <input class="form-control form-control-sm me-2" type="text" name="q" placeholder="Buscar tarefa ou evento"
+           value="{{ search_query }}">
+    <button class="btn btn-sm btn-outline-secondary" type="submit">Aplicar</button>
+    <a class="btn btn-sm btn-link ms-2" href="/?clear=1">Limpar</a>
+  </form>
+</div>
+
+{% if not onboarding_status.is_complete %}
+<div class="alert alert-warning">
+  <div class="fw-semibold">Onboarding incompleto</div>
+  <div>Finalize as etapas pendentes para liberar todo o painel.</div>
+  <a class="btn btn-sm btn-outline-dark mt-2" href="/onboarding/">Continuar configuracao</a>
+</div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-md-3">
+    <div class="card shadow-sm card-soft-blue">
+      <div class="card-body">
+        <div class="text-muted small">Humor da semana</div>
+        <div class="fs-4 fw-bold">{{ dashboard_data.mood_most_common|default:"Sem dados" }}</div>
+        <div class="text-muted small">{{ dashboard_data.mood_weekly_total }} registros</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm card-soft-purple">
+      <div class="card-body">
+        <div class="text-muted small">Minutos de foco</div>
+        <div class="fs-4 fw-bold">{{ dashboard_data.focus_minutes_week }}</div>
+        <div class="text-muted small">ultimos 7 dias</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm card-soft-amber">
+      <div class="card-body">
+        <div class="text-muted small">Estresse da semana</div>
+        <div class="fs-4 fw-bold">{{ dashboard_data.stress_avg_week|default:"Sem dados" }}</div>
+        <div class="text-muted small">media dos check-ins</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm card-soft-green">
+      <div class="card-body">
+        <div class="text-muted small">Proximos prazos</div>
+        <div class="fs-4 fw-bold">{{ dashboard_data.upcoming_count }}</div>
+        <div class="text-muted small">tarefas e eventos</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-3">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold">Proximos eventos</div>
+      <div class="card-body">
+        {% if dashboard_data.upcoming_events %}
+          <ul class="list-group list-group-flush">
+            {% for event in dashboard_data.upcoming_events %}
+              <li class="list-group-item d-flex justify-content-between">
+                <span>{{ event.title }}</span>
+                <span class="text-muted small">{{ event.start_at|date:"d/m/Y H:i" }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-muted">Nenhum evento nos proximos dias.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold">Próximas tarefas</div>
+      <div class="card-body">
+        {% if dashboard_data.upcoming_tasks %}
+          <ul class="list-group list-group-flush">
+            {% for task in dashboard_data.upcoming_tasks %}
+              <li class="list-group-item d-flex justify-content-between">
+                <span>{{ task.title }}</span>
+                <span class="text-muted small">{{ task.due_date|date:"d/m/Y" }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-muted">Nenhuma tarefa proxima.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-white fw-semibold">Progresso por disciplina</div>
+  <div class="card-body">
+    {% if dashboard_data.course_progress %}
+      {% for course in dashboard_data.course_progress %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between">
+            <div class="fw-semibold">{{ course.title }}</div>
+            <div class="text-muted small">{{ course.semester }}</div>
+          </div>
+          <div class="text-muted small">
+            Media atual: {{ course.current_average }} | Media minima: {{ course.passing_grade }}
+          </div>
+          <div class="progress mt-2" style="height: 8px;">
+            <div class="progress-bar" role="progressbar" style="width: {{ course.progress_percent }}%;"></div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-muted">Nenhuma disciplina cadastrada.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-white fw-semibold">Status do Onboarding</div>
+  <div class="card-body">
+    <ul class="list-group list-group-flush">
+      {% for step in onboarding_status.steps %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ step.label }}</span>
+          {% if step.missing %}
+            <span class="badge text-bg-warning">Pendente</span>
+          {% else %}
+            <span class="badge text-bg-success">Ok</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    {% if not onboarding_status.is_complete %}
+      <div class="mt-3">
+        <a class="btn btn-primary btn-sm" href="/onboarding/">Continuar configuracao</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
