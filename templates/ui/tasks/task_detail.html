@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ui-task-list' %}">{% trans "Tarefas" %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ task.title }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h1 class="h4 mb-1">{{ task.title }}</h1>
+    <div class="text-muted">{% trans "Entrega" %}: {{ task.due_date|date:"d/m/Y" }}</div>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'ui-task-list' %}">{% trans "Voltar" %}</a>
+    <a class="btn btn-outline-primary" href="{% url 'ui-task-edit' task.pk %}">{% trans "Editar" %}</a>
+    <a class="btn btn-outline-danger" href="{% url 'ui-task-delete' task.pk %}">{% trans "Excluir" %}</a>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="text-muted small">{% trans "Status" %}</div>
+        <div class="fw-semibold">{{ task.get_status_display }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="text-muted small">{% trans "Nivel de estresse" %}</div>
+        <div class="fw-semibold">{{ task.stress_level }}</div>
+      </div>
+      <div class="col-md-6">
+        <div class="text-muted small">{% trans "Descricao" %}</div>
+        <div class="fw-semibold">{{ task.description|default:"-" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

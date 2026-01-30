@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Agenda" %}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">{% trans "Agenda" %}</h1>
+    <div class="text-muted">{% trans "Seus eventos e compromissos." %}</div>
+  </div>
+  <a class="btn btn-primary" href="{% url 'ui-agenda-create' %}">{% trans "Novo evento" %}</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if events %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Evento" %}</th>
+              <th>{% trans "Tipo" %}</th>
+              <th>{% trans "Inicio" %}</th>
+              <th>{% trans "Fim" %}</th>
+              <th class="text-end">{% trans "Acoes" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in events %}
+              <tr>
+                <td>{{ event.title }}</td>
+                <td><span class="badge text-bg-light">{{ event.get_event_type_display }}</span></td>
+                <td>{{ event.start_at|date:"d/m/Y H:i" }}</td>
+                <td>{{ event.end_at|date:"d/m/Y H:i"|default:"-" }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-agenda-edit' event.pk %}">{% trans "Editar" %}</a>
+                  <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-agenda-delete' event.pk %}">{% trans "Excluir" %}</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">{% trans "Nenhum evento cadastrado." %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

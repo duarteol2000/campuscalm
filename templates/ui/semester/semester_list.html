@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Semestres" %}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">{% trans "Semestres" %}</h1>
+    <div class="text-muted">{% trans "Gerencie seus semestres e disciplinas." %}</div>
+  </div>
+  <a class="btn btn-primary" href="{% url 'ui-semester-create' %}">{% trans "Novo Semestre" %}</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if semesters %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Nome" %}</th>
+              <th>{% trans "Inicio" %}</th>
+              <th>{% trans "Termino" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th class="text-end">{% trans "Acoes" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for semester in semesters %}
+              <tr>
+                <td>{{ semester.name }}</td>
+                <td>{{ semester.start_date|date:"d/m/Y" }}</td>
+                <td>{{ semester.end_date|date:"d/m/Y" }}</td>
+                <td>{{ semester.get_status_display }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-primary" href="{% url 'ui-semester-detail' semester.pk %}">{% trans "Ver" %}</a>
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-semester-edit' semester.pk %}">{% trans "Editar" %}</a>
+                  <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-semester-delete' semester.pk %}">{% trans "Excluir" %}</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">{% trans "Nenhum semestre cadastrado." %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

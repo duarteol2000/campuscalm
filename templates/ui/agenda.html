@@ -1,21 +1,22 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div>
-    <h1 class="h4 mb-1">Agenda</h1>
-    <div class="text-muted">Eventos dos proximos {{ range_days }} dias</div>
+    <h1 class="h4 mb-1">{% trans "Agenda" %}</h1>
+    <div class="text-muted">{% blocktrans with days=range_days %}Eventos dos proximos {{ days }} dias{% endblocktrans %}</div>
   </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">
   <div class="col-sm-4 col-md-3">
-    <input class="form-control form-control-sm" type="text" name="q" placeholder="Buscar evento"
+    <input class="form-control form-control-sm" type="text" name="q" placeholder="{% trans "Buscar evento" %}"
            value="{{ search_query }}">
   </div>
   <div class="col-sm-4 col-md-3">
     <select class="form-select form-select-sm" name="type">
-      <option value="">Todos os tipos</option>
+      <option value="">{% trans "Todos os tipos" %}</option>
       {% for value,label in event_type_choices %}
         <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
@@ -23,23 +24,23 @@
   </div>
   <div class="col-sm-4 col-md-3">
     <select class="form-select form-select-sm" name="range">
-      <option value="7" {% if range_days == "7" %}selected{% endif %}>Proximos 7 dias</option>
-      <option value="15" {% if range_days == "15" %}selected{% endif %}>Proximos 15 dias</option>
-      <option value="30" {% if range_days == "30" %}selected{% endif %}>Proximos 30 dias</option>
-      <option value="60" {% if range_days == "60" %}selected{% endif %}>Proximos 60 dias</option>
-      <option value="90" {% if range_days == "90" %}selected{% endif %}>Proximos 90 dias</option>
+      <option value="7" {% if range_days == "7" %}selected{% endif %}>{% trans "Proximos 7 dias" %}</option>
+      <option value="15" {% if range_days == "15" %}selected{% endif %}>{% trans "Proximos 15 dias" %}</option>
+      <option value="30" {% if range_days == "30" %}selected{% endif %}>{% trans "Proximos 30 dias" %}</option>
+      <option value="60" {% if range_days == "60" %}selected{% endif %}>{% trans "Proximos 60 dias" %}</option>
+      <option value="90" {% if range_days == "90" %}selected{% endif %}>{% trans "Proximos 90 dias" %}</option>
     </select>
   </div>
   <div class="col-auto">
-    <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
-    <a class="btn btn-sm btn-link" href="/agenda/?clear=1">Limpar</a>
+    <button class="btn btn-sm btn-outline-secondary" type="submit">{% trans "Filtrar" %}</button>
+    <a class="btn btn-sm btn-link" href="/agenda/?clear=1">{% trans "Limpar" %}</a>
   </div>
 </form>
 
 <div class="row g-3">
   <div class="col-lg-7">
     <div class="card shadow-sm">
-      <div class="card-header bg-white fw-semibold">Eventos</div>
+      <div class="card-header bg-white fw-semibold">{% trans "Eventos" %}</div>
       <div class="card-body">
         {% if events %}
           <ul class="list-group list-group-flush">
@@ -54,26 +55,26 @@
             {% endfor %}
           </ul>
         {% else %}
-          <div class="text-muted">Nenhum evento nos proximos dias.</div>
+          <div class="text-muted">{% trans "Nenhum evento nos proximos dias." %}</div>
         {% endif %}
       </div>
     </div>
   </div>
   <div class="col-lg-5">
     <div class="card shadow-sm">
-      <div class="card-header bg-white fw-semibold">Lembretes ativos</div>
+      <div class="card-header bg-white fw-semibold">{% trans "Lembretes ativos" %}</div>
       <div class="card-body">
         {% if reminder_rules %}
           <ul class="list-group list-group-flush">
             {% for rule in reminder_rules %}
               <li class="list-group-item d-flex justify-content-between">
                 <span>{{ rule.target_type }}</span>
-                <span class="text-muted small">{{ rule.remind_before_minutes }} min antes</span>
+                <span class="text-muted small">{% blocktrans with minutes=rule.remind_before_minutes %}{{ minutes }} min antes{% endblocktrans %}</span>
               </li>
             {% endfor %}
           </ul>
         {% else %}
-          <div class="text-muted">Nenhuma regra ativa.</div>
+          <div class="text-muted">{% trans "Nenhuma regra ativa." %}</div>
         {% endif %}
       </div>
     </div>

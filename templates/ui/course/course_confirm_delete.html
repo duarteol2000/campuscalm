@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ui-semester-list' %}">{% trans "Semestres" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ui-semester-detail' course.semester.pk %}">{{ course.semester.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Excluir disciplina" %}</li>
+  </ol>
+</nav>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h1 class="h5 mb-3">{% trans "Excluir disciplina" %}</h1>
+    <p class="text-muted">{% trans "Tem certeza que deseja excluir a disciplina" %} <strong>{{ course.title }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <a class="btn btn-outline-secondary" href="{% url 'ui-course-detail' course.pk %}">{% trans "Cancelar" %}</a>
+      <button class="btn btn-danger" type="submit">{% trans "Excluir" %}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

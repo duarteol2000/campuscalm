@@ -1,0 +1,1222 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Campus Calm\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-29 13:35-0300\n"
+"PO-Revision-Date: 2026-01-29 13:10+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/ui/forms_academic.py:13
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Nome do semestre"
+msgstr "Ver semestres"
+
+#: apps/ui/forms_academic.py:14
+msgid "Data de inicio"
+msgstr ""
+
+#: apps/ui/forms_academic.py:15
+msgid "Data de termino"
+msgstr ""
+
+#: apps/ui/forms_academic.py:16 apps/ui/forms_academic.py:35
+#: apps/ui/forms_tasks.py:16 templates/ui/course/course_detail.html:48
+#: templates/ui/messages/message_list.html:23
+#: templates/ui/messages/message_list.html:59
+#: templates/ui/reminders/reminder_list.html:30
+#: templates/ui/semester/semester_detail.html:31
+#: templates/ui/semester/semester_detail.html:58
+#: templates/ui/semester/semester_list.html:30 templates/ui/semesters.html:49
+#: templates/ui/tasks.html:60 templates/ui/tasks/task_detail.html:29
+#: templates/ui/tasks/task_list.html:28 templates/ui/tasks/task_list.html:55
+msgid "Status"
+msgstr "Status"
+
+#: apps/ui/forms_academic.py:31
+#, fuzzy
+#| msgid "Progresso por disciplina"
+msgid "Nome da disciplina"
+msgstr "Progresso por disciplina"
+
+#: apps/ui/forms_academic.py:32 templates/ui/semester/semester_detail.html:57
+#: templates/ui/semesters.html:48
+msgid "Professor"
+msgstr "Professor"
+
+#: apps/ui/forms_academic.py:33
+msgid "Creditos"
+msgstr ""
+
+#: apps/ui/forms_academic.py:34 templates/ui/course/course_detail.html:36
+msgid "Nota minima"
+msgstr ""
+
+#: apps/ui/forms_academic.py:36
+msgid "Nota final"
+msgstr ""
+
+#: apps/ui/forms_academic.py:37
+msgid "Anotacoes"
+msgstr ""
+
+#: apps/ui/forms_academic.py:52
+msgid "A nota minima deve ser maior que zero."
+msgstr ""
+
+#: apps/ui/forms_academic.py:61 apps/ui/forms_agenda.py:13
+#: apps/ui/forms_tasks.py:12 templates/ui/messages/message_list.html:57
+#: templates/ui/tasks.html:57
+msgid "Titulo"
+msgstr "Titulo"
+
+#: apps/ui/forms_academic.py:62
+msgid "Nota obtida"
+msgstr ""
+
+#: apps/ui/forms_academic.py:63
+msgid "Nota maxima"
+msgstr ""
+
+#: apps/ui/forms_academic.py:64 templates/ui/course/course_detail.html:74
+msgid "Peso"
+msgstr ""
+
+#: apps/ui/forms_academic.py:65 templates/ui/course/course_detail.html:75
+msgid "Data"
+msgstr ""
+
+#: apps/ui/forms_academic.py:81
+msgid "A nota obtida nao pode ser maior que a nota maxima."
+msgstr ""
+
+#: apps/ui/forms_academic.py:83
+msgid "O peso deve ser maior ou igual a zero."
+msgstr ""
+
+#: apps/ui/forms_agenda.py:14 templates/ui/agenda/agenda_list.html:28
+#: templates/ui/reminders/reminder_list.html:27
+msgid "Tipo"
+msgstr ""
+
+#: apps/ui/forms_agenda.py:15 templates/ui/agenda/agenda_list.html:29
+#: templates/ui/semester/semester_detail.html:35
+#: templates/ui/semester/semester_list.html:28
+msgid "Inicio"
+msgstr ""
+
+#: apps/ui/forms_agenda.py:16 templates/ui/agenda/agenda_list.html:30
+msgid "Fim"
+msgstr ""
+
+#: apps/ui/forms_agenda.py:17
+msgid "Tarefa relacionada"
+msgstr ""
+
+#: apps/ui/forms_agenda.py:18
+msgid "Observacoes"
+msgstr ""
+
+#: apps/ui/forms_agenda.py:43
+msgid "Estudos"
+msgstr "Estudos"
+
+#: apps/ui/forms_reminders.py:19 templates/ui/reminders/reminder_list.html:29
+msgid "Canais"
+msgstr ""
+
+#: apps/ui/forms_reminders.py:27
+msgid "Tipo de alvo"
+msgstr ""
+
+#: apps/ui/forms_reminders.py:28 templates/ui/reminders/reminder_list.html:28
+#, fuzzy
+#| msgid "%(minutes)s min antes"
+msgid "Minutos antes"
+msgstr "%(minutes)s min antes"
+
+#: apps/ui/forms_reminders.py:29 templates/ui/reminders/reminder_list.html:48
+#: templates/ui/semesters.html:16
+msgid "Ativo"
+msgstr "Ativo"
+
+#: apps/ui/forms_reminders.py:45
+msgid "Informe um valor maior que zero."
+msgstr ""
+
+#: apps/ui/forms_tasks.py:13 templates/ui/tasks/task_detail.html:37
+msgid "Descricao"
+msgstr ""
+
+#: apps/ui/forms_tasks.py:14
+msgid "Data de entrega"
+msgstr ""
+
+#: apps/ui/forms_tasks.py:15
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Nivel de estresse(0 a 5)"
+msgstr "Ver semestres"
+
+#: apps/ui/views.py:35
+msgid "Perfil"
+msgstr ""
+
+#: apps/ui/views.py:36
+#, fuzzy
+#| msgid "Semestres"
+msgid "Semestre"
+msgstr "Semestres"
+
+#: apps/ui/views.py:37 templates/ui/semester/semester_detail.html:49
+#, fuzzy
+#| msgid "Disciplina"
+msgid "Disciplinas"
+msgstr "Disciplina"
+
+#: apps/ui/views.py:38 templates/ui/course/course_detail.html:65
+msgid "Avaliacoes"
+msgstr ""
+
+#: apps/ui/views.py:39 templates/base.html:62
+#: templates/ui/reminders/reminder_confirm_delete.html:8
+#: templates/ui/reminders/reminder_form.html:8
+#: templates/ui/reminders/reminder_list.html:8
+#: templates/ui/reminders/reminder_list.html:14
+#, fuzzy
+#| msgid "Lembretes ativos"
+msgid "Lembretes"
+msgstr "Lembretes ativos"
+
+#: apps/ui/views.py:40 templates/base.html:47
+#: templates/ui/agenda/agenda_confirm_delete.html:7
+#: templates/ui/agenda/agenda_form.html:7
+#: templates/ui/agenda/agenda_list.html:7
+#: templates/ui/assessment/assessment_confirm_delete.html:7
+#: templates/ui/assessment/assessment_form.html:7
+#: templates/ui/course/course_confirm_delete.html:7
+#: templates/ui/course/course_detail.html:7
+#: templates/ui/course/course_form.html:7 templates/ui/dashboard.html:8
+#: templates/ui/messages/message_list.html:7
+#: templates/ui/reminders/reminder_confirm_delete.html:7
+#: templates/ui/reminders/reminder_form.html:7
+#: templates/ui/reminders/reminder_list.html:7
+#: templates/ui/semester/semester_confirm_delete.html:7
+#: templates/ui/semester/semester_detail.html:7
+#: templates/ui/semester/semester_form.html:7
+#: templates/ui/semester/semester_list.html:7
+#: templates/ui/tasks/task_confirm_delete.html:7
+#: templates/ui/tasks/task_detail.html:7 templates/ui/tasks/task_form.html:7
+#: templates/ui/tasks/task_list.html:7
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: apps/ui/views.py:55
+#, fuzzy
+#| msgid "Concluida"
+msgid "Concluido"
+msgstr "Concluida"
+
+#: apps/ui/views_academic.py:25
+msgid "Semestre criado com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:50
+msgid "Semestre atualizado com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:66
+msgid "Semestre excluido com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:84
+msgid "Disciplina criada com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:114
+msgid "Disciplina atualizada com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:131
+msgid "Disciplina excluida com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:149
+msgid "Avaliacao criada com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:167
+msgid "Avaliacao atualizada com sucesso."
+msgstr ""
+
+#: apps/ui/views_academic.py:184
+msgid "Avaliacao excluida com sucesso."
+msgstr ""
+
+#: apps/ui/views_agenda.py:32
+msgid "Evento criado com sucesso."
+msgstr ""
+
+#: apps/ui/views_agenda.py:46
+msgid "Evento atualizado com sucesso."
+msgstr ""
+
+#: apps/ui/views_agenda.py:58
+msgid "Evento excluido com sucesso."
+msgstr ""
+
+#: apps/ui/views_reminders.py:24
+msgid "Regra de lembrete criada com sucesso."
+msgstr ""
+
+#: apps/ui/views_reminders.py:38
+msgid "Regra de lembrete atualizada com sucesso."
+msgstr ""
+
+#: apps/ui/views_reminders.py:54
+msgid "Regra de lembrete excluida com sucesso."
+msgstr ""
+
+#: apps/ui/views_tasks.py:44
+msgid "Tarefa criada com sucesso."
+msgstr ""
+
+#: apps/ui/views_tasks.py:64
+msgid "Tarefa atualizada com sucesso."
+msgstr ""
+
+#: apps/ui/views_tasks.py:76
+msgid "Tarefa excluida com sucesso."
+msgstr ""
+
+#: config/settings.py:104
+msgid "English"
+msgstr ""
+
+#: config/settings.py:105
+msgid "Português (Brasil)"
+msgstr ""
+
+#: config/settings.py:106
+msgid "Português (Portugal)"
+msgstr ""
+
+#: templates/base.html:23
+msgid "Painel do aluno"
+msgstr "Painel do aluno"
+
+#: templates/base.html:26
+#, python-format
+msgid "Olá, %(name)s"
+msgstr "Olá, %(name)s"
+
+#: templates/base.html:31 templates/ui/auth_base.html:22
+msgid "Idioma"
+msgstr "Idioma"
+
+#: templates/base.html:50 templates/ui/onboarding.html:7
+msgid "Onboarding"
+msgstr "Onboarding"
+
+#: templates/base.html:53
+#: templates/ui/assessment/assessment_confirm_delete.html:8
+#: templates/ui/assessment/assessment_form.html:8
+#: templates/ui/course/course_confirm_delete.html:8
+#: templates/ui/course/course_detail.html:8
+#: templates/ui/course/course_form.html:8
+#: templates/ui/semester/semester_confirm_delete.html:8
+#: templates/ui/semester/semester_detail.html:8
+#: templates/ui/semester/semester_form.html:8
+#: templates/ui/semester/semester_list.html:8
+#: templates/ui/semester/semester_list.html:14 templates/ui/semesters.html:7
+msgid "Semestres"
+msgstr "Semestres"
+
+#: templates/base.html:56 templates/ui/tasks.html:7
+#: templates/ui/tasks/task_confirm_delete.html:8
+#: templates/ui/tasks/task_detail.html:8 templates/ui/tasks/task_form.html:8
+#: templates/ui/tasks/task_list.html:8 templates/ui/tasks/task_list.html:14
+msgid "Tarefas"
+msgstr "Tarefas"
+
+#: templates/base.html:59 templates/ui/agenda.html:7
+#: templates/ui/agenda/agenda_confirm_delete.html:8
+#: templates/ui/agenda/agenda_form.html:8
+#: templates/ui/agenda/agenda_list.html:8
+#: templates/ui/agenda/agenda_list.html:14
+msgid "Agenda"
+msgstr "Agenda"
+
+#: templates/base.html:65 templates/ui/messages.html:7
+#: templates/ui/messages/message_list.html:8
+#: templates/ui/messages/message_list.html:14
+msgid "Mensagens"
+msgstr "Mensagens"
+
+#: templates/base.html:71
+msgid "Sair"
+msgstr "Sair"
+
+#: templates/base.html:83
+msgid "Fechar"
+msgstr ""
+
+#: templates/ui/agenda.html:8
+#, python-format
+msgid "Eventos dos proximos %(days)s dias"
+msgstr "Eventos dos proximos %(days)s dias"
+
+#: templates/ui/agenda.html:14
+msgid "Buscar evento"
+msgstr "Buscar evento"
+
+#: templates/ui/agenda.html:19
+msgid "Todos os tipos"
+msgstr "Todos os tipos"
+
+#: templates/ui/agenda.html:27
+msgid "Proximos 7 dias"
+msgstr "Proximos 7 dias"
+
+#: templates/ui/agenda.html:28
+msgid "Proximos 15 dias"
+msgstr "Proximos 15 dias"
+
+#: templates/ui/agenda.html:29
+msgid "Proximos 30 dias"
+msgstr "Proximos 30 dias"
+
+#: templates/ui/agenda.html:30
+msgid "Proximos 60 dias"
+msgstr "Proximos 60 dias"
+
+#: templates/ui/agenda.html:31
+msgid "Proximos 90 dias"
+msgstr "Proximos 90 dias"
+
+#: templates/ui/agenda.html:35 templates/ui/messages/message_list.html:41
+#: templates/ui/semesters.html:29 templates/ui/tasks.html:45
+#: templates/ui/tasks/task_list.html:37
+msgid "Filtrar"
+msgstr "Filtrar"
+
+#: templates/ui/agenda.html:36 templates/ui/dashboard.html:15
+#: templates/ui/messages/message_list.html:44 templates/ui/semesters.html:30
+#: templates/ui/tasks.html:46 templates/ui/tasks/task_list.html:40
+msgid "Limpar"
+msgstr "Limpar"
+
+#: templates/ui/agenda.html:43
+msgid "Eventos"
+msgstr "Eventos"
+
+#: templates/ui/agenda.html:58 templates/ui/dashboard.html:81
+msgid "Nenhum evento nos proximos dias."
+msgstr "Nenhum evento nos proximos dias."
+
+#: templates/ui/agenda.html:65
+msgid "Lembretes ativos"
+msgstr "Lembretes ativos"
+
+#: templates/ui/agenda.html:72
+#, python-format
+msgid "%(minutes)s min antes"
+msgstr "%(minutes)s min antes"
+
+#: templates/ui/agenda.html:77
+msgid "Nenhuma regra ativa."
+msgstr "Nenhuma regra ativa."
+
+#: templates/ui/agenda/agenda_confirm_delete.html:9
+#: templates/ui/agenda/agenda_confirm_delete.html:15
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Excluir evento"
+msgstr "Ver semestres"
+
+#: templates/ui/agenda/agenda_confirm_delete.html:16
+msgid "Tem certeza que deseja excluir o evento"
+msgstr ""
+
+#: templates/ui/agenda/agenda_confirm_delete.html:19
+#: templates/ui/assessment/assessment_confirm_delete.html:21
+#: templates/ui/course/course_confirm_delete.html:20
+#: templates/ui/reminders/reminder_confirm_delete.html:19
+#: templates/ui/semester/semester_confirm_delete.html:19
+#: templates/ui/tasks/task_confirm_delete.html:19
+msgid "Cancelar"
+msgstr ""
+
+#: templates/ui/agenda/agenda_confirm_delete.html:20
+#: templates/ui/agenda/agenda_list.html:43
+#: templates/ui/assessment/assessment_confirm_delete.html:22
+#: templates/ui/course/course_confirm_delete.html:21
+#: templates/ui/course/course_detail.html:88
+#: templates/ui/reminders/reminder_confirm_delete.html:20
+#: templates/ui/reminders/reminder_list.html:55
+#: templates/ui/semester/semester_confirm_delete.html:20
+#: templates/ui/semester/semester_detail.html:71
+#: templates/ui/semester/semester_list.html:44
+#: templates/ui/tasks/task_confirm_delete.html:20
+#: templates/ui/tasks/task_detail.html:21 templates/ui/tasks/task_list.html:70
+msgid "Excluir"
+msgstr ""
+
+#: templates/ui/agenda/agenda_form.html:10
+#: templates/ui/agenda/agenda_form.html:20
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Editar evento"
+msgstr "Ver semestres"
+
+#: templates/ui/agenda/agenda_form.html:12
+#: templates/ui/agenda/agenda_form.html:23
+#: templates/ui/agenda/agenda_list.html:17
+#, fuzzy
+#| msgid "Proximos eventos"
+msgid "Novo evento"
+msgstr "Proximos eventos"
+
+#: templates/ui/agenda/agenda_form.html:24
+#, fuzzy
+#| msgid "Nenhum semestre cadastrado."
+msgid "Cadastre um novo evento."
+msgstr "Nenhum semestre cadastrado."
+
+#: templates/ui/agenda/agenda_form.html:27
+#: templates/ui/assessment/assessment_form.html:29
+#: templates/ui/course/course_detail.html:20
+#: templates/ui/course/course_form.html:28
+#: templates/ui/reminders/reminder_form.html:27
+#: templates/ui/semester/semester_detail.html:21
+#: templates/ui/semester/semester_form.html:27
+#: templates/ui/tasks/task_detail.html:19 templates/ui/tasks/task_form.html:27
+#, fuzzy
+#| msgid "Ocultar"
+msgid "Voltar"
+msgstr "Ocultar"
+
+#: templates/ui/agenda/agenda_form.html:50
+#: templates/ui/assessment/assessment_form.html:52
+#: templates/ui/course/course_form.html:51
+#: templates/ui/reminders/reminder_form.html:65
+#: templates/ui/semester/semester_form.html:50
+#: templates/ui/tasks/task_form.html:50
+msgid "Salvar"
+msgstr ""
+
+#: templates/ui/agenda/agenda_form.html:50
+#: templates/ui/assessment/assessment_form.html:52
+#: templates/ui/course/course_form.html:51
+#: templates/ui/reminders/reminder_form.html:65
+#: templates/ui/semester/semester_form.html:50
+#: templates/ui/tasks/task_form.html:50
+msgid "Criar"
+msgstr ""
+
+#: templates/ui/agenda/agenda_list.html:15
+#, fuzzy
+#| msgid "Nenhum evento nos proximos dias."
+msgid "Seus eventos e compromissos."
+msgstr "Nenhum evento nos proximos dias."
+
+#: templates/ui/agenda/agenda_list.html:27
+#, fuzzy
+#| msgid "Eventos"
+msgid "Evento"
+msgstr "Eventos"
+
+#: templates/ui/agenda/agenda_list.html:31
+#: templates/ui/course/course_detail.html:76
+#: templates/ui/reminders/reminder_list.html:31
+#: templates/ui/semester/semester_detail.html:59
+#: templates/ui/semester/semester_list.html:31
+#: templates/ui/tasks/task_list.html:57
+msgid "Acoes"
+msgstr ""
+
+#: templates/ui/agenda/agenda_list.html:42
+#: templates/ui/course/course_detail.html:21
+#: templates/ui/course/course_detail.html:87
+#: templates/ui/reminders/reminder_list.html:54
+#: templates/ui/semester/semester_detail.html:22
+#: templates/ui/semester/semester_detail.html:70
+#: templates/ui/semester/semester_list.html:43
+#: templates/ui/tasks/task_detail.html:20 templates/ui/tasks/task_list.html:69
+msgid "Editar"
+msgstr ""
+
+#: templates/ui/agenda/agenda_list.html:51
+#, fuzzy
+#| msgid "Nenhum semestre cadastrado."
+msgid "Nenhum evento cadastrado."
+msgstr "Nenhum semestre cadastrado."
+
+#: templates/ui/assessment/assessment_confirm_delete.html:11
+#: templates/ui/assessment/assessment_confirm_delete.html:17
+msgid "Excluir avaliacao"
+msgstr ""
+
+#: templates/ui/assessment/assessment_confirm_delete.html:18
+msgid "Tem certeza que deseja excluir a avaliacao"
+msgstr ""
+
+#: templates/ui/assessment/assessment_form.html:12
+#: templates/ui/assessment/assessment_form.html:22
+#, fuzzy
+#| msgid "Cadastrar avaliacao (API)"
+msgid "Editar avaliacao"
+msgstr "Cadastrar avaliacao (API)"
+
+#: templates/ui/assessment/assessment_form.html:14
+#: templates/ui/assessment/assessment_form.html:25
+msgid "Nova avaliacao"
+msgstr ""
+
+#: templates/ui/auth_base.html:10
+msgid "Campus Calm - Acesso"
+msgstr "Campus Calm - Acesso"
+
+#: templates/ui/course/course_confirm_delete.html:10
+#: templates/ui/course/course_confirm_delete.html:16
+#, fuzzy
+#| msgid "Progresso por disciplina"
+msgid "Excluir disciplina"
+msgstr "Progresso por disciplina"
+
+#: templates/ui/course/course_confirm_delete.html:17
+msgid "Tem certeza que deseja excluir a disciplina"
+msgstr ""
+
+#: templates/ui/course/course_detail.html:22
+msgid "Nova Avaliacao"
+msgstr ""
+
+#: templates/ui/course/course_detail.html:28
+#, fuzzy
+#| msgid "Cadastrar avaliacao (API)"
+msgid "Cadastre ao menos uma avaliacao para calcular a barra de progresso."
+msgstr "Cadastrar avaliacao (API)"
+
+#: templates/ui/course/course_detail.html:40 templates/ui/semesters.html:50
+msgid "Media atual"
+msgstr "Media atual"
+
+#: templates/ui/course/course_detail.html:44 templates/ui/semesters.html:52
+msgid "Falta para passar"
+msgstr "Falta para passar"
+
+#: templates/ui/course/course_detail.html:72
+msgid "Avaliacao"
+msgstr ""
+
+#: templates/ui/course/course_detail.html:73
+msgid "Nota"
+msgstr ""
+
+#: templates/ui/course/course_detail.html:96
+#, fuzzy
+#| msgid "Nenhuma tarefa cadastrada."
+msgid "Nenhuma avaliacao cadastrada."
+msgstr "Nenhuma tarefa cadastrada."
+
+#: templates/ui/course/course_form.html:11
+#: templates/ui/course/course_form.html:21
+#, fuzzy
+#| msgid "Progresso por disciplina"
+msgid "Editar disciplina"
+msgstr "Progresso por disciplina"
+
+#: templates/ui/course/course_form.html:13
+#: templates/ui/course/course_form.html:24
+#, fuzzy
+#| msgid "Disciplina"
+msgid "Nova disciplina"
+msgstr "Disciplina"
+
+#: templates/ui/dashboard.html:5
+msgid "Sem dados"
+msgstr "Sem dados"
+
+#: templates/ui/dashboard.html:9
+msgid "Resumo da semana"
+msgstr "Resumo da semana"
+
+#: templates/ui/dashboard.html:12
+msgid "Buscar tarefa ou evento"
+msgstr "Buscar tarefa ou evento"
+
+#: templates/ui/dashboard.html:14
+msgid "Aplicar"
+msgstr "Aplicar"
+
+#: templates/ui/dashboard.html:21
+msgid "Onboarding incompleto"
+msgstr "Onboarding incompleto"
+
+#: templates/ui/dashboard.html:22
+msgid "Finalize as etapas pendentes para liberar todo o painel."
+msgstr "Finalize as etapas pendentes para liberar todo o painel."
+
+#: templates/ui/dashboard.html:23 templates/ui/dashboard.html:148
+msgid "Continuar configuracao"
+msgstr "Continuar configuracao"
+
+#: templates/ui/dashboard.html:31
+msgid "Humor da semana"
+msgstr "Humor da semana"
+
+#: templates/ui/dashboard.html:33
+#, python-format
+msgid "%(total)s registros"
+msgstr "%(total)s registros"
+
+#: templates/ui/dashboard.html:40
+msgid "Minutos de foco"
+msgstr "Minutos de foco"
+
+#: templates/ui/dashboard.html:42
+msgid "ultimos 7 dias"
+msgstr "ultimos 7 dias"
+
+#: templates/ui/dashboard.html:49
+msgid "Estresse da semana"
+msgstr "Estresse da semana"
+
+#: templates/ui/dashboard.html:51
+msgid "media dos check-ins"
+msgstr "media dos check-ins"
+
+#: templates/ui/dashboard.html:58
+msgid "Proximos prazos"
+msgstr "Proximos prazos"
+
+#: templates/ui/dashboard.html:60
+msgid "tarefas e eventos"
+msgstr "tarefas e eventos"
+
+#: templates/ui/dashboard.html:69
+msgid "Proximos eventos"
+msgstr "Proximos eventos"
+
+#: templates/ui/dashboard.html:88
+msgid "Próximas tarefas"
+msgstr "Próximas tarefas"
+
+#: templates/ui/dashboard.html:100
+msgid "Nenhuma tarefa proxima."
+msgstr "Nenhuma tarefa proxima."
+
+#: templates/ui/dashboard.html:108
+msgid "Progresso por disciplina"
+msgstr "Progresso por disciplina"
+
+#: templates/ui/dashboard.html:118
+#, python-format
+msgid "Media atual: %(current)s | Media minima: %(passing)s"
+msgstr "Media atual: %(current)s | Media minima: %(passing)s"
+
+#: templates/ui/dashboard.html:126
+#: templates/ui/semester/semester_detail.html:79 templates/ui/semesters.html:85
+msgid "Nenhuma disciplina cadastrada."
+msgstr "Nenhuma disciplina cadastrada."
+
+#: templates/ui/dashboard.html:132
+msgid "Status do Onboarding"
+msgstr "Status do Onboarding"
+
+#: templates/ui/dashboard.html:139
+msgid "Pendente"
+msgstr "Pendente"
+
+#: templates/ui/dashboard.html:141
+msgid "Ok"
+msgstr "Ok"
+
+#: templates/ui/login.html:8
+msgid "Bem-estar e organizacao para universitarios"
+msgstr "Bem-estar e organizacao para universitarios"
+
+#: templates/ui/login.html:11
+msgid "Acesso ao painel"
+msgstr "Acesso ao painel"
+
+#: templates/ui/login.html:12
+msgid "Entre com seu email institucional ou pessoal para continuar."
+msgstr "Entre com seu email institucional ou pessoal para continuar."
+
+#: templates/ui/login.html:16
+msgid "Email ou senha invalidos. Tente novamente."
+msgstr "Email ou senha invalidos. Tente novamente."
+
+#: templates/ui/login.html:30
+msgid "Mostrar"
+msgstr "Mostrar"
+
+#: templates/ui/login.html:30
+msgid "Ocultar"
+msgstr "Ocultar"
+
+#: templates/ui/login.html:33
+msgid "Entrar"
+msgstr "Entrar"
+
+#: templates/ui/login.html:37
+msgid "Esqueci minha senha"
+msgstr "Esqueci minha senha"
+
+#: templates/ui/login.html:41
+msgid "Dica: use o mesmo login do sistema administrativo se ja tiver acesso."
+msgstr "Dica: use o mesmo login do sistema administrativo se ja tiver acesso."
+
+#: templates/ui/messages.html:8
+msgid "Avisos e comunicados in-app"
+msgstr "Avisos e comunicados in-app"
+
+#: templates/ui/messages.html:30 templates/ui/messages/message_list.html:79
+msgid "Nenhuma mensagem registrada."
+msgstr "Nenhuma mensagem registrada."
+
+#: templates/ui/messages/message_list.html:15
+msgid "Historico de notificacoes"
+msgstr ""
+
+#: templates/ui/messages/message_list.html:25 templates/ui/semesters.html:15
+#: templates/ui/tasks.html:29 templates/ui/tasks/task_list.html:30
+msgid "Todos os status"
+msgstr "Todos os status"
+
+#: templates/ui/messages/message_list.html:32
+#: templates/ui/messages/message_list.html:58
+msgid "Canal"
+msgstr ""
+
+#: templates/ui/messages/message_list.html:34
+#, fuzzy
+#| msgid "Todos os tipos"
+msgid "Todos os canais"
+msgstr "Todos os tipos"
+
+#: templates/ui/messages/message_list.html:60
+#, fuzzy
+#| msgid "Agenda"
+msgid "Agendado"
+msgstr "Agenda"
+
+#: templates/ui/onboarding.html:8
+msgid "Etapas para completar a configuracao"
+msgstr "Etapas para completar a configuracao"
+
+#: templates/ui/onboarding.html:34
+msgid "Acoes recomendadas"
+msgstr "Acoes recomendadas"
+
+#: templates/ui/onboarding.html:46
+msgid "Sugestoes rapidas"
+msgstr "Sugestoes rapidas"
+
+#: templates/ui/onboarding.html:49
+msgid "Ver semestres"
+msgstr "Ver semestres"
+
+#: templates/ui/onboarding.html:50
+msgid "Ver tarefas"
+msgstr "Ver tarefas"
+
+#: templates/ui/onboarding.html:51
+msgid "Ver agenda"
+msgstr "Ver agenda"
+
+#: templates/ui/onboarding.html:52
+msgid "Cadastrar avaliacao (API)"
+msgstr "Cadastrar avaliacao (API)"
+
+#: templates/ui/password_reset_complete.html:8
+msgid "Senha atualizada"
+msgstr "Senha atualizada"
+
+#: templates/ui/password_reset_complete.html:11
+msgid "Senha redefinida"
+msgstr "Senha redefinida"
+
+#: templates/ui/password_reset_complete.html:12
+msgid "Sua senha foi atualizada. Voce ja pode acessar o painel."
+msgstr "Sua senha foi atualizada. Voce ja pode acessar o painel."
+
+#: templates/ui/password_reset_complete.html:14
+msgid "Ir para o login"
+msgstr "Ir para o login"
+
+#: templates/ui/password_reset_confirm.html:8
+#: templates/ui/password_reset_confirm.html:15
+msgid "Nova senha"
+msgstr "Nova senha"
+
+#: templates/ui/password_reset_confirm.html:11
+msgid "Definir nova senha"
+msgstr "Definir nova senha"
+
+#: templates/ui/password_reset_confirm.html:19
+msgid "Confirmar nova senha"
+msgstr "Confirmar nova senha"
+
+#: templates/ui/password_reset_confirm.html:22
+msgid "Atualizar senha"
+msgstr "Atualizar senha"
+
+#: templates/ui/password_reset_done.html:8
+msgid "Email enviado"
+msgstr "Email enviado"
+
+#: templates/ui/password_reset_done.html:11
+msgid "Verifique sua caixa de entrada"
+msgstr "Verifique sua caixa de entrada"
+
+#: templates/ui/password_reset_done.html:12
+msgid ""
+"Se o email existir no sistema, voce recebera um link para redefinir a senha."
+msgstr ""
+"Se o email existir no sistema, voce recebera um link para redefinir a senha."
+
+#: templates/ui/password_reset_done.html:14
+#: templates/ui/password_reset_form.html:24
+msgid "Voltar ao login"
+msgstr "Voltar ao login"
+
+#: templates/ui/password_reset_form.html:8
+msgid "Recuperacao de acesso"
+msgstr "Recuperacao de acesso"
+
+#: templates/ui/password_reset_form.html:11
+msgid "Redefinir senha"
+msgstr "Redefinir senha"
+
+#: templates/ui/password_reset_form.html:12
+msgid "Informe seu email para receber o link de redefinicao."
+msgstr "Informe seu email para receber o link de redefinicao."
+
+#: templates/ui/password_reset_form.html:17
+msgid "Email"
+msgstr "Email"
+
+#: templates/ui/password_reset_form.html:18
+msgid "seu.email@universidade.edu"
+msgstr "seu.email@universidade.edu"
+
+#: templates/ui/password_reset_form.html:20
+msgid "Enviar link"
+msgstr "Enviar link"
+
+#: templates/ui/reminders/reminder_confirm_delete.html:9
+#: templates/ui/reminders/reminder_confirm_delete.html:15
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Excluir lembrete"
+msgstr "Ver semestres"
+
+#: templates/ui/reminders/reminder_confirm_delete.html:16
+msgid "Tem certeza que deseja excluir a regra de lembrete"
+msgstr ""
+
+#: templates/ui/reminders/reminder_form.html:10
+#: templates/ui/reminders/reminder_form.html:20
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Editar lembrete"
+msgstr "Ver semestres"
+
+#: templates/ui/reminders/reminder_form.html:12
+#: templates/ui/reminders/reminder_form.html:23
+#: templates/ui/reminders/reminder_list.html:17
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Novo lembrete"
+msgstr "Ver semestres"
+
+#: templates/ui/reminders/reminder_form.html:21
+msgid "Atualize sua regra de lembrete."
+msgstr ""
+
+#: templates/ui/reminders/reminder_form.html:24
+msgid "Crie uma nova regra de lembrete."
+msgstr ""
+
+#: templates/ui/reminders/reminder_list.html:15
+msgid "Configure suas regras de lembrete."
+msgstr ""
+
+#: templates/ui/reminders/reminder_list.html:50
+#, fuzzy
+#| msgid "Ativo"
+msgid "Inativo"
+msgstr "Ativo"
+
+#: templates/ui/reminders/reminder_list.html:63
+#, fuzzy
+#| msgid "Nenhuma tarefa cadastrada."
+msgid "Nenhuma regra de lembrete cadastrada."
+msgstr "Nenhuma tarefa cadastrada."
+
+#: templates/ui/semester/semester_confirm_delete.html:9
+#: templates/ui/semester/semester_confirm_delete.html:15
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Excluir semestre"
+msgstr "Ver semestres"
+
+#: templates/ui/semester/semester_confirm_delete.html:16
+msgid "Tem certeza que deseja excluir o semestre"
+msgstr ""
+
+#: templates/ui/semester/semester_detail.html:17
+msgid "Periodo"
+msgstr ""
+
+#: templates/ui/semester/semester_detail.html:23
+#, fuzzy
+#| msgid "Disciplina"
+msgid "Nova Disciplina"
+msgstr "Disciplina"
+
+#: templates/ui/semester/semester_detail.html:39
+#: templates/ui/semester/semester_list.html:29
+msgid "Termino"
+msgstr ""
+
+#: templates/ui/semester/semester_detail.html:56 templates/ui/semesters.html:47
+msgid "Disciplina"
+msgstr "Disciplina"
+
+#: templates/ui/semester/semester_detail.html:69
+#: templates/ui/semester/semester_list.html:42
+#: templates/ui/tasks/task_list.html:68
+msgid "Ver"
+msgstr ""
+
+#: templates/ui/semester/semester_form.html:10
+#: templates/ui/semester/semester_form.html:20
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Editar semestre"
+msgstr "Ver semestres"
+
+#: templates/ui/semester/semester_form.html:12
+#: templates/ui/semester/semester_form.html:23
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Novo semestre"
+msgstr "Ver semestres"
+
+#: templates/ui/semester/semester_form.html:24
+#, fuzzy
+#| msgid "Nenhum semestre cadastrado."
+msgid "Cadastre um novo semestre."
+msgstr "Nenhum semestre cadastrado."
+
+#: templates/ui/semester/semester_list.html:15
+msgid "Gerencie seus semestres e disciplinas."
+msgstr ""
+
+#: templates/ui/semester/semester_list.html:17
+#, fuzzy
+#| msgid "Semestres"
+msgid "Novo Semestre"
+msgstr "Semestres"
+
+#: templates/ui/semester/semester_list.html:27
+msgid "Nome"
+msgstr ""
+
+#: templates/ui/semester/semester_list.html:52 templates/ui/semesters.html:91
+msgid "Nenhum semestre cadastrado."
+msgstr "Nenhum semestre cadastrado."
+
+#: templates/ui/semesters.html:8
+msgid "Resumo das disciplinas e progresso"
+msgstr "Resumo das disciplinas e progresso"
+
+#: templates/ui/semesters.html:17
+msgid "Finalizado"
+msgstr "Finalizado"
+
+#: templates/ui/semesters.html:21
+#, fuzzy
+#| msgid "Progresso por disciplina"
+msgid "Filtrar por disciplina"
+msgstr "Progresso por disciplina"
+
+#: templates/ui/semesters.html:25
+msgid "Filtrar por professor"
+msgstr ""
+
+#: templates/ui/semesters.html:51
+msgid "Progresso"
+msgstr "Progresso"
+
+#: templates/ui/semesters.html:62
+msgid "Aprovado"
+msgstr "Aprovado"
+
+#: templates/ui/semesters.html:64
+msgid "Reprovado"
+msgstr "Reprovado"
+
+#: templates/ui/semesters.html:66 templates/ui/tasks.html:31
+#: templates/ui/tasks.html:76 templates/ui/tasks/task_list.html:32
+msgid "Em andamento"
+msgstr "Em andamento"
+
+#: templates/ui/tasks.html:8
+msgid "Lista de tarefas academicas"
+msgstr "Lista de tarefas academicas"
+
+#: templates/ui/tasks.html:14 templates/ui/tasks/task_list.html:25
+msgid "Buscar tarefa"
+msgstr "Buscar tarefa"
+
+#: templates/ui/tasks.html:19 templates/ui/tasks.html:59
+msgid "Stress"
+msgstr "Stress"
+
+#: templates/ui/tasks.html:30 templates/ui/tasks.html:78
+#: templates/ui/tasks/task_list.html:31
+msgid "A fazer"
+msgstr "A fazer"
+
+#: templates/ui/tasks.html:32 templates/ui/tasks.html:74
+#: templates/ui/tasks/task_list.html:33
+msgid "Concluida"
+msgstr "Concluida"
+
+#: templates/ui/tasks.html:37
+msgid "Todas as datas"
+msgstr "Todas as datas"
+
+#: templates/ui/tasks.html:38
+msgid "Atrasadas"
+msgstr "Atrasadas"
+
+#: templates/ui/tasks.html:39
+msgid "Hoje"
+msgstr "Hoje"
+
+#: templates/ui/tasks.html:40
+msgid "Proxima semana"
+msgstr "Proxima semana"
+
+#: templates/ui/tasks.html:41
+msgid "Proximo mes"
+msgstr "Proximo mes"
+
+#: templates/ui/tasks.html:58 templates/ui/tasks/task_detail.html:16
+#: templates/ui/tasks/task_list.html:54
+msgid "Entrega"
+msgstr "Entrega"
+
+#: templates/ui/tasks.html:87 templates/ui/tasks/task_list.html:78
+msgid "Nenhuma tarefa cadastrada."
+msgstr "Nenhuma tarefa cadastrada."
+
+#: templates/ui/tasks/task_confirm_delete.html:9
+#: templates/ui/tasks/task_confirm_delete.html:15
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Excluir tarefa"
+msgstr "Ver semestres"
+
+#: templates/ui/tasks/task_confirm_delete.html:16
+msgid "Tem certeza que deseja excluir a tarefa"
+msgstr ""
+
+#: templates/ui/tasks/task_detail.html:33
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Nivel de estresse"
+msgstr "Ver semestres"
+
+#: templates/ui/tasks/task_form.html:10 templates/ui/tasks/task_form.html:20
+#, fuzzy
+#| msgid "Ver semestres"
+msgid "Editar tarefa"
+msgstr "Ver semestres"
+
+#: templates/ui/tasks/task_form.html:12 templates/ui/tasks/task_form.html:23
+#: templates/ui/tasks/task_list.html:17
+#, fuzzy
+#| msgid "Buscar tarefa"
+msgid "Nova tarefa"
+msgstr "Buscar tarefa"
+
+#: templates/ui/tasks/task_form.html:24
+#, fuzzy
+#| msgid "Nenhum semestre cadastrado."
+msgid "Cadastre uma nova tarefa."
+msgstr "Nenhum semestre cadastrado."
+
+#: templates/ui/tasks/task_list.html:15
+msgid "Organize suas tarefas e prazos."
+msgstr ""
+
+#: templates/ui/tasks/task_list.html:24
+#, fuzzy
+#| msgid "Buscar evento"
+msgid "Buscar"
+msgstr "Buscar evento"
+
+#: templates/ui/tasks/task_list.html:53
+#, fuzzy
+#| msgid "Tarefas"
+msgid "Tarefa"
+msgstr "Tarefas"
+
+#: templates/ui/tasks/task_list.html:56
+#, fuzzy
+#| msgid "Stress"
+msgid "Estresse"
+msgstr "Stress"
+
+#: utils/constants.py:34
+msgid "Todo"
+msgstr "A fazer"
+
+#: utils/constants.py:35
+msgid "Doing"
+msgstr "Em andamento"
+
+#: utils/constants.py:36
+msgid "Done"
+msgstr "Concluída"
+
+#: utils/gating.py:15
+msgid "Complete seu perfil para continuar."
+msgstr ""
+
+#: utils/gating.py:16
+#, fuzzy
+#| msgid "Nenhum semestre cadastrado."
+msgid "Crie um semestre ativo."
+msgstr "Nenhum semestre cadastrado."
+
+#: utils/gating.py:17
+msgid "Cadastre ao menos uma disciplina."
+msgstr ""
+
+#: utils/gating.py:18
+#, fuzzy
+#| msgid "Cadastrar avaliacao (API)"
+msgid "Cadastre ao menos uma avaliacao."
+msgstr "Cadastrar avaliacao (API)"
+
+#: utils/gating.py:19
+msgid "Configure pelo menos uma regra de lembrete."
+msgstr ""
+
+#: utils/gating.py:20
+msgid "Tudo pronto para seu dashboard."
+msgstr ""

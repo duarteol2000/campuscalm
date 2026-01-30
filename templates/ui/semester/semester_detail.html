@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ui-semester-list' %}">{% trans "Semestres" %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ semester.name }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h1 class="h4 mb-1">{{ semester.name }}</h1>
+    <div class="text-muted">
+      {% trans "Periodo" %}: {{ semester.start_date|date:"d/m/Y" }} - {{ semester.end_date|date:"d/m/Y" }}
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'ui-semester-list' %}">{% trans "Voltar" %}</a>
+    <a class="btn btn-outline-primary" href="{% url 'ui-semester-edit' semester.pk %}">{% trans "Editar" %}</a>
+    <a class="btn btn-primary" href="{% url 'ui-course-create' semester.pk %}">{% trans "Nova Disciplina" %}</a>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="d-flex flex-wrap gap-3">
+      <div>
+        <div class="text-muted small">{% trans "Status" %}</div>
+        <div class="fw-semibold">{{ semester.get_status_display }}</div>
+      </div>
+      <div>
+        <div class="text-muted small">{% trans "Inicio" %}</div>
+        <div class="fw-semibold">{{ semester.start_date|date:"d/m/Y" }}</div>
+      </div>
+      <div>
+        <div class="text-muted small">{% trans "Termino" %}</div>
+        <div class="fw-semibold">{{ semester.end_date|date:"d/m/Y" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h6 mb-0">{% trans "Disciplinas" %}</h2>
+    </div>
+    {% if courses %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Disciplina" %}</th>
+              <th>{% trans "Professor" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th class="text-end">{% trans "Acoes" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for course in courses %}
+              <tr>
+                <td>{{ course.title }}</td>
+                <td>{{ course.teacher|default:"-" }}</td>
+                <td>{{ course.get_status_display }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-primary" href="{% url 'ui-course-detail' course.pk %}">{% trans "Ver" %}</a>
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-course-edit' course.pk %}">{% trans "Editar" %}</a>
+                  <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-course-delete' course.pk %}">{% trans "Excluir" %}</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">{% trans "Nenhuma disciplina cadastrada." %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Mensagens" %}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">{% trans "Mensagens" %}</h1>
+    <div class="text-muted">{% trans "Historico de notificacoes" %}</div>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get">
+      <div class="col-md-3">
+        <label class="form-label">{% trans "Status" %}</label>
+        <select class="form-select" name="status">
+          <option value="">{% trans "Todos os status" %}</option>
+          {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">{% trans "Canal" %}</label>
+        <select class="form-select" name="channel">
+          <option value="">{% trans "Todos os canais" %}</option>
+          {% for value, label in channel_choices %}
+            <option value="{{ value }}" {% if channel_filter == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-outline-primary w-100" type="submit">{% trans "Filtrar" %}</button>
+      </div>
+      <div class="col-md-2">
+        <a class="btn btn-outline-secondary w-100" href="{% url 'ui-message-list' %}">{% trans "Limpar" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if notifications %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Titulo" %}</th>
+              <th>{% trans "Canal" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th>{% trans "Agendado" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in notifications %}
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ item.title }}</div>
+                  <div class="text-muted small">{{ item.message|truncatechars:80 }}</div>
+                </td>
+                <td>{{ item.get_channel_display }}</td>
+                <td><span class="badge text-bg-light">{{ item.get_status_display }}</span></td>
+                <td>{{ item.scheduled_for|date:"d/m/Y H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">{% trans "Nenhuma mensagem registrada." %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

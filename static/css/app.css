@@ -41,6 +41,20 @@ body {
   font-weight: 600;
 }
 
+.sidebar-panel-title {
+  display: block;
+  width: 100%;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  background: #effaf2;
+  color: #2f6f45;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.1;
+  text-align: center;
+  box-sizing: border-box;
+}
+
 .card {
   border-radius: 10px;
   border: 1px solid #e2e8f0;
@@ -81,6 +95,10 @@ body {
   padding: 24px;
   position: relative;
   z-index: 1;
+}
+
+.auth-language-switcher {
+  z-index: 2;
 }
 
 .auth-card {

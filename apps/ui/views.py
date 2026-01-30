@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from agenda.models import CalendarEvent, ReminderRule
 from mood.models import MoodEntry
@@ -31,12 +32,12 @@ from utils.constants import (
 from utils.gating import STEPS, compute_status
 
 STEP_LABELS = {
-    "STEP_1_PROFILE": "Perfil",
-    "STEP_2_SEMESTER": "Semestre",
-    "STEP_3_COURSES": "Disciplinas",
-    "STEP_4_ASSESSMENTS": "Avaliacoes",
-    "STEP_5_REMINDERS": "Lembretes",
-    "STEP_6_DASHBOARD": "Dashboard",
+    "STEP_1_PROFILE": _("Perfil"),
+    "STEP_2_SEMESTER": _("Semestre"),
+    "STEP_3_COURSES": _("Disciplinas"),
+    "STEP_4_ASSESSMENTS": _("Avaliacoes"),
+    "STEP_5_REMINDERS": _("Lembretes"),
+    "STEP_6_DASHBOARD": _("Dashboard"),
 }
 
 
@@ -51,7 +52,7 @@ def _build_steps(progress):
                 "code": step,
                 "label": label,
                 "missing": is_missing,
-                "message": message if is_missing else "Concluido",
+                "message": message if is_missing else _("Concluido"),
             }
         )
     return {
@@ -349,11 +350,11 @@ def agenda_view(request):
 @login_required(login_url="/login/")
 def messages_view(request):
     user = request.user
-    messages = NotificationQueue.objects.filter(user=user, channel=CHANNEL_IN_APP).order_by("-scheduled_for")
+    notifications = NotificationQueue.objects.filter(user=user, channel=CHANNEL_IN_APP).order_by("-scheduled_for")
     return render(
         request,
         "ui/messages.html",
         {
-            "messages": messages,
+            "notifications": notifications,
         },
     )

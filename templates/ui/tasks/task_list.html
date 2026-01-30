@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Tarefas" %}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">{% trans "Tarefas" %}</h1>
+    <div class="text-muted">{% trans "Organize suas tarefas e prazos." %}</div>
+  </div>
+  <a class="btn btn-primary" href="{% url 'ui-task-create' %}">{% trans "Nova tarefa" %}</a>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get">
+      <div class="col-md-4">
+        <label class="form-label">{% trans "Buscar" %}</label>
+        <input class="form-control" type="text" name="q" value="{{ query }}" placeholder="{% trans "Buscar tarefa" %}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">{% trans "Status" %}</label>
+        <select class="form-select" name="status">
+          <option value="">{% trans "Todos os status" %}</option>
+          <option value="TODO" {% if status_filter == "TODO" %}selected{% endif %}>{% trans "A fazer" %}</option>
+          <option value="DOING" {% if status_filter == "DOING" %}selected{% endif %}>{% trans "Em andamento" %}</option>
+          <option value="DONE" {% if status_filter == "DONE" %}selected{% endif %}>{% trans "Concluida" %}</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-outline-primary w-100" type="submit">{% trans "Filtrar" %}</button>
+      </div>
+      <div class="col-md-2">
+        <a class="btn btn-outline-secondary w-100" href="{% url 'ui-task-list' %}">{% trans "Limpar" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if tasks %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Tarefa" %}</th>
+              <th>{% trans "Entrega" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th>{% trans "Estresse" %}</th>
+              <th class="text-end">{% trans "Acoes" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+              <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.due_date|date:"d/m/Y" }}</td>
+                <td><span class="badge text-bg-light">{{ task.get_status_display }}</span></td>
+                <td><span class="badge text-bg-secondary">{{ task.stress_level }}</span></td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-primary" href="{% url 'ui-task-detail' task.pk %}">{% trans "Ver" %}</a>
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-task-edit' task.pk %}">{% trans "Editar" %}</a>
+                  <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-task-delete' task.pk %}">{% trans "Excluir" %}</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">{% trans "Nenhuma tarefa cadastrada." %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

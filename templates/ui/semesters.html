@@ -1,32 +1,33 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div>
-    <h1 class="h4 mb-1">Semestres</h1>
-    <div class="text-muted">Resumo das disciplinas e progresso</div>
+    <h1 class="h4 mb-1">{% trans "Semestres" %}</h1>
+    <div class="text-muted">{% trans "Resumo das disciplinas e progresso" %}</div>
   </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">
   <div class="col-sm-4 col-md-2">
     <select class="form-select form-select-sm" name="status">
-      <option value="">Todos os status</option>
-      <option value="ACTIVE" {% if status_filter == "ACTIVE" %}selected{% endif %}>Ativo</option>
-      <option value="FINISHED" {% if status_filter == "FINISHED" %}selected{% endif %}>Finalizado</option>
+      <option value="">{% trans "Todos os status" %}</option>
+      <option value="ACTIVE" {% if status_filter == "ACTIVE" %}selected{% endif %}>{% trans "Ativo" %}</option>
+      <option value="FINISHED" {% if status_filter == "FINISHED" %}selected{% endif %}>{% trans "Finalizado" %}</option>
     </select>
   </div>
   <div class="col-sm-4 col-md-3">
-    <input class="form-control form-control-sm" type="text" name="course" placeholder="Filtrar por disciplina"
+    <input class="form-control form-control-sm" type="text" name="course" placeholder="{% trans "Filtrar por disciplina" %}"
            value="{{ course_query }}">
   </div>
   <div class="col-sm-4 col-md-3">
-    <input class="form-control form-control-sm" type="text" name="teacher" placeholder="Filtrar por professor"
+    <input class="form-control form-control-sm" type="text" name="teacher" placeholder="{% trans "Filtrar por professor" %}"
            value="{{ teacher_query }}">
   </div>
   <div class="col-auto">
-    <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
-    <a class="btn btn-sm btn-link" href="/semesters/?clear=1">Limpar</a>
+    <button class="btn btn-sm btn-outline-secondary" type="submit">{% trans "Filtrar" %}</button>
+    <a class="btn btn-sm btn-link" href="/semesters/?clear=1">{% trans "Limpar" %}</a>
   </div>
 </form>
 
@@ -43,12 +44,12 @@
             <table class="table table-sm align-middle">
               <thead>
                 <tr>
-                  <th>Disciplina</th>
-                  <th>Professor</th>
-                  <th>Status</th>
-                  <th>Media atual</th>
-                  <th>Progresso</th>
-                  <th>Falta para passar</th>
+                  <th>{% trans "Disciplina" %}</th>
+                  <th>{% trans "Professor" %}</th>
+                  <th>{% trans "Status" %}</th>
+                  <th>{% trans "Media atual" %}</th>
+                  <th>{% trans "Progresso" %}</th>
+                  <th>{% trans "Falta para passar" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,11 +59,11 @@
                     <td>{{ course.teacher|default:"-" }}</td>
                     <td>
                       {% if course.status == "PASSED" %}
-                        <span class="badge text-bg-success">Aprovado</span>
+                        <span class="badge text-bg-success">{% trans "Aprovado" %}</span>
                       {% elif course.status == "FAILED" %}
-                        <span class="badge text-bg-danger">Reprovado</span>
+                        <span class="badge text-bg-danger">{% trans "Reprovado" %}</span>
                       {% else %}
-                        <span class="badge text-bg-secondary">Em andamento</span>
+                        <span class="badge text-bg-secondary">{% trans "Em andamento" %}</span>
                       {% endif %}
                     </td>
                     <td>{{ course.current_average }}</td>
@@ -81,12 +82,12 @@
             </table>
           </div>
         {% else %}
-          <div class="text-muted">Nenhuma disciplina cadastrada.</div>
+          <div class="text-muted">{% trans "Nenhuma disciplina cadastrada." %}</div>
         {% endif %}
       </div>
     </div>
   {% endfor %}
 {% else %}
-  <div class="alert alert-info">Nenhum semestre cadastrado.</div>
+  <div class="alert alert-info">{% trans "Nenhum semestre cadastrado." %}</div>
 {% endif %}
 {% endblock %}

@@ -45,7 +45,7 @@ TEMPLATES = {
         title="Progresso em disciplina",
         body=(
             "Voce avancou bem na disciplina {course}. "
-            "Seu progresso atual esta em {progress}% e segue em evolucao."
+            "Seu progresso atual esta em {progress}% e segue em evolução."
         ),
         suggested_action="Manter pequenos blocos de estudo pode ajudar a seguir tranquilo.",
         priority=PRIORITY_NORMAL,
@@ -62,7 +62,7 @@ TEMPLATES = {
     (MESSAGE_WARNING, "low_progress_upcoming"): MessageTemplate(
         title="Atenção suave",
         body=(
-            "Talvez revisar {course} com pequenos blocos ajude a reduzir a pressao desta semana."
+            "Talvez revisar {course} com pequenos blocos ajuda a reduzir a pressão desta semana."
         ),
         suggested_action="Escolha um horario curto para revisar o conteudo mais importante.",
         priority=PRIORITY_HIGH,
@@ -72,7 +72,7 @@ TEMPLATES = {
         body=(
             "Voce atingiu a media necessaria em {course}. Otimo avanco."
         ),
-        suggested_action="Continue acompanhando as proximas avaliacoes com tranquilidade.",
+        suggested_action="Continue acompanhando as proximas avaliacões com tranquilidade.",
         priority=PRIORITY_NORMAL,
     ),
     (MESSAGE_ACHIEVEMENT, "semester_all_passed"): MessageTemplate(
@@ -88,7 +88,7 @@ TEMPLATES = {
         title="Continuidade do semestre",
         body=(
             "Algumas disciplinas ficaram abaixo da media no fechamento. "
-            "Isso nao diminui seu esforco."
+            "Isso não diminui seu esforco, siga firme."
         ),
         suggested_action="Podemos organizar um plano simples de retomada para o proximo ciclo.",
         priority=PRIORITY_NORMAL,

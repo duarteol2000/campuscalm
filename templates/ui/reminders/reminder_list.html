@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Lembretes" %}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h4 mb-1">{% trans "Lembretes" %}</h1>
+    <div class="text-muted">{% trans "Configure suas regras de lembrete." %}</div>
+  </div>
+  <a class="btn btn-primary" href="{% url 'ui-reminder-create' %}">{% trans "Novo lembrete" %}</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if reminders %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Tipo" %}</th>
+              <th>{% trans "Minutos antes" %}</th>
+              <th>{% trans "Canais" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th class="text-end">{% trans "Acoes" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reminder in reminders %}
+              <tr>
+                <td>{{ reminder.get_target_type_display }}</td>
+                <td>{{ reminder.remind_before_minutes }}</td>
+                <td>
+                  {% if reminder.channels %}
+                    {{ reminder.channels|join:", " }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if reminder.is_active %}
+                    <span class="badge text-bg-success">{% trans "Ativo" %}</span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">{% trans "Inativo" %}</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-reminder-edit' reminder.pk %}">{% trans "Editar" %}</a>
+                  <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-reminder-delete' reminder.pk %}">{% trans "Excluir" %}</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">{% trans "Nenhuma regra de lembrete cadastrada." %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

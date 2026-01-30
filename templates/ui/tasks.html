@@ -1,21 +1,22 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div>
-    <h1 class="h4 mb-1">Tarefas</h1>
-    <div class="text-muted">Lista de tarefas academicas</div>
+    <h1 class="h4 mb-1">{% trans "Tarefas" %}</h1>
+    <div class="text-muted">{% trans "Lista de tarefas academicas" %}</div>
   </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">
   <div class="col-sm-4 col-md-3">
-    <input class="form-control form-control-sm" type="text" name="q" placeholder="Buscar tarefa"
+    <input class="form-control form-control-sm" type="text" name="q" placeholder="{% trans "Buscar tarefa" %}"
            value="{{ search_query }}">
   </div>
   <div class="col-sm-4 col-md-2">
     <select class="form-select form-select-sm" name="stress">
-      <option value="">Stress</option>
+      <option value="">{% trans "Stress" %}</option>
       <option value="1" {% if stress_filter == "1" %}selected{% endif %}>1</option>
       <option value="2" {% if stress_filter == "2" %}selected{% endif %}>2</option>
       <option value="3" {% if stress_filter == "3" %}selected{% endif %}>3</option>
@@ -25,24 +26,24 @@
   </div>
   <div class="col-sm-4 col-md-3">
     <select class="form-select form-select-sm" name="status">
-      <option value="">Todos os status</option>
-      <option value="TODO" {% if status_filter == "TODO" %}selected{% endif %}>A fazer</option>
-      <option value="DOING" {% if status_filter == "DOING" %}selected{% endif %}>Em andamento</option>
-      <option value="DONE" {% if status_filter == "DONE" %}selected{% endif %}>Concluida</option>
+      <option value="">{% trans "Todos os status" %}</option>
+      <option value="TODO" {% if status_filter == "TODO" %}selected{% endif %}>{% trans "A fazer" %}</option>
+      <option value="DOING" {% if status_filter == "DOING" %}selected{% endif %}>{% trans "Em andamento" %}</option>
+      <option value="DONE" {% if status_filter == "DONE" %}selected{% endif %}>{% trans "Concluida" %}</option>
     </select>
   </div>
   <div class="col-sm-4 col-md-3">
     <select class="form-select form-select-sm" name="due">
-      <option value="">Todas as datas</option>
-      <option value="overdue" {% if due_filter == "overdue" %}selected{% endif %}>Atrasadas</option>
-      <option value="today" {% if due_filter == "today" %}selected{% endif %}>Hoje</option>
-      <option value="week" {% if due_filter == "week" %}selected{% endif %}>Proxima semana</option>
-      <option value="month" {% if due_filter == "month" %}selected{% endif %}>Proximo mes</option>
+      <option value="">{% trans "Todas as datas" %}</option>
+      <option value="overdue" {% if due_filter == "overdue" %}selected{% endif %}>{% trans "Atrasadas" %}</option>
+      <option value="today" {% if due_filter == "today" %}selected{% endif %}>{% trans "Hoje" %}</option>
+      <option value="week" {% if due_filter == "week" %}selected{% endif %}>{% trans "Proxima semana" %}</option>
+      <option value="month" {% if due_filter == "month" %}selected{% endif %}>{% trans "Proximo mes" %}</option>
     </select>
   </div>
   <div class="col-auto">
-    <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
-    <a class="btn btn-sm btn-link" href="/tasks/?clear=1">Limpar</a>
+    <button class="btn btn-sm btn-outline-secondary" type="submit">{% trans "Filtrar" %}</button>
+    <a class="btn btn-sm btn-link" href="/tasks/?clear=1">{% trans "Limpar" %}</a>
   </div>
 </form>
 
@@ -53,10 +54,10 @@
         <table class="table table-sm align-middle">
           <thead>
             <tr>
-              <th>Titulo</th>
-              <th>Entrega</th>
-              <th>Stress</th>
-              <th>Status</th>
+              <th>{% trans "Titulo" %}</th>
+              <th>{% trans "Entrega" %}</th>
+              <th>{% trans "Stress" %}</th>
+              <th>{% trans "Status" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -70,11 +71,11 @@
                 <td>{{ task.stress_level }}</td>
                 <td>
                   {% if task.status == "DONE" %}
-                    <span class="badge text-bg-success">Concluida</span>
+                    <span class="badge text-bg-success">{% trans "Concluida" %}</span>
                   {% elif task.status == "DOING" %}
-                    <span class="badge text-bg-primary">Em andamento</span>
+                    <span class="badge text-bg-primary">{% trans "Em andamento" %}</span>
                   {% else %}
-                    <span class="badge text-bg-secondary">A fazer</span>
+                    <span class="badge text-bg-secondary">{% trans "A fazer" %}</span>
                   {% endif %}
                 </td>
               </tr>
@@ -83,7 +84,7 @@
         </table>
       </div>
     {% else %}
-      <div class="text-muted">Nenhuma tarefa cadastrada.</div>
+      <div class="text-muted">{% trans "Nenhuma tarefa cadastrada." %}</div>
     {% endif %}
   </div>
 </div>

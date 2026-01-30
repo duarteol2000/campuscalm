@@ -1,10 +1,13 @@
-{% load static %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% get_available_languages as AVAILABLE_LANGUAGES %}
+{% get_language_info_list for AVAILABLE_LANGUAGES as languages %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="{{ CURRENT_LANGUAGE }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campus Calm - Acesso</title>
+  <title>{% trans "Campus Calm - Acesso" %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +15,25 @@
   <link href="{% static 'css/app.css' %}" rel="stylesheet">
 </head>
 <body class="bg-auth">
+  <div class="position-absolute top-0 end-0 p-3 auth-language-switcher">
+    <form method="post" action="{% url 'set_language' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <label class="form-label small text-muted mb-1" for="auth-language-select">{% trans "Idioma" %}</label>
+      {% with current_lang=CURRENT_LANGUAGE|cut:"-"|cut:"_" %}
+        <select id="auth-language-select" class="form-select form-select-sm" name="language" onchange="this.form.submit()">
+          {% for language in languages %}
+            {% with code=language.code|cut:"-"|cut:"_"|lower %}
+              <option value="{{ language.code }}"{% if language.code|cut:"-"|cut:"_" == current_lang %} selected{% endif %}>
+                {% if code == "ptbr" %}🇧🇷{% elif code == "ptpt" %}🇵🇹{% elif code == "en" %}🇺🇸{% else %}🌐{% endif %}
+                {{ language.name_local }}
+              </option>
+            {% endwith %}
+          {% endfor %}
+        </select>
+      {% endwith %}
+    </form>
+  </div>
   <div class="auth-shell">
     {% block content %}{% endblock %}
   </div>

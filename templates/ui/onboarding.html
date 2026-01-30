@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div>
-    <h1 class="h4 mb-1">Onboarding</h1>
-    <div class="text-muted">Etapas para completar a configuracao</div>
+    <h1 class="h4 mb-1">{% trans "Onboarding" %}</h1>
+    <div class="text-muted">{% trans "Etapas para completar a configuracao" %}</div>
   </div>
 </div>
 
@@ -30,7 +31,7 @@
 
 {% if required_actions %}
 <div class="card shadow-sm mt-3">
-  <div class="card-header bg-white fw-semibold">Acoes recomendadas</div>
+  <div class="card-header bg-white fw-semibold">{% trans "Acoes recomendadas" %}</div>
   <div class="card-body">
     <ul class="mb-0">
       {% for action in required_actions %}
@@ -42,13 +43,13 @@
 {% endif %}
 
 <div class="card shadow-sm mt-3">
-  <div class="card-header bg-white fw-semibold">Sugestoes rapidas</div>
+  <div class="card-header bg-white fw-semibold">{% trans "Sugestoes rapidas" %}</div>
   <div class="card-body">
     <ul class="mb-0">
-      <li><a href="/semesters/">Ver semestres</a></li>
-      <li><a href="/tasks/">Ver tarefas</a></li>
-      <li><a href="/agenda/">Ver agenda</a></li>
-      <li><a href="/api/semester/assessments/">Cadastrar avaliacao (API)</a></li>
+      <li><a href="/semesters/">{% trans "Ver semestres" %}</a></li>
+      <li><a href="/tasks/">{% trans "Ver tarefas" %}</a></li>
+      <li><a href="/agenda/">{% trans "Ver agenda" %}</a></li>
+      <li><a href="/api/semester/assessments/">{% trans "Cadastrar avaliacao (API)" %}</a></li>
     </ul>
   </div>
 </div>

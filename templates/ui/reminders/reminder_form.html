@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ui-reminder-list' %}">{% trans "Lembretes" %}</a></li>
+    {% if mode == "edit" %}
+      <li class="breadcrumb-item active" aria-current="page">{% trans "Editar lembrete" %}</li>
+    {% else %}
+      <li class="breadcrumb-item active" aria-current="page">{% trans "Novo lembrete" %}</li>
+    {% endif %}
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    {% if mode == "edit" %}
+      <h1 class="h4 mb-1">{% trans "Editar lembrete" %}</h1>
+      <div class="text-muted">{% trans "Atualize sua regra de lembrete." %}</div>
+    {% else %}
+      <h1 class="h4 mb-1">{% trans "Novo lembrete" %}</h1>
+      <div class="text-muted">{% trans "Crie uma nova regra de lembrete." %}</div>
+    {% endif %}
+  </div>
+  <a class="btn btn-outline-secondary" href="{% url 'ui-reminder-list' %}">{% trans "Voltar" %}</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="mb-3">
+        <label class="form-label">{{ form.target_type.label }}</label>
+        {{ form.target_type }}
+        {% for error in form.target_type.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.remind_before_minutes.label }}</label>
+        {{ form.remind_before_minutes }}
+        {% for error in form.remind_before_minutes.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.channels.label }}</label>
+        <div class="d-flex flex-column gap-1">
+          {{ form.channels }}
+        </div>
+        {% for error in form.channels.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div class="form-check mb-3">
+        {{ form.is_active }}
+        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+      </div>
+      <button class="btn btn-primary" type="submit">
+        {% if mode == "edit" %}{% trans "Salvar" %}{% else %}{% trans "Criar" %}{% endif %}
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

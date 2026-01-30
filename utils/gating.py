@@ -1,5 +1,7 @@
 from typing import List, Tuple
 
+from django.utils.translation import gettext_lazy as _
+
 from utils.constants import (
     STEP_1_PROFILE,
     STEP_2_SEMESTER,
@@ -10,12 +12,12 @@ from utils.constants import (
 )
 
 STEPS = [
-    (STEP_1_PROFILE, "has_profile", "Complete seu perfil para continuar."),
-    (STEP_2_SEMESTER, "has_active_semester", "Crie um semestre ativo."),
-    (STEP_3_COURSES, "has_at_least_one_course", "Cadastre ao menos uma disciplina."),
-    (STEP_4_ASSESSMENTS, "has_at_least_one_assessment", "Cadastre ao menos uma avaliacao."),
-    (STEP_5_REMINDERS, "has_reminder_rule", "Configure pelo menos uma regra de lembrete."),
-    (STEP_6_DASHBOARD, None, "Tudo pronto para seu dashboard."),
+    (STEP_1_PROFILE, "has_profile", _("Complete seu perfil para continuar.")),
+    (STEP_2_SEMESTER, "has_active_semester", _("Crie um semestre ativo.")),
+    (STEP_3_COURSES, "has_at_least_one_course", _("Cadastre ao menos uma disciplina.")),
+    (STEP_4_ASSESSMENTS, "has_at_least_one_assessment", _("Cadastre ao menos uma avaliacao.")),
+    (STEP_5_REMINDERS, "has_reminder_rule", _("Configure pelo menos uma regra de lembrete.")),
+    (STEP_6_DASHBOARD, None, _("Tudo pronto para seu dashboard.")),
 ]
 
 
