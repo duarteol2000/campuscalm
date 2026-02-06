@@ -1,0 +1,75 @@
+{% extends "ui/auth_base.html" %}
+{% load i18n %}
+
+{% block content %}
+<!-- Bloco: Card de primeiro acesso -->
+<div class="auth-card shadow-sm">
+  <div class="auth-header">
+    <div class="auth-logo">Campus Calm</div>
+    <div class="auth-subtitle">{% trans "Primeiro acesso" %}</div>
+  </div>
+  <div class="auth-body">
+    <h1 class="h5 mb-3">{% trans "Criar conta" %}</h1>
+    <p class="text-muted small mb-4">{% trans "Preencha seus dados para iniciar no Campus Calm." %}</p>
+
+    {% if form.errors %}
+      <!-- Bloco: Erros do formulario -->
+      <div class="alert alert-danger">
+        {% trans "Revise os campos abaixo." %}
+      </div>
+    {% endif %}
+
+    <!-- Bloco: Formulario -->
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">{{ form.name.label }}</label>
+        {{ form.name }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.email.label }}</label>
+        {{ form.email }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.phone.label }}</label>
+        {{ form.phone }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.plan.label }}</label>
+        {{ form.plan }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.password1.label }}</label>
+        {{ form.password1 }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.password2.label }}</label>
+        {{ form.password2 }}
+      </div>
+
+      <!-- Bloco: Consentimentos -->
+      <div class="mb-3">
+        <div class="form-check">
+          {{ form.allow_email }}
+          <label class="form-check-label" for="{{ form.allow_email.id_for_label }}">{{ form.allow_email.label }}</label>
+        </div>
+        <div class="form-check">
+          {{ form.allow_whatsapp }}
+          <label class="form-check-label" for="{{ form.allow_whatsapp.id_for_label }}">{{ form.allow_whatsapp.label }}</label>
+        </div>
+        <div class="form-check">
+          {{ form.allow_sms }}
+          <label class="form-check-label" for="{{ form.allow_sms.id_for_label }}">{{ form.allow_sms.label }}</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">{% trans "Criar conta" %}</button>
+    </form>
+
+    <!-- Bloco: Voltar para login -->
+    <div class="mt-3 text-center">
+      <a class="small text-decoration-none" href="{% url 'ui-login' %}">{% trans "Voltar para login" %}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

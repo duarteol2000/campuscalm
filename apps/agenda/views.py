@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from agenda.models import CalendarEvent, ReminderRule
 from agenda.serializers import CalendarEventSerializer, ReminderRuleSerializer
 from notifications.models import NotificationQueue
+from notifications.services.reminder_queue import create_notifications_for_user
 from planner.models import Task
 from utils.constants import (
     CHANNEL_EMAIL,
@@ -76,58 +77,6 @@ class GenerateRemindersView(APIView):
         if not allowed:
             return Response({"detail": message}, status=status.HTTP_403_FORBIDDEN)
 
-        now = timezone.now()
-        created = 0
-        rules = ReminderRule.objects.filter(user=request.user, is_active=True)
-        for rule in rules:
-            channels = rule.channels or [CHANNEL_EMAIL]
-            if rule.target_type == REMINDER_TARGET_EVENT:
-                events = CalendarEvent.objects.filter(user=request.user, start_at__gte=now)
-                for event in events:
-                    scheduled_for = event.start_at - timedelta(minutes=rule.remind_before_minutes)
-                    if scheduled_for < now:
-                        scheduled_for = now
-                    for channel in channels:
-                        title = f"Lembrete: {event.title}"
-                        exists = NotificationQueue.objects.filter(
-                            user=request.user,
-                            channel=channel,
-                            title=title,
-                            scheduled_for=scheduled_for,
-                        ).exists()
-                        if not exists:
-                            NotificationQueue.objects.create(
-                                user=request.user,
-                                channel=channel,
-                                title=title,
-                                message=f"Evento {event.title} em {event.start_at}.",
-                                scheduled_for=scheduled_for,
-                                status=NOTIF_PENDING,
-                            )
-                            created += 1
-            if rule.target_type == REMINDER_TARGET_TASK:
-                tasks = Task.objects.filter(user=request.user, due_date__gte=timezone.localdate())
-                for task in tasks:
-                    due_datetime = datetime.combine(task.due_date, time(9, 0), tzinfo=timezone.get_current_timezone())
-                    scheduled_for = due_datetime - timedelta(minutes=rule.remind_before_minutes)
-                    if scheduled_for < now:
-                        scheduled_for = now
-                    for channel in channels:
-                        title = f"Lembrete: {task.title}"
-                        exists = NotificationQueue.objects.filter(
-                            user=request.user,
-                            channel=channel,
-                            title=title,
-                            scheduled_for=scheduled_for,
-                        ).exists()
-                        if not exists:
-                            NotificationQueue.objects.create(
-                                user=request.user,
-                                channel=channel,
-                                title=title,
-                                message=f"Tarefa {task.title} vence em {task.due_date}.",
-                                scheduled_for=scheduled_for,
-                                status=NOTIF_PENDING,
-                            )
-                            created += 1
+        # Bloco: Geracao de lembretes para usuario
+        created = create_notifications_for_user(request.user)
         return Response({"created": created})

@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from agenda.models import CalendarEvent
+from notifications.services.reminder_queue import create_notifications_for_event
 from ui.forms_agenda import CalendarEventForm
 
 
@@ -29,6 +30,8 @@ def agenda_create_view(request):
             event = form.save(commit=False)
             event.user = request.user
             event.save()
+            # Bloco: Criacao de lembretes para evento
+            create_notifications_for_event(request.user, event)
             messages.success(request, _("Evento criado com sucesso."))
             return redirect("ui-agenda-list")
     else:
@@ -42,7 +45,9 @@ def agenda_update_view(request, pk: int):
     if request.method == "POST":
         form = CalendarEventForm(request.POST, instance=event, user=request.user)
         if form.is_valid():
-            form.save()
+            event = form.save()
+            # Bloco: Atualizacao de lembretes para evento
+            create_notifications_for_event(request.user, event)
             messages.success(request, _("Evento atualizado com sucesso."))
             return redirect("ui-agenda-list")
     else:

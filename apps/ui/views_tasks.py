@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
+from notifications.services.reminder_queue import create_notifications_for_task
 from planner.models import Task
 from ui.forms_tasks import TaskForm
 from utils.constants import TASK_DONE, TASK_DOING, TASK_TODO
@@ -41,6 +42,8 @@ def task_create_view(request):
             task = form.save(commit=False)
             task.user = request.user
             task.save()
+            # Bloco: Criacao de lembretes para tarefa
+            create_notifications_for_task(request.user, task)
             messages.success(request, _("Tarefa criada com sucesso."))
             return redirect("ui-task-detail", pk=task.pk)
     else:
@@ -60,7 +63,9 @@ def task_update_view(request, pk: int):
     if request.method == "POST":
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
-            form.save()
+            task = form.save()
+            # Bloco: Atualizacao de lembretes para tarefa
+            create_notifications_for_task(request.user, task)
             messages.success(request, _("Tarefa atualizada com sucesso."))
             return redirect("ui-task-detail", pk=task.pk)
     else:

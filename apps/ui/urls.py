@@ -2,7 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from ui.forms import EmailAuthenticationForm
-from ui.views import dashboard_view, onboarding_view, semesters_view, tasks_view
+from ui.views import dashboard_view, first_access_view, onboarding_view, semesters_view, tasks_view
 from ui.views_academic import (
     assessment_create_view,
     assessment_delete_view,
@@ -19,7 +19,13 @@ from ui.views_academic import (
 )
 from ui.views_agenda import agenda_create_view, agenda_delete_view, agenda_list_view, agenda_update_view
 from ui.views_messages import message_list_view
-from ui.views_reminders import reminder_create_view, reminder_delete_view, reminder_list_view, reminder_update_view
+from ui.views_reminders import (
+    reminder_create_view,
+    reminder_delete_view,
+    reminder_generate_view,
+    reminder_list_view,
+    reminder_update_view,
+)
 from ui.views_tasks import task_create_view, task_delete_view, task_detail_view, task_list_view, task_update_view
 
 urlpatterns = [
@@ -31,6 +37,7 @@ urlpatterns = [
         ),
         name="ui-login",
     ),
+    path("primeiro-acesso/", first_access_view, name="ui-first-access"),
     path("logout/", auth_views.LogoutView.as_view(next_page="/login/"), name="ui-logout"),
     path(
         "password-reset/",
@@ -91,6 +98,7 @@ urlpatterns = [
     path("agenda/<int:pk>/editar/", agenda_update_view, name="ui-agenda-edit"),
     path("agenda/<int:pk>/excluir/", agenda_delete_view, name="ui-agenda-delete"),
     path("lembretes/", reminder_list_view, name="ui-reminder-list"),
+    path("lembretes/gerar/", reminder_generate_view, name="ui-reminder-generate"),
     path("lembretes/novo/", reminder_create_view, name="ui-reminder-create"),
     path("lembretes/<int:pk>/editar/", reminder_update_view, name="ui-reminder-edit"),
     path("lembretes/<int:pk>/excluir/", reminder_delete_view, name="ui-reminder-delete"),

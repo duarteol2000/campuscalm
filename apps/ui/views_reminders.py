@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from agenda.models import ReminderRule
+from notifications.services.reminder_queue import create_notifications_for_user
 from ui.forms_reminders import ReminderRuleForm
 
 
@@ -11,6 +12,20 @@ from ui.forms_reminders import ReminderRuleForm
 def reminder_list_view(request):
     reminders = ReminderRule.objects.filter(user=request.user).order_by("-is_active", "remind_before_minutes")
     return render(request, "ui/reminders/reminder_list.html", {"reminders": reminders})
+
+
+# Bloco: Gerar lembretes via interface web
+@login_required(login_url="/login/")
+def reminder_generate_view(request):
+    if request.method != "POST":
+        return redirect("ui-reminder-list")
+
+    created = create_notifications_for_user(request.user)
+    if created:
+        messages.success(request, _("Lembretes gerados com sucesso."))
+    else:
+        messages.info(request, _("Nenhum lembrete novo foi gerado."))
+    return redirect("ui-reminder-list")
 
 
 @login_required(login_url="/login/")

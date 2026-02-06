@@ -1,13 +1,16 @@
 from collections import Counter
 from datetime import timedelta
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from accounts.models import User, UserProfile
 from agenda.models import CalendarEvent, ReminderRule
+from billing.models import Plan, UserSubscription
 from mood.models import MoodEntry
 from notifications.models import NotificationQueue
 from onboarding.services import refresh_user_progress
@@ -23,13 +26,19 @@ from utils.academic_progress import (
 from utils.constants import (
     EVENT_TYPE_CHOICES,
     CHANNEL_IN_APP,
+    CHANNEL_EMAIL,
+    CHANNEL_WHATSAPP,
+    NOTIF_PENDING,
     SEMESTER_ACTIVE,
     SEMESTER_FINISHED,
     TASK_DOING,
     TASK_DONE,
     TASK_TODO,
+    PLAN_LITE,
+    PLAN_PRO,
 )
 from utils.gating import STEPS, compute_status
+from ui.forms import FirstAccessForm
 
 STEP_LABELS = {
     "STEP_1_PROFILE": _("Perfil"),
@@ -62,6 +71,79 @@ def _build_steps(progress):
         "steps": steps,
         "is_complete": len(missing_steps) == 0,
     }
+
+
+# Bloco: Primeiro acesso / Criar conta
+def first_access_view(request):
+    if request.method == "POST":
+        form = FirstAccessForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"].lower()
+            if User.objects.filter(email=email).exists():
+                messages.error(request, _("Ja existe um usuario com este email."))
+                return render(request, "ui/first_access.html", {"form": form})
+
+            user = User.objects.create_user(
+                email=email,
+                name=form.cleaned_data["name"],
+                phone_number=form.cleaned_data.get("phone", ""),
+                password=form.cleaned_data["password1"],
+            )
+
+            profile, created_profile = UserProfile.objects.get_or_create(user=user)
+            profile.phone = form.cleaned_data.get("phone", "")
+            profile.plan = form.cleaned_data["plan"]
+            profile.allow_email = form.cleaned_data.get("allow_email", True)
+            profile.allow_whatsapp = form.cleaned_data.get("allow_whatsapp", True)
+            profile.allow_sms = form.cleaned_data.get("allow_sms", False)
+            profile.consent_at = timezone.now()
+            profile.save()
+
+            plan_code = PLAN_PRO if profile.plan == UserProfile.PLAN_PAID else PLAN_LITE
+            plan = Plan.objects.filter(code=plan_code, is_active=True).first()
+            if plan:
+                UserSubscription.objects.get_or_create(user=user, defaults={"plan": plan})
+
+            # Bloco: Notificacoes de boas-vindas
+            subject = _("Seu acesso ao Campus Calm esta pronto")
+            email_body = _(
+                "Ola {name},\n\n"
+                "Seu primeiro acesso ao Campus Calm foi criado com sucesso.\n"
+                "Sua conta ja esta ativa e voce ja pode entrar no sistema usando\n"
+                "seu e-mail e a senha cadastrada.\n\n"
+                "Seja bem-vindo(a)!"
+            ).format(name=user.name)
+            NotificationQueue.objects.create(
+                user=user,
+                channel=CHANNEL_EMAIL,
+                title=subject,
+                message=email_body,
+                scheduled_for=timezone.now(),
+                status=NOTIF_PENDING,
+            )
+
+            if profile.allow_whatsapp:
+                whatsapp_body = _(
+                    "Ola {name} 👋\n"
+                    "Seu primeiro acesso ao Campus Calm foi criado com sucesso.\n"
+                    "Sua conta ja esta ativa e voce ja pode acessar o sistema.\n"
+                    "Seja bem-vindo(a)!"
+                ).format(name=user.name)
+                NotificationQueue.objects.create(
+                    user=user,
+                    channel=CHANNEL_WHATSAPP,
+                    title=subject,
+                    message=whatsapp_body,
+                    scheduled_for=timezone.now(),
+                    status=NOTIF_PENDING,
+                    to_phone=profile.phone or user.phone_number,
+                )
+
+            messages.success(request, _("Conta criada com sucesso. Faca login para continuar."))
+            return redirect("ui-login")
+    else:
+        form = FirstAccessForm()
+    return render(request, "ui/first_access.html", {"form": form})
 
 
 @login_required(login_url="/login/")

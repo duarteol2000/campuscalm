@@ -50,6 +50,7 @@
 <div class="card shadow-sm">
   <div class="card-body">
     {% if notifications %}
+      <!-- Bloco: Tabela de historico -->
       <div class="table-responsive">
         <table class="table align-middle">
           <thead>
@@ -57,7 +58,11 @@
               <th>{% trans "Titulo" %}</th>
               <th>{% trans "Canal" %}</th>
               <th>{% trans "Status" %}</th>
+              <th>{% trans "Acao" %}</th>
               <th>{% trans "Agendado" %}</th>
+              <th>{% trans "Enviado" %}</th>
+              <th>{% trans "Tentativas" %}</th>
+              <th>{% trans "Erro" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -69,7 +74,23 @@
                 </td>
                 <td>{{ item.get_channel_display }}</td>
                 <td><span class="badge text-bg-light">{{ item.get_status_display }}</span></td>
+                <td>{{ item.get_action_taken_display }}</td>
                 <td>{{ item.scheduled_for|date:"d/m/Y H:i" }}</td>
+                <td>
+                  {% if item.sent_at %}
+                    {{ item.sent_at|date:"d/m/Y H:i" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>{{ item.attempts }}</td>
+                <td class="text-muted small">
+                  {% if item.last_error %}
+                    {{ item.last_error|truncatechars:40 }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
               </tr>
             {% endfor %}
           </tbody>

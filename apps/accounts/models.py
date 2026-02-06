@@ -41,3 +41,25 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+# Bloco: Perfil e consentimentos do usuario
+class UserProfile(models.Model):
+    PLAN_FREE = "FREE"
+    PLAN_PAID = "PAGO"
+    PLAN_CHOICES = [
+        (PLAN_FREE, "Free"),
+        (PLAN_PAID, "Pago"),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    phone = models.CharField(max_length=30, blank=True)
+    plan = models.CharField(max_length=10, choices=PLAN_CHOICES, default=PLAN_FREE)
+    allow_whatsapp = models.BooleanField(default=True)
+    allow_sms = models.BooleanField(default=False)
+    allow_email = models.BooleanField(default=True)
+    consent_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.email} profile"

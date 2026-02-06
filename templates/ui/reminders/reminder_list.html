@@ -14,7 +14,14 @@
     <h1 class="h4 mb-1">{% trans "Lembretes" %}</h1>
     <div class="text-muted">{% trans "Configure suas regras de lembrete." %}</div>
   </div>
-  <a class="btn btn-primary" href="{% url 'ui-reminder-create' %}">{% trans "Novo lembrete" %}</a>
+  <!-- Bloco: Acoes -->
+  <div class="d-flex gap-2">
+    <form method="post" action="{% url 'ui-reminder-generate' %}">
+      {% csrf_token %}
+      <button class="btn btn-outline-primary" type="submit">{% trans "Gerar lembretes" %}</button>
+    </form>
+    <a class="btn btn-primary" href="{% url 'ui-reminder-create' %}">{% trans "Novo lembrete" %}</a>
+  </div>
 </div>
 
 <div class="card shadow-sm">

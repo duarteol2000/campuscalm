@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from accounts.models import User
+from accounts.models import User, UserProfile
 
 
 @admin.register(User)
@@ -25,3 +25,9 @@ class UserAdmin(DjangoUserAdmin):
             },
         ),
     )
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "plan", "allow_email", "allow_whatsapp", "allow_sms", "consent_at")
+    list_filter = ("plan", "allow_email", "allow_whatsapp", "allow_sms")

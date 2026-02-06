@@ -139,6 +139,12 @@ LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
 
+# Bloco: WhatsApp Cloud API
+WHATSAPP_CLOUD_TOKEN = os.getenv("WHATSAPP_CLOUD_TOKEN", "")
+WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
+WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "")
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "")
+
 if DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         "https://*.ngrok-free.app",

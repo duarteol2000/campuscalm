@@ -37,6 +37,11 @@
       <a class="small text-decoration-none" href="/password-reset/">{% trans "Esqueci minha senha" %}</a>
     </div>
 
+    <!-- Bloco: Primeiro acesso -->
+    <div class="mt-2 text-center">
+      <a class="small text-decoration-none" href="{% url 'ui-first-access' %}">{% trans "Primeiro acesso / Criar conta" %}</a>
+    </div>
+
     <div class="auth-footer text-muted small mt-4">
       {% trans "Dica: use o mesmo login do sistema administrativo se ja tiver acesso." %}
     </div>

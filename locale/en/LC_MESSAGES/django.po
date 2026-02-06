@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Campus Calm\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-29 13:35-0300\n"
+"POT-Creation-Date: 2026-02-02 11:09-0300\n"
 "PO-Revision-Date: 2026-01-29 13:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -11,6 +11,58 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/ui/forms.py:8 apps/ui/forms.py:27 docs/full_dump_atual.txt:9526
+#: templates/ui/password_reset_form.html:17
+msgid "Email"
+msgstr "Email"
+
+#: apps/ui/forms.py:12 apps/ui/forms.py:41
+msgid "Senha"
+msgstr ""
+
+#: apps/ui/forms.py:22
+msgid "Free"
+msgstr ""
+
+#: apps/ui/forms.py:23
+msgid "Pago"
+msgstr ""
+
+#: apps/ui/forms.py:26 docs/full_dump_atual.txt:9908
+#: templates/ui/semester/semester_list.html:27
+msgid "Nome"
+msgstr "Name"
+
+#: apps/ui/forms.py:29
+msgid "Telefone (WhatsApp)"
+msgstr ""
+
+#: apps/ui/forms.py:35
+msgid "Plano"
+msgstr ""
+
+#: apps/ui/forms.py:46
+#, fuzzy
+#| msgid "Confirmar nova senha"
+msgid "Confirmar senha"
+msgstr "Confirm new password"
+
+#: apps/ui/forms.py:51
+msgid "Receber email"
+msgstr ""
+
+#: apps/ui/forms.py:57
+msgid "Receber WhatsApp"
+msgstr ""
+
+#: apps/ui/forms.py:63
+msgid "Receber SMS"
+msgstr ""
+
+#: apps/ui/forms.py:72
+msgid "As senhas nao conferem."
+msgstr ""
 
 #: apps/ui/forms_academic.py:13
 msgid "Nome do semestre"
@@ -25,10 +77,16 @@ msgid "Data de termino"
 msgstr "End date"
 
 #: apps/ui/forms_academic.py:16 apps/ui/forms_academic.py:35
-#: apps/ui/forms_tasks.py:16 templates/ui/course/course_detail.html:48
+#: apps/ui/forms_tasks.py:16 docs/full_dump_atual.txt:8924
+#: docs/full_dump_atual.txt:9279 docs/full_dump_atual.txt:9315
+#: docs/full_dump_atual.txt:9670 docs/full_dump_atual.txt:9768
+#: docs/full_dump_atual.txt:9795 docs/full_dump_atual.txt:9911
+#: docs/full_dump_atual.txt:9989 docs/full_dump_atual.txt:10092
+#: docs/full_dump_atual.txt:10195 docs/full_dump_atual.txt:10222
+#: docs/full_dump_atual.txt:10312 templates/ui/course/course_detail.html:48
 #: templates/ui/messages/message_list.html:23
-#: templates/ui/messages/message_list.html:59
-#: templates/ui/reminders/reminder_list.html:30
+#: templates/ui/messages/message_list.html:60
+#: templates/ui/reminders/reminder_list.html:37
 #: templates/ui/semester/semester_detail.html:31
 #: templates/ui/semester/semester_detail.html:58
 #: templates/ui/semester/semester_list.html:30 templates/ui/semesters.html:49
@@ -41,7 +99,8 @@ msgstr "Status"
 msgid "Nome da disciplina"
 msgstr "Course name"
 
-#: apps/ui/forms_academic.py:32 templates/ui/semester/semester_detail.html:57
+#: apps/ui/forms_academic.py:32 docs/full_dump_atual.txt:9794
+#: docs/full_dump_atual.txt:9988 templates/ui/semester/semester_detail.html:57
 #: templates/ui/semesters.html:48
 msgid "Professor"
 msgstr "Instructor"
@@ -50,7 +109,8 @@ msgstr "Instructor"
 msgid "Creditos"
 msgstr "Credits"
 
-#: apps/ui/forms_academic.py:34 templates/ui/course/course_detail.html:36
+#: apps/ui/forms_academic.py:34 docs/full_dump_atual.txt:8912
+#: templates/ui/course/course_detail.html:36
 msgid "Nota minima"
 msgstr "Passing grade"
 
@@ -67,7 +127,8 @@ msgid "A nota minima deve ser maior que zero."
 msgstr "The minimum grade must be greater than zero."
 
 #: apps/ui/forms_academic.py:61 apps/ui/forms_agenda.py:13
-#: apps/ui/forms_tasks.py:12 templates/ui/messages/message_list.html:57
+#: apps/ui/forms_tasks.py:12 docs/full_dump_atual.txt:9313
+#: docs/full_dump_atual.txt:10309 templates/ui/messages/message_list.html:58
 #: templates/ui/tasks.html:57
 msgid "Titulo"
 msgstr "Title"
@@ -80,11 +141,13 @@ msgstr "Score"
 msgid "Nota maxima"
 msgstr "Max score"
 
-#: apps/ui/forms_academic.py:64 templates/ui/course/course_detail.html:74
+#: apps/ui/forms_academic.py:64 docs/full_dump_atual.txt:8950
+#: templates/ui/course/course_detail.html:74
 msgid "Peso"
 msgstr "Weight"
 
-#: apps/ui/forms_academic.py:65 templates/ui/course/course_detail.html:75
+#: apps/ui/forms_academic.py:65 docs/full_dump_atual.txt:8951
+#: templates/ui/course/course_detail.html:75
 msgid "Data"
 msgstr "Date"
 
@@ -96,18 +159,22 @@ msgstr "The score cannot be greater than the max score."
 msgid "O peso deve ser maior ou igual a zero."
 msgstr "The weight must be greater than or equal to zero."
 
-#: apps/ui/forms_agenda.py:14 templates/ui/agenda/agenda_list.html:28
-#: templates/ui/reminders/reminder_list.html:27
+#: apps/ui/forms_agenda.py:14 docs/full_dump_atual.txt:8599
+#: docs/full_dump_atual.txt:9667 templates/ui/agenda/agenda_list.html:28
+#: templates/ui/reminders/reminder_list.html:34
 msgid "Tipo"
 msgstr "Type"
 
-#: apps/ui/forms_agenda.py:15 templates/ui/agenda/agenda_list.html:29
+#: apps/ui/forms_agenda.py:15 docs/full_dump_atual.txt:8600
+#: docs/full_dump_atual.txt:9772 docs/full_dump_atual.txt:9909
+#: templates/ui/agenda/agenda_list.html:29
 #: templates/ui/semester/semester_detail.html:35
 #: templates/ui/semester/semester_list.html:28
 msgid "Inicio"
 msgstr "Start"
 
-#: apps/ui/forms_agenda.py:16 templates/ui/agenda/agenda_list.html:30
+#: apps/ui/forms_agenda.py:16 docs/full_dump_atual.txt:8601
+#: templates/ui/agenda/agenda_list.html:30
 msgid "Fim"
 msgstr "End"
 
@@ -123,7 +190,8 @@ msgstr "Notes"
 msgid "Estudos"
 msgstr "Studies"
 
-#: apps/ui/forms_reminders.py:19 templates/ui/reminders/reminder_list.html:29
+#: apps/ui/forms_reminders.py:19 docs/full_dump_atual.txt:9669
+#: templates/ui/reminders/reminder_list.html:36
 msgid "Canais"
 msgstr "Channels"
 
@@ -131,11 +199,13 @@ msgstr "Channels"
 msgid "Tipo de alvo"
 msgstr "Target type"
 
-#: apps/ui/forms_reminders.py:28 templates/ui/reminders/reminder_list.html:28
+#: apps/ui/forms_reminders.py:28 docs/full_dump_atual.txt:9668
+#: templates/ui/reminders/reminder_list.html:35
 msgid "Minutos antes"
 msgstr "Minutes before"
 
-#: apps/ui/forms_reminders.py:29 templates/ui/reminders/reminder_list.html:48
+#: apps/ui/forms_reminders.py:29 docs/full_dump_atual.txt:9688
+#: docs/full_dump_atual.txt:9956 templates/ui/reminders/reminder_list.html:55
 #: templates/ui/semesters.html:16
 msgid "Ativo"
 msgstr "Active"
@@ -144,7 +214,8 @@ msgstr "Active"
 msgid "Informe um valor maior que zero."
 msgstr "Enter a value greater than zero."
 
-#: apps/ui/forms_tasks.py:13 templates/ui/tasks/task_detail.html:37
+#: apps/ui/forms_tasks.py:13 docs/full_dump_atual.txt:10100
+#: templates/ui/tasks/task_detail.html:37
 msgid "Descricao"
 msgstr "Description"
 
@@ -156,31 +227,46 @@ msgstr "Due date"
 msgid "Nivel de estresse(0 a 5)"
 msgstr "Stress level (0 to 5)"
 
-#: apps/ui/views.py:35
+#: apps/ui/views.py:41
 msgid "Perfil"
 msgstr "Profile"
 
-#: apps/ui/views.py:36
+#: apps/ui/views.py:42
 msgid "Semestre"
 msgstr "Semester"
 
-#: apps/ui/views.py:37 templates/ui/semester/semester_detail.html:49
+#: apps/ui/views.py:43 docs/full_dump_atual.txt:9786
+#: templates/ui/semester/semester_detail.html:49
 msgid "Disciplinas"
 msgstr "Courses"
 
-#: apps/ui/views.py:38 templates/ui/course/course_detail.html:65
+#: apps/ui/views.py:44 docs/full_dump_atual.txt:8941
+#: templates/ui/course/course_detail.html:65
 msgid "Avaliacoes"
 msgstr "Assessments"
 
-#: apps/ui/views.py:39 templates/base.html:62
-#: templates/ui/reminders/reminder_confirm_delete.html:8
+#: apps/ui/views.py:45 docs/full_dump_atual.txt:8436
+#: docs/full_dump_atual.txt:9548 docs/full_dump_atual.txt:9575
+#: docs/full_dump_atual.txt:9648 docs/full_dump_atual.txt:9654
+#: templates/base.html:62 templates/ui/reminders/reminder_confirm_delete.html:8
 #: templates/ui/reminders/reminder_form.html:8
 #: templates/ui/reminders/reminder_list.html:8
 #: templates/ui/reminders/reminder_list.html:14
 msgid "Lembretes"
 msgstr "Reminders"
 
-#: apps/ui/views.py:40 templates/base.html:47
+#: apps/ui/views.py:46 docs/full_dump_atual.txt:8421
+#: docs/full_dump_atual.txt:8493 docs/full_dump_atual.txt:8520
+#: docs/full_dump_atual.txt:8578 docs/full_dump_atual.txt:8722
+#: docs/full_dump_atual.txt:8751 docs/full_dump_atual.txt:8855
+#: docs/full_dump_atual.txt:8883 docs/full_dump_atual.txt:8986
+#: docs/full_dump_atual.txt:9046 docs/full_dump_atual.txt:9263
+#: docs/full_dump_atual.txt:9547 docs/full_dump_atual.txt:9574
+#: docs/full_dump_atual.txt:9647 docs/full_dump_atual.txt:9717
+#: docs/full_dump_atual.txt:9744 docs/full_dump_atual.txt:9830
+#: docs/full_dump_atual.txt:9888 docs/full_dump_atual.txt:10043
+#: docs/full_dump_atual.txt:10070 docs/full_dump_atual.txt:10116
+#: docs/full_dump_atual.txt:10174 templates/base.html:47
 #: templates/ui/agenda/agenda_confirm_delete.html:7
 #: templates/ui/agenda/agenda_form.html:7
 #: templates/ui/agenda/agenda_list.html:7
@@ -203,9 +289,17 @@ msgstr "Reminders"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: apps/ui/views.py:55
+#: apps/ui/views.py:61
 msgid "Concluido"
 msgstr "Completed"
+
+#: apps/ui/views.py:80
+msgid "Ja existe um usuario com este email."
+msgstr ""
+
+#: apps/ui/views.py:104
+msgid "Conta criada com sucesso. Faca login para continuar."
+msgstr ""
 
 #: apps/ui/views_academic.py:25
 msgid "Semestre criado com sucesso."
@@ -243,39 +337,51 @@ msgstr "Assessment updated successfully."
 msgid "Avaliacao excluida com sucesso."
 msgstr "Assessment deleted successfully."
 
-#: apps/ui/views_agenda.py:32
+#: apps/ui/views_agenda.py:35
 msgid "Evento criado com sucesso."
 msgstr "Event created successfully."
 
-#: apps/ui/views_agenda.py:46
+#: apps/ui/views_agenda.py:51
 msgid "Evento atualizado com sucesso."
 msgstr "Event updated successfully."
 
-#: apps/ui/views_agenda.py:58
+#: apps/ui/views_agenda.py:63
 msgid "Evento excluido com sucesso."
 msgstr "Event deleted successfully."
 
-#: apps/ui/views_reminders.py:24
+#: apps/ui/views_reminders.py:25
+#, fuzzy
+#| msgid "Semestre criado com sucesso."
+msgid "Lembretes gerados com sucesso."
+msgstr "Semester created successfully."
+
+#: apps/ui/views_reminders.py:27
+#, fuzzy
+#| msgid "Nenhum semestre cadastrado."
+msgid "Nenhum lembrete novo foi gerado."
+msgstr "No semesters registered."
+
+#: apps/ui/views_reminders.py:39
 msgid "Regra de lembrete criada com sucesso."
 msgstr "Reminder rule created successfully."
 
-#: apps/ui/views_reminders.py:38
+#: apps/ui/views_reminders.py:53
 msgid "Regra de lembrete atualizada com sucesso."
 msgstr "Reminder rule updated successfully."
 
-#: apps/ui/views_reminders.py:54
+#: apps/ui/views_reminders.py:69
 msgid "Regra de lembrete excluida com sucesso."
 msgstr "Reminder rule deleted successfully."
 
-#: apps/ui/views_tasks.py:44
+#: apps/ui/views_tasks.py:47
 msgid "Tarefa criada com sucesso."
 msgstr "Task created successfully."
 
-#: apps/ui/views_tasks.py:64
+#: apps/ui/views_tasks.py:69
 msgid "Tarefa atualizada com sucesso."
 msgstr "Task updated successfully."
 
-#: apps/ui/views_tasks.py:76
+#: apps/ui/views_tasks.py:81
 msgid "Tarefa excluida com sucesso."
 msgstr "Task deleted successfully."
 
@@ -291,23 +397,31 @@ msgstr ""
 msgid "Português (Portugal)"
 msgstr ""
 
-#: templates/base.html:23
+#: docs/full_dump_atual.txt:8397 templates/base.html:23
 msgid "Painel do aluno"
 msgstr "Student dashboard"
 
-#: templates/base.html:26
+#: docs/full_dump_atual.txt:8400 templates/base.html:26
 #, python-format
 msgid "Olá, %(name)s"
 msgstr "Hello, %(name)s"
 
+#: docs/full_dump_atual.txt:8405 docs/full_dump_atual.txt:8826
 #: templates/base.html:31 templates/ui/auth_base.html:22
 msgid "Idioma"
 msgstr "Language"
 
+#: docs/full_dump_atual.txt:8424 docs/full_dump_atual.txt:9386
 #: templates/base.html:50 templates/ui/onboarding.html:7
 msgid "Onboarding"
 msgstr "Onboarding"
 
+#: docs/full_dump_atual.txt:8427 docs/full_dump_atual.txt:8723
+#: docs/full_dump_atual.txt:8752 docs/full_dump_atual.txt:8856
+#: docs/full_dump_atual.txt:8884 docs/full_dump_atual.txt:8987
+#: docs/full_dump_atual.txt:9718 docs/full_dump_atual.txt:9745
+#: docs/full_dump_atual.txt:9831 docs/full_dump_atual.txt:9889
+#: docs/full_dump_atual.txt:9895 docs/full_dump_atual.txt:9947
 #: templates/base.html:53
 #: templates/ui/assessment/assessment_confirm_delete.html:8
 #: templates/ui/assessment/assessment_form.html:8
@@ -322,13 +436,19 @@ msgstr "Onboarding"
 msgid "Semestres"
 msgstr "Semesters"
 
-#: templates/base.html:56 templates/ui/tasks.html:7
-#: templates/ui/tasks/task_confirm_delete.html:8
+#: docs/full_dump_atual.txt:8430 docs/full_dump_atual.txt:10044
+#: docs/full_dump_atual.txt:10071 docs/full_dump_atual.txt:10117
+#: docs/full_dump_atual.txt:10175 docs/full_dump_atual.txt:10181
+#: docs/full_dump_atual.txt:10259 templates/base.html:56
+#: templates/ui/tasks.html:7 templates/ui/tasks/task_confirm_delete.html:8
 #: templates/ui/tasks/task_detail.html:8 templates/ui/tasks/task_form.html:8
 #: templates/ui/tasks/task_list.html:8 templates/ui/tasks/task_list.html:14
 msgid "Tarefas"
 msgstr "Tasks"
 
+#: docs/full_dump_atual.txt:8433 docs/full_dump_atual.txt:8494
+#: docs/full_dump_atual.txt:8521 docs/full_dump_atual.txt:8579
+#: docs/full_dump_atual.txt:8585 docs/full_dump_atual.txt:8636
 #: templates/base.html:59 templates/ui/agenda.html:7
 #: templates/ui/agenda/agenda_confirm_delete.html:8
 #: templates/ui/agenda/agenda_form.html:8
@@ -337,95 +457,36 @@ msgstr "Tasks"
 msgid "Agenda"
 msgstr "Calendar"
 
+#: docs/full_dump_atual.txt:8439 docs/full_dump_atual.txt:9264
+#: docs/full_dump_atual.txt:9270 docs/full_dump_atual.txt:9349
 #: templates/base.html:65 templates/ui/messages.html:7
 #: templates/ui/messages/message_list.html:8
 #: templates/ui/messages/message_list.html:14
 msgid "Mensagens"
 msgstr "Messages"
 
-#: templates/base.html:71
+#: docs/full_dump_atual.txt:8445 templates/base.html:71
 msgid "Sair"
 msgstr "Sign out"
 
-#: templates/base.html:83
+#: docs/full_dump_atual.txt:8457 templates/base.html:83
 msgid "Fechar"
 msgstr ""
 
-#: templates/ui/agenda.html:8
-#, python-format
-msgid "Eventos dos proximos %(days)s dias"
-msgstr "Events for the next %(days)s days"
-
-#: templates/ui/agenda.html:14
-msgid "Buscar evento"
-msgstr "Search event"
-
-#: templates/ui/agenda.html:19
-msgid "Todos os tipos"
-msgstr "All types"
-
-#: templates/ui/agenda.html:27
-msgid "Proximos 7 dias"
-msgstr "Next 7 days"
-
-#: templates/ui/agenda.html:28
-msgid "Proximos 15 dias"
-msgstr "Next 15 days"
-
-#: templates/ui/agenda.html:29
-msgid "Proximos 30 dias"
-msgstr "Next 30 days"
-
-#: templates/ui/agenda.html:30
-msgid "Proximos 60 dias"
-msgstr "Next 60 days"
-
-#: templates/ui/agenda.html:31
-msgid "Proximos 90 dias"
-msgstr "Next 90 days"
-
-#: templates/ui/agenda.html:35 templates/ui/messages/message_list.html:41
-#: templates/ui/semesters.html:29 templates/ui/tasks.html:45
-#: templates/ui/tasks/task_list.html:37
-msgid "Filtrar"
-msgstr "Filter"
-
-#: templates/ui/agenda.html:36 templates/ui/dashboard.html:15
-#: templates/ui/messages/message_list.html:44 templates/ui/semesters.html:30
-#: templates/ui/tasks.html:46 templates/ui/tasks/task_list.html:40
-msgid "Limpar"
-msgstr "Clear"
-
-#: templates/ui/agenda.html:43
-msgid "Eventos"
-msgstr "Events"
-
-#: templates/ui/agenda.html:58 templates/ui/dashboard.html:81
-msgid "Nenhum evento nos proximos dias."
-msgstr "No events in the next few days."
-
-#: templates/ui/agenda.html:65
-msgid "Lembretes ativos"
-msgstr "Active reminders"
-
-#: templates/ui/agenda.html:72
-#, python-format
-msgid "%(minutes)s min antes"
-msgstr "%(minutes)s min before"
-
-#: templates/ui/agenda.html:77
-msgid "Nenhuma regra ativa."
-msgstr "No active rule."
-
+#: docs/full_dump_atual.txt:8495 docs/full_dump_atual.txt:8501
 #: templates/ui/agenda/agenda_confirm_delete.html:9
 #: templates/ui/agenda/agenda_confirm_delete.html:15
 msgid "Excluir evento"
 msgstr "Delete event"
 
+#: docs/full_dump_atual.txt:8502
 #: templates/ui/agenda/agenda_confirm_delete.html:16
 msgid "Tem certeza que deseja excluir o evento"
 msgstr "Are you sure you want to delete the event"
 
+#: docs/full_dump_atual.txt:8505 docs/full_dump_atual.txt:8736
+#: docs/full_dump_atual.txt:8868 docs/full_dump_atual.txt:9559
+#: docs/full_dump_atual.txt:9729 docs/full_dump_atual.txt:10055
 #: templates/ui/agenda/agenda_confirm_delete.html:19
 #: templates/ui/assessment/assessment_confirm_delete.html:21
 #: templates/ui/course/course_confirm_delete.html:20
@@ -435,13 +496,20 @@ msgstr "Are you sure you want to delete the event"
 msgid "Cancelar"
 msgstr "Cancel"
 
+#: docs/full_dump_atual.txt:8506 docs/full_dump_atual.txt:8614
+#: docs/full_dump_atual.txt:8737 docs/full_dump_atual.txt:8869
+#: docs/full_dump_atual.txt:8964 docs/full_dump_atual.txt:9560
+#: docs/full_dump_atual.txt:9695 docs/full_dump_atual.txt:9730
+#: docs/full_dump_atual.txt:9808 docs/full_dump_atual.txt:9925
+#: docs/full_dump_atual.txt:10056 docs/full_dump_atual.txt:10084
+#: docs/full_dump_atual.txt:10237
 #: templates/ui/agenda/agenda_confirm_delete.html:20
 #: templates/ui/agenda/agenda_list.html:43
 #: templates/ui/assessment/assessment_confirm_delete.html:22
 #: templates/ui/course/course_confirm_delete.html:21
 #: templates/ui/course/course_detail.html:88
 #: templates/ui/reminders/reminder_confirm_delete.html:20
-#: templates/ui/reminders/reminder_list.html:55
+#: templates/ui/reminders/reminder_list.html:62
 #: templates/ui/semester/semester_confirm_delete.html:20
 #: templates/ui/semester/semester_detail.html:71
 #: templates/ui/semester/semester_list.html:44
@@ -450,22 +518,28 @@ msgstr "Cancel"
 msgid "Excluir"
 msgstr "Delete"
 
+#: docs/full_dump_atual.txt:8523 docs/full_dump_atual.txt:8533
 #: templates/ui/agenda/agenda_form.html:10
 #: templates/ui/agenda/agenda_form.html:20
 msgid "Editar evento"
 msgstr "Edit event"
 
-#: templates/ui/agenda/agenda_form.html:12
+#: docs/full_dump_atual.txt:8525 docs/full_dump_atual.txt:8536
+#: docs/full_dump_atual.txt:8588 templates/ui/agenda/agenda_form.html:12
 #: templates/ui/agenda/agenda_form.html:23
 #: templates/ui/agenda/agenda_list.html:17
 msgid "Novo evento"
 msgstr "New event"
 
-#: templates/ui/agenda/agenda_form.html:24
+#: docs/full_dump_atual.txt:8537 templates/ui/agenda/agenda_form.html:24
 msgid "Cadastre um novo evento."
 msgstr "Create a new event."
 
-#: templates/ui/agenda/agenda_form.html:27
+#: docs/full_dump_atual.txt:8540 docs/full_dump_atual.txt:8773
+#: docs/full_dump_atual.txt:8896 docs/full_dump_atual.txt:9007
+#: docs/full_dump_atual.txt:9594 docs/full_dump_atual.txt:9758
+#: docs/full_dump_atual.txt:9850 docs/full_dump_atual.txt:10082
+#: docs/full_dump_atual.txt:10136 templates/ui/agenda/agenda_form.html:27
 #: templates/ui/assessment/assessment_form.html:29
 #: templates/ui/course/course_detail.html:20
 #: templates/ui/course/course_form.html:28
@@ -476,6 +550,9 @@ msgstr "Create a new event."
 msgid "Voltar"
 msgstr "Back"
 
+#: docs/full_dump_atual.txt:8563 docs/full_dump_atual.txt:8796
+#: docs/full_dump_atual.txt:9030 docs/full_dump_atual.txt:9632
+#: docs/full_dump_atual.txt:9873 docs/full_dump_atual.txt:10159
 #: templates/ui/agenda/agenda_form.html:50
 #: templates/ui/assessment/assessment_form.html:52
 #: templates/ui/course/course_form.html:51
@@ -485,6 +562,9 @@ msgstr "Back"
 msgid "Salvar"
 msgstr "Save"
 
+#: docs/full_dump_atual.txt:8563 docs/full_dump_atual.txt:8796
+#: docs/full_dump_atual.txt:9030 docs/full_dump_atual.txt:9632
+#: docs/full_dump_atual.txt:9873 docs/full_dump_atual.txt:10159
 #: templates/ui/agenda/agenda_form.html:50
 #: templates/ui/assessment/assessment_form.html:52
 #: templates/ui/course/course_form.html:51
@@ -494,27 +574,35 @@ msgstr "Save"
 msgid "Criar"
 msgstr "Create"
 
-#: templates/ui/agenda/agenda_list.html:15
+#: docs/full_dump_atual.txt:8586 templates/ui/agenda/agenda_list.html:15
 msgid "Seus eventos e compromissos."
 msgstr "Your events and appointments."
 
-#: templates/ui/agenda/agenda_list.html:27
+#: docs/full_dump_atual.txt:8598 templates/ui/agenda/agenda_list.html:27
+#: utils/constants.py:62
 msgid "Evento"
 msgstr "Event"
 
+#: docs/full_dump_atual.txt:8602 docs/full_dump_atual.txt:8952
+#: docs/full_dump_atual.txt:9671 docs/full_dump_atual.txt:9796
+#: docs/full_dump_atual.txt:9912 docs/full_dump_atual.txt:10224
 #: templates/ui/agenda/agenda_list.html:31
 #: templates/ui/course/course_detail.html:76
-#: templates/ui/reminders/reminder_list.html:31
+#: templates/ui/reminders/reminder_list.html:38
 #: templates/ui/semester/semester_detail.html:59
 #: templates/ui/semester/semester_list.html:31
 #: templates/ui/tasks/task_list.html:57
 msgid "Acoes"
 msgstr "Actions"
 
-#: templates/ui/agenda/agenda_list.html:42
+#: docs/full_dump_atual.txt:8613 docs/full_dump_atual.txt:8897
+#: docs/full_dump_atual.txt:8963 docs/full_dump_atual.txt:9694
+#: docs/full_dump_atual.txt:9759 docs/full_dump_atual.txt:9807
+#: docs/full_dump_atual.txt:9924 docs/full_dump_atual.txt:10083
+#: docs/full_dump_atual.txt:10236 templates/ui/agenda/agenda_list.html:42
 #: templates/ui/course/course_detail.html:21
 #: templates/ui/course/course_detail.html:87
-#: templates/ui/reminders/reminder_list.html:54
+#: templates/ui/reminders/reminder_list.html:61
 #: templates/ui/semester/semester_detail.html:22
 #: templates/ui/semester/semester_detail.html:70
 #: templates/ui/semester/semester_list.html:43
@@ -522,578 +610,737 @@ msgstr "Actions"
 msgid "Editar"
 msgstr "Edit"
 
-#: templates/ui/agenda/agenda_list.html:51
+#: docs/full_dump_atual.txt:8622 templates/ui/agenda/agenda_list.html:51
 msgid "Nenhum evento cadastrado."
 msgstr "No events registered."
 
+#: docs/full_dump_atual.txt:8637 templates/ui/agenda.html:8
+#, python-format
+msgid "Eventos dos proximos %(days)s dias"
+msgstr "Events for the next %(days)s days"
+
+#: docs/full_dump_atual.txt:8643 templates/ui/agenda.html:14
+msgid "Buscar evento"
+msgstr "Search event"
+
+#: docs/full_dump_atual.txt:8648 templates/ui/agenda.html:19
+msgid "Todos os tipos"
+msgstr "All types"
+
+#: docs/full_dump_atual.txt:8656 templates/ui/agenda.html:27
+msgid "Proximos 7 dias"
+msgstr "Next 7 days"
+
+#: docs/full_dump_atual.txt:8657 templates/ui/agenda.html:28
+msgid "Proximos 15 dias"
+msgstr "Next 15 days"
+
+#: docs/full_dump_atual.txt:8658 templates/ui/agenda.html:29
+msgid "Proximos 30 dias"
+msgstr "Next 30 days"
+
+#: docs/full_dump_atual.txt:8659 templates/ui/agenda.html:30
+msgid "Proximos 60 dias"
+msgstr "Next 60 days"
+
+#: docs/full_dump_atual.txt:8660 templates/ui/agenda.html:31
+msgid "Proximos 90 dias"
+msgstr "Next 90 days"
+
+#: docs/full_dump_atual.txt:8664 docs/full_dump_atual.txt:9297
+#: docs/full_dump_atual.txt:9969 docs/full_dump_atual.txt:10204
+#: docs/full_dump_atual.txt:10297 templates/ui/agenda.html:35
+#: templates/ui/messages/message_list.html:41 templates/ui/semesters.html:29
+#: templates/ui/tasks.html:45 templates/ui/tasks/task_list.html:37
+msgid "Filtrar"
+msgstr "Filter"
+
+#: docs/full_dump_atual.txt:8665 docs/full_dump_atual.txt:9053
+#: docs/full_dump_atual.txt:9300 docs/full_dump_atual.txt:9970
+#: docs/full_dump_atual.txt:10207 docs/full_dump_atual.txt:10298
+#: templates/ui/agenda.html:36 templates/ui/dashboard.html:15
+#: templates/ui/messages/message_list.html:44 templates/ui/semesters.html:30
+#: templates/ui/tasks.html:46 templates/ui/tasks/task_list.html:40
+msgid "Limpar"
+msgstr "Clear"
+
+#: docs/full_dump_atual.txt:8672 templates/ui/agenda.html:43
+msgid "Eventos"
+msgstr "Events"
+
+#: docs/full_dump_atual.txt:8687 docs/full_dump_atual.txt:9119
+#: templates/ui/agenda.html:58 templates/ui/dashboard.html:81
+msgid "Nenhum evento nos proximos dias."
+msgstr "No events in the next few days."
+
+#: docs/full_dump_atual.txt:8694 templates/ui/agenda.html:65
+msgid "Lembretes ativos"
+msgstr "Active reminders"
+
+#: docs/full_dump_atual.txt:8701 templates/ui/agenda.html:72
+#, python-format
+msgid "%(minutes)s min antes"
+msgstr "%(minutes)s min before"
+
+#: docs/full_dump_atual.txt:8706 templates/ui/agenda.html:77
+msgid "Nenhuma regra ativa."
+msgstr "No active rule."
+
+#: docs/full_dump_atual.txt:8726 docs/full_dump_atual.txt:8732
 #: templates/ui/assessment/assessment_confirm_delete.html:11
 #: templates/ui/assessment/assessment_confirm_delete.html:17
 msgid "Excluir avaliacao"
 msgstr "Delete assessment"
 
+#: docs/full_dump_atual.txt:8733
 #: templates/ui/assessment/assessment_confirm_delete.html:18
 msgid "Tem certeza que deseja excluir a avaliacao"
 msgstr "Are you sure you want to delete the assessment"
 
+#: docs/full_dump_atual.txt:8756 docs/full_dump_atual.txt:8766
 #: templates/ui/assessment/assessment_form.html:12
 #: templates/ui/assessment/assessment_form.html:22
 msgid "Editar avaliacao"
 msgstr "Edit assessment"
 
+#: docs/full_dump_atual.txt:8758 docs/full_dump_atual.txt:8769
 #: templates/ui/assessment/assessment_form.html:14
 #: templates/ui/assessment/assessment_form.html:25
 msgid "Nova avaliacao"
 msgstr "New assessment"
 
-#: templates/ui/auth_base.html:10
+#: docs/full_dump_atual.txt:8814 templates/ui/auth_base.html:10
 msgid "Campus Calm - Acesso"
 msgstr "Campus Calm - Access"
 
+#: docs/full_dump_atual.txt:8858 docs/full_dump_atual.txt:8864
 #: templates/ui/course/course_confirm_delete.html:10
 #: templates/ui/course/course_confirm_delete.html:16
 msgid "Excluir disciplina"
 msgstr "Delete course"
 
+#: docs/full_dump_atual.txt:8865
 #: templates/ui/course/course_confirm_delete.html:17
 msgid "Tem certeza que deseja excluir a disciplina"
 msgstr "Are you sure you want to delete the course"
 
-#: templates/ui/course/course_detail.html:22
+#: docs/full_dump_atual.txt:8898 templates/ui/course/course_detail.html:22
 msgid "Nova Avaliacao"
 msgstr "New assessment"
 
-#: templates/ui/course/course_detail.html:28
+#: docs/full_dump_atual.txt:8904 templates/ui/course/course_detail.html:28
 msgid "Cadastre ao menos uma avaliacao para calcular a barra de progresso."
 msgstr "Add at least one assessment to calculate the progress bar."
 
+#: docs/full_dump_atual.txt:8916 docs/full_dump_atual.txt:9990
 #: templates/ui/course/course_detail.html:40 templates/ui/semesters.html:50
 msgid "Media atual"
 msgstr "Current average"
 
+#: docs/full_dump_atual.txt:8920 docs/full_dump_atual.txt:9992
 #: templates/ui/course/course_detail.html:44 templates/ui/semesters.html:52
 msgid "Falta para passar"
 msgstr "Needed to pass"
 
-#: templates/ui/course/course_detail.html:72
+#: docs/full_dump_atual.txt:8948 templates/ui/course/course_detail.html:72
 msgid "Avaliacao"
 msgstr "Assessment"
 
-#: templates/ui/course/course_detail.html:73
+#: docs/full_dump_atual.txt:8949 templates/ui/course/course_detail.html:73
 msgid "Nota"
 msgstr "Score"
 
-#: templates/ui/course/course_detail.html:96
+#: docs/full_dump_atual.txt:8972 templates/ui/course/course_detail.html:96
 msgid "Nenhuma avaliacao cadastrada."
 msgstr "No assessments registered."
 
+#: docs/full_dump_atual.txt:8990 docs/full_dump_atual.txt:9000
 #: templates/ui/course/course_form.html:11
 #: templates/ui/course/course_form.html:21
 msgid "Editar disciplina"
 msgstr "Edit course"
 
+#: docs/full_dump_atual.txt:8992 docs/full_dump_atual.txt:9003
 #: templates/ui/course/course_form.html:13
 #: templates/ui/course/course_form.html:24
 msgid "Nova disciplina"
 msgstr "New course"
 
-#: templates/ui/dashboard.html:5
+#: docs/full_dump_atual.txt:9043 templates/ui/dashboard.html:5
 msgid "Sem dados"
 msgstr "No data"
 
-#: templates/ui/dashboard.html:9
+#: docs/full_dump_atual.txt:9047 templates/ui/dashboard.html:9
 msgid "Resumo da semana"
 msgstr "Weekly summary"
 
-#: templates/ui/dashboard.html:12
+#: docs/full_dump_atual.txt:9050 templates/ui/dashboard.html:12
 msgid "Buscar tarefa ou evento"
 msgstr "Search task or event"
 
-#: templates/ui/dashboard.html:14
+#: docs/full_dump_atual.txt:9052 templates/ui/dashboard.html:14
 msgid "Aplicar"
 msgstr "Apply"
 
-#: templates/ui/dashboard.html:21
+#: docs/full_dump_atual.txt:9059 templates/ui/dashboard.html:21
 msgid "Onboarding incompleto"
 msgstr "Onboarding incomplete"
 
-#: templates/ui/dashboard.html:22
+#: docs/full_dump_atual.txt:9060 templates/ui/dashboard.html:22
 msgid "Finalize as etapas pendentes para liberar todo o painel."
 msgstr "Finish the pending steps to unlock the full dashboard."
 
+#: docs/full_dump_atual.txt:9061 docs/full_dump_atual.txt:9186
 #: templates/ui/dashboard.html:23 templates/ui/dashboard.html:148
 msgid "Continuar configuracao"
 msgstr "Continue setup"
 
-#: templates/ui/dashboard.html:31
+#: docs/full_dump_atual.txt:9069 templates/ui/dashboard.html:31
 msgid "Humor da semana"
 msgstr "Mood this week"
 
-#: templates/ui/dashboard.html:33
+#: docs/full_dump_atual.txt:9071 templates/ui/dashboard.html:33
 #, python-format
 msgid "%(total)s registros"
 msgstr "%(total)s records"
 
-#: templates/ui/dashboard.html:40
+#: docs/full_dump_atual.txt:9078 templates/ui/dashboard.html:40
 msgid "Minutos de foco"
 msgstr "Focus minutes"
 
-#: templates/ui/dashboard.html:42
+#: docs/full_dump_atual.txt:9080 templates/ui/dashboard.html:42
 msgid "ultimos 7 dias"
 msgstr "last 7 days"
 
-#: templates/ui/dashboard.html:49
+#: docs/full_dump_atual.txt:9087 templates/ui/dashboard.html:49
 msgid "Estresse da semana"
 msgstr "Stress this week"
 
-#: templates/ui/dashboard.html:51
+#: docs/full_dump_atual.txt:9089 templates/ui/dashboard.html:51
 msgid "media dos check-ins"
 msgstr "check-in average"
 
-#: templates/ui/dashboard.html:58
+#: docs/full_dump_atual.txt:9096 templates/ui/dashboard.html:58
 msgid "Proximos prazos"
 msgstr "Upcoming deadlines"
 
-#: templates/ui/dashboard.html:60
+#: docs/full_dump_atual.txt:9098 templates/ui/dashboard.html:60
 msgid "tarefas e eventos"
 msgstr "tasks and events"
 
-#: templates/ui/dashboard.html:69
+#: docs/full_dump_atual.txt:9107 templates/ui/dashboard.html:69
 msgid "Proximos eventos"
 msgstr "Upcoming events"
 
-#: templates/ui/dashboard.html:88
+#: docs/full_dump_atual.txt:9126 templates/ui/dashboard.html:88
 msgid "Próximas tarefas"
 msgstr "Upcoming tasks"
 
-#: templates/ui/dashboard.html:100
+#: docs/full_dump_atual.txt:9138 templates/ui/dashboard.html:100
 msgid "Nenhuma tarefa proxima."
 msgstr "No upcoming tasks."
 
-#: templates/ui/dashboard.html:108
+#: docs/full_dump_atual.txt:9146 templates/ui/dashboard.html:108
 msgid "Progresso por disciplina"
 msgstr "Progress by course"
 
-#: templates/ui/dashboard.html:118
+#: docs/full_dump_atual.txt:9156 templates/ui/dashboard.html:118
 #, python-format
 msgid "Media atual: %(current)s | Media minima: %(passing)s"
 msgstr "Current average: %(current)s | Minimum average: %(passing)s"
 
-#: templates/ui/dashboard.html:126
+#: docs/full_dump_atual.txt:9164 docs/full_dump_atual.txt:9816
+#: docs/full_dump_atual.txt:10025 templates/ui/dashboard.html:126
 #: templates/ui/semester/semester_detail.html:79 templates/ui/semesters.html:85
 msgid "Nenhuma disciplina cadastrada."
 msgstr "No courses registered."
 
-#: templates/ui/dashboard.html:132
+#: docs/full_dump_atual.txt:9170 templates/ui/dashboard.html:132
 msgid "Status do Onboarding"
 msgstr "Onboarding status"
 
-#: templates/ui/dashboard.html:139
+#: docs/full_dump_atual.txt:9177 templates/ui/dashboard.html:139
 msgid "Pendente"
 msgstr "Pending"
 
-#: templates/ui/dashboard.html:141
+#: docs/full_dump_atual.txt:9179 templates/ui/dashboard.html:141
 msgid "Ok"
 msgstr "Ok"
 
-#: templates/ui/login.html:8
+#: docs/full_dump_atual.txt:9202 templates/ui/login.html:8
 msgid "Bem-estar e organizacao para universitarios"
 msgstr "Well-being and organization for university students"
 
-#: templates/ui/login.html:11
+#: docs/full_dump_atual.txt:9205 templates/ui/login.html:11
 msgid "Acesso ao painel"
 msgstr "Dashboard access"
 
-#: templates/ui/login.html:12
+#: docs/full_dump_atual.txt:9206 templates/ui/login.html:12
 msgid "Entre com seu email institucional ou pessoal para continuar."
 msgstr "Use your institutional or personal email to continue."
 
-#: templates/ui/login.html:16
+#: docs/full_dump_atual.txt:9210 templates/ui/login.html:16
 msgid "Email ou senha invalidos. Tente novamente."
 msgstr "Invalid email or password. Try again."
 
-#: templates/ui/login.html:30
+#: docs/full_dump_atual.txt:9224 templates/ui/login.html:30
 msgid "Mostrar"
 msgstr "Show"
 
-#: templates/ui/login.html:30
+#: docs/full_dump_atual.txt:9224 templates/ui/login.html:30
 msgid "Ocultar"
 msgstr "Hide"
 
-#: templates/ui/login.html:33
+#: docs/full_dump_atual.txt:9227 templates/ui/login.html:33
 msgid "Entrar"
 msgstr "Sign in"
 
-#: templates/ui/login.html:37
+#: docs/full_dump_atual.txt:9231 templates/ui/login.html:37
 msgid "Esqueci minha senha"
 msgstr "Forgot my password"
 
-#: templates/ui/login.html:41
+#: docs/full_dump_atual.txt:9235 templates/ui/login.html:46
 msgid "Dica: use o mesmo login do sistema administrativo se ja tiver acesso."
 msgstr ""
 "Tip: use the same login as the admin system if you already have access."
 
-#: templates/ui/messages.html:8
-msgid "Avisos e comunicados in-app"
-msgstr "In-app alerts and announcements"
-
-#: templates/ui/messages.html:30 templates/ui/messages/message_list.html:79
-msgid "Nenhuma mensagem registrada."
-msgstr "No messages registered."
-
-#: templates/ui/messages/message_list.html:15
+#: docs/full_dump_atual.txt:9271 templates/ui/messages/message_list.html:15
 msgid "Historico de notificacoes"
 msgstr "Notification history"
 
+#: docs/full_dump_atual.txt:9281 docs/full_dump_atual.txt:9955
+#: docs/full_dump_atual.txt:10197 docs/full_dump_atual.txt:10281
 #: templates/ui/messages/message_list.html:25 templates/ui/semesters.html:15
 #: templates/ui/tasks.html:29 templates/ui/tasks/task_list.html:30
 msgid "Todos os status"
 msgstr "All statuses"
 
+#: docs/full_dump_atual.txt:9288 docs/full_dump_atual.txt:9314
 #: templates/ui/messages/message_list.html:32
-#: templates/ui/messages/message_list.html:58
+#: templates/ui/messages/message_list.html:59
 msgid "Canal"
 msgstr "Channel"
 
-#: templates/ui/messages/message_list.html:34
+#: docs/full_dump_atual.txt:9290 templates/ui/messages/message_list.html:34
 msgid "Todos os canais"
 msgstr "All channels"
 
-#: templates/ui/messages/message_list.html:60
+#: docs/full_dump_atual.txt:9316 templates/ui/messages/message_list.html:62
 msgid "Agendado"
 msgstr "Scheduled"
 
-#: templates/ui/onboarding.html:8
+#: docs/full_dump_atual.txt:9335 docs/full_dump_atual.txt:9372
+#: templates/ui/messages.html:30 templates/ui/messages/message_list.html:100
+msgid "Nenhuma mensagem registrada."
+msgstr "No messages registered."
+
+#: docs/full_dump_atual.txt:9350 templates/ui/messages.html:8
+msgid "Avisos e comunicados in-app"
+msgstr "In-app alerts and announcements"
+
+#: docs/full_dump_atual.txt:9387 templates/ui/onboarding.html:8
 msgid "Etapas para completar a configuracao"
 msgstr "Steps to complete setup"
 
-#: templates/ui/onboarding.html:34
+#: docs/full_dump_atual.txt:9413 templates/ui/onboarding.html:34
 msgid "Acoes recomendadas"
 msgstr "Recommended actions"
 
-#: templates/ui/onboarding.html:46
+#: docs/full_dump_atual.txt:9425 templates/ui/onboarding.html:46
 msgid "Sugestoes rapidas"
 msgstr "Quick suggestions"
 
-#: templates/ui/onboarding.html:49
+#: docs/full_dump_atual.txt:9428 templates/ui/onboarding.html:49
 msgid "Ver semestres"
 msgstr "View semesters"
 
-#: templates/ui/onboarding.html:50
+#: docs/full_dump_atual.txt:9429 templates/ui/onboarding.html:50
 msgid "Ver tarefas"
 msgstr "View tasks"
 
-#: templates/ui/onboarding.html:51
+#: docs/full_dump_atual.txt:9430 templates/ui/onboarding.html:51
 msgid "Ver agenda"
 msgstr "View calendar"
 
-#: templates/ui/onboarding.html:52
+#: docs/full_dump_atual.txt:9431 templates/ui/onboarding.html:52
 msgid "Cadastrar avaliacao (API)"
 msgstr "Register assessment (API)"
 
-#: templates/ui/password_reset_complete.html:8
+#: docs/full_dump_atual.txt:9446 templates/ui/password_reset_complete.html:8
 msgid "Senha atualizada"
 msgstr "Password updated"
 
-#: templates/ui/password_reset_complete.html:11
+#: docs/full_dump_atual.txt:9449 templates/ui/password_reset_complete.html:11
 msgid "Senha redefinida"
 msgstr "Password reset"
 
-#: templates/ui/password_reset_complete.html:12
+#: docs/full_dump_atual.txt:9450 templates/ui/password_reset_complete.html:12
 msgid "Sua senha foi atualizada. Voce ja pode acessar o painel."
 msgstr "Your password has been updated. You can now access the dashboard."
 
-#: templates/ui/password_reset_complete.html:14
+#: docs/full_dump_atual.txt:9452 templates/ui/password_reset_complete.html:14
 msgid "Ir para o login"
 msgstr "Go to login"
 
+#: docs/full_dump_atual.txt:9467 docs/full_dump_atual.txt:9474
 #: templates/ui/password_reset_confirm.html:8
 #: templates/ui/password_reset_confirm.html:15
 msgid "Nova senha"
 msgstr "New password"
 
-#: templates/ui/password_reset_confirm.html:11
+#: docs/full_dump_atual.txt:9470 templates/ui/password_reset_confirm.html:11
 msgid "Definir nova senha"
 msgstr "Set new password"
 
-#: templates/ui/password_reset_confirm.html:19
+#: docs/full_dump_atual.txt:9478 templates/ui/password_reset_confirm.html:19
 msgid "Confirmar nova senha"
 msgstr "Confirm new password"
 
-#: templates/ui/password_reset_confirm.html:22
+#: docs/full_dump_atual.txt:9481 templates/ui/password_reset_confirm.html:22
 msgid "Atualizar senha"
 msgstr "Update password"
 
-#: templates/ui/password_reset_done.html:8
+#: docs/full_dump_atual.txt:9496 templates/ui/password_reset_done.html:8
 msgid "Email enviado"
 msgstr "Email sent"
 
-#: templates/ui/password_reset_done.html:11
+#: docs/full_dump_atual.txt:9499 templates/ui/password_reset_done.html:11
 msgid "Verifique sua caixa de entrada"
 msgstr "Check your inbox"
 
-#: templates/ui/password_reset_done.html:12
+#: docs/full_dump_atual.txt:9500 templates/ui/password_reset_done.html:12
 msgid ""
 "Se o email existir no sistema, voce recebera um link para redefinir a senha."
 msgstr ""
 "If the email exists in the system, you'll receive a link to reset your "
 "password."
 
+#: docs/full_dump_atual.txt:9502 docs/full_dump_atual.txt:9533
 #: templates/ui/password_reset_done.html:14
 #: templates/ui/password_reset_form.html:24
 msgid "Voltar ao login"
 msgstr "Back to login"
 
-#: templates/ui/password_reset_form.html:8
+#: docs/full_dump_atual.txt:9517 templates/ui/password_reset_form.html:8
 msgid "Recuperacao de acesso"
 msgstr "Account recovery"
 
-#: templates/ui/password_reset_form.html:11
+#: docs/full_dump_atual.txt:9520 templates/ui/password_reset_form.html:11
 msgid "Redefinir senha"
 msgstr "Reset password"
 
-#: templates/ui/password_reset_form.html:12
+#: docs/full_dump_atual.txt:9521 templates/ui/password_reset_form.html:12
 msgid "Informe seu email para receber o link de redefinicao."
 msgstr "Enter your email to receive the reset link."
 
-#: templates/ui/password_reset_form.html:17
-msgid "Email"
-msgstr "Email"
-
-#: templates/ui/password_reset_form.html:18
+#: docs/full_dump_atual.txt:9527 templates/ui/password_reset_form.html:18
 msgid "seu.email@universidade.edu"
 msgstr "your.email@university.edu"
 
-#: templates/ui/password_reset_form.html:20
+#: docs/full_dump_atual.txt:9529 templates/ui/password_reset_form.html:20
 msgid "Enviar link"
 msgstr "Send link"
 
+#: docs/full_dump_atual.txt:9549 docs/full_dump_atual.txt:9555
 #: templates/ui/reminders/reminder_confirm_delete.html:9
 #: templates/ui/reminders/reminder_confirm_delete.html:15
 msgid "Excluir lembrete"
 msgstr "Delete reminder"
 
+#: docs/full_dump_atual.txt:9556
 #: templates/ui/reminders/reminder_confirm_delete.html:16
 msgid "Tem certeza que deseja excluir a regra de lembrete"
 msgstr "Are you sure you want to delete the reminder rule"
 
+#: docs/full_dump_atual.txt:9577 docs/full_dump_atual.txt:9587
 #: templates/ui/reminders/reminder_form.html:10
 #: templates/ui/reminders/reminder_form.html:20
 msgid "Editar lembrete"
 msgstr "Edit reminder"
 
-#: templates/ui/reminders/reminder_form.html:12
+#: docs/full_dump_atual.txt:9579 docs/full_dump_atual.txt:9590
+#: docs/full_dump_atual.txt:9657 templates/ui/reminders/reminder_form.html:12
 #: templates/ui/reminders/reminder_form.html:23
-#: templates/ui/reminders/reminder_list.html:17
+#: templates/ui/reminders/reminder_list.html:23
 msgid "Novo lembrete"
 msgstr "New reminder"
 
-#: templates/ui/reminders/reminder_form.html:21
+#: docs/full_dump_atual.txt:9588 templates/ui/reminders/reminder_form.html:21
 msgid "Atualize sua regra de lembrete."
 msgstr "Update your reminder rule."
 
-#: templates/ui/reminders/reminder_form.html:24
+#: docs/full_dump_atual.txt:9591 templates/ui/reminders/reminder_form.html:24
 msgid "Crie uma nova regra de lembrete."
 msgstr "Create a new reminder rule."
 
-#: templates/ui/reminders/reminder_list.html:15
+#: docs/full_dump_atual.txt:9655 templates/ui/reminders/reminder_list.html:15
 msgid "Configure suas regras de lembrete."
 msgstr "Configure your reminder rules."
 
-#: templates/ui/reminders/reminder_list.html:50
+#: docs/full_dump_atual.txt:9690 templates/ui/reminders/reminder_list.html:57
 msgid "Inativo"
 msgstr "Inactive"
 
-#: templates/ui/reminders/reminder_list.html:63
+#: docs/full_dump_atual.txt:9703 templates/ui/reminders/reminder_list.html:70
 msgid "Nenhuma regra de lembrete cadastrada."
 msgstr "No reminder rules registered."
 
+#: docs/full_dump_atual.txt:9719 docs/full_dump_atual.txt:9725
 #: templates/ui/semester/semester_confirm_delete.html:9
 #: templates/ui/semester/semester_confirm_delete.html:15
 msgid "Excluir semestre"
 msgstr "Delete semester"
 
+#: docs/full_dump_atual.txt:9726
 #: templates/ui/semester/semester_confirm_delete.html:16
 msgid "Tem certeza que deseja excluir o semestre"
 msgstr "Are you sure you want to delete the semester"
 
-#: templates/ui/semester/semester_detail.html:17
+#: docs/full_dump_atual.txt:9754 templates/ui/semester/semester_detail.html:17
 msgid "Periodo"
 msgstr "Term"
 
-#: templates/ui/semester/semester_detail.html:23
+#: docs/full_dump_atual.txt:9760 templates/ui/semester/semester_detail.html:23
 msgid "Nova Disciplina"
 msgstr "New course"
 
+#: docs/full_dump_atual.txt:9776 docs/full_dump_atual.txt:9910
 #: templates/ui/semester/semester_detail.html:39
 #: templates/ui/semester/semester_list.html:29
 msgid "Termino"
 msgstr "End"
 
+#: docs/full_dump_atual.txt:9793 docs/full_dump_atual.txt:9987
 #: templates/ui/semester/semester_detail.html:56 templates/ui/semesters.html:47
 msgid "Disciplina"
 msgstr "Course"
 
-#: templates/ui/semester/semester_detail.html:69
+#: docs/full_dump_atual.txt:9806 docs/full_dump_atual.txt:9923
+#: docs/full_dump_atual.txt:10235 templates/ui/semester/semester_detail.html:69
 #: templates/ui/semester/semester_list.html:42
 #: templates/ui/tasks/task_list.html:68
 msgid "Ver"
 msgstr "View"
 
+#: docs/full_dump_atual.txt:9833 docs/full_dump_atual.txt:9843
 #: templates/ui/semester/semester_form.html:10
 #: templates/ui/semester/semester_form.html:20
 msgid "Editar semestre"
 msgstr "Edit semester"
 
+#: docs/full_dump_atual.txt:9835 docs/full_dump_atual.txt:9846
 #: templates/ui/semester/semester_form.html:12
 #: templates/ui/semester/semester_form.html:23
 msgid "Novo semestre"
 msgstr "New semester"
 
-#: templates/ui/semester/semester_form.html:24
+#: docs/full_dump_atual.txt:9847 templates/ui/semester/semester_form.html:24
 msgid "Cadastre um novo semestre."
 msgstr "Create a new semester."
 
-#: templates/ui/semester/semester_list.html:15
+#: docs/full_dump_atual.txt:9896 templates/ui/semester/semester_list.html:15
 msgid "Gerencie seus semestres e disciplinas."
 msgstr "Manage your semesters and courses."
 
-#: templates/ui/semester/semester_list.html:17
+#: docs/full_dump_atual.txt:9898 templates/ui/semester/semester_list.html:17
 msgid "Novo Semestre"
 msgstr "New semester"
 
-#: templates/ui/semester/semester_list.html:27
-msgid "Nome"
-msgstr "Name"
-
+#: docs/full_dump_atual.txt:9933 docs/full_dump_atual.txt:10031
 #: templates/ui/semester/semester_list.html:52 templates/ui/semesters.html:91
 msgid "Nenhum semestre cadastrado."
 msgstr "No semesters registered."
 
-#: templates/ui/semesters.html:8
+#: docs/full_dump_atual.txt:9948 templates/ui/semesters.html:8
 msgid "Resumo das disciplinas e progresso"
 msgstr "Course overview and progress"
 
-#: templates/ui/semesters.html:17
+#: docs/full_dump_atual.txt:9957 templates/ui/semesters.html:17
 msgid "Finalizado"
 msgstr "Finished"
 
-#: templates/ui/semesters.html:21
+#: docs/full_dump_atual.txt:9961 templates/ui/semesters.html:21
 msgid "Filtrar por disciplina"
 msgstr "Filter by course"
 
-#: templates/ui/semesters.html:25
+#: docs/full_dump_atual.txt:9965 templates/ui/semesters.html:25
 msgid "Filtrar por professor"
 msgstr "Filter by instructor"
 
-#: templates/ui/semesters.html:51
+#: docs/full_dump_atual.txt:9991 templates/ui/semesters.html:51
 msgid "Progresso"
 msgstr "Progress"
 
-#: templates/ui/semesters.html:62
+#: docs/full_dump_atual.txt:10002 templates/ui/semesters.html:62
 msgid "Aprovado"
 msgstr "Passed"
 
-#: templates/ui/semesters.html:64
+#: docs/full_dump_atual.txt:10004 templates/ui/semesters.html:64
 msgid "Reprovado"
 msgstr "Failed"
 
+#: docs/full_dump_atual.txt:10006 docs/full_dump_atual.txt:10199
+#: docs/full_dump_atual.txt:10283 docs/full_dump_atual.txt:10328
 #: templates/ui/semesters.html:66 templates/ui/tasks.html:31
 #: templates/ui/tasks.html:76 templates/ui/tasks/task_list.html:32
 msgid "Em andamento"
 msgstr "In progress"
 
-#: templates/ui/tasks.html:8
-msgid "Lista de tarefas academicas"
-msgstr "Academic task list"
-
-#: templates/ui/tasks.html:14 templates/ui/tasks/task_list.html:25
-msgid "Buscar tarefa"
-msgstr "Search task"
-
-#: templates/ui/tasks.html:19 templates/ui/tasks.html:59
-msgid "Stress"
-msgstr "Stress"
-
-#: templates/ui/tasks.html:30 templates/ui/tasks.html:78
-#: templates/ui/tasks/task_list.html:31
-msgid "A fazer"
-msgstr "To do"
-
-#: templates/ui/tasks.html:32 templates/ui/tasks.html:74
-#: templates/ui/tasks/task_list.html:33
-msgid "Concluida"
-msgstr "Completed"
-
-#: templates/ui/tasks.html:37
-msgid "Todas as datas"
-msgstr "All dates"
-
-#: templates/ui/tasks.html:38
-msgid "Atrasadas"
-msgstr "Overdue"
-
-#: templates/ui/tasks.html:39
-msgid "Hoje"
-msgstr "Today"
-
-#: templates/ui/tasks.html:40
-msgid "Proxima semana"
-msgstr "Next week"
-
-#: templates/ui/tasks.html:41
-msgid "Proximo mes"
-msgstr "Next month"
-
-#: templates/ui/tasks.html:58 templates/ui/tasks/task_detail.html:16
-#: templates/ui/tasks/task_list.html:54
-msgid "Entrega"
-msgstr "Due date"
-
-#: templates/ui/tasks.html:87 templates/ui/tasks/task_list.html:78
-msgid "Nenhuma tarefa cadastrada."
-msgstr "No tasks registered."
-
+#: docs/full_dump_atual.txt:10045 docs/full_dump_atual.txt:10051
 #: templates/ui/tasks/task_confirm_delete.html:9
 #: templates/ui/tasks/task_confirm_delete.html:15
 msgid "Excluir tarefa"
 msgstr "Delete task"
 
+#: docs/full_dump_atual.txt:10052
 #: templates/ui/tasks/task_confirm_delete.html:16
 msgid "Tem certeza que deseja excluir a tarefa"
 msgstr "Are you sure you want to delete the task"
 
-#: templates/ui/tasks/task_detail.html:33
+#: docs/full_dump_atual.txt:10079 docs/full_dump_atual.txt:10221
+#: docs/full_dump_atual.txt:10310 templates/ui/tasks.html:58
+#: templates/ui/tasks/task_detail.html:16 templates/ui/tasks/task_list.html:54
+msgid "Entrega"
+msgstr "Due date"
+
+#: docs/full_dump_atual.txt:10096 templates/ui/tasks/task_detail.html:33
 msgid "Nivel de estresse"
 msgstr "Stress level"
 
+#: docs/full_dump_atual.txt:10119 docs/full_dump_atual.txt:10129
 #: templates/ui/tasks/task_form.html:10 templates/ui/tasks/task_form.html:20
 msgid "Editar tarefa"
 msgstr "Edit task"
 
-#: templates/ui/tasks/task_form.html:12 templates/ui/tasks/task_form.html:23
-#: templates/ui/tasks/task_list.html:17
+#: docs/full_dump_atual.txt:10121 docs/full_dump_atual.txt:10132
+#: docs/full_dump_atual.txt:10184 templates/ui/tasks/task_form.html:12
+#: templates/ui/tasks/task_form.html:23 templates/ui/tasks/task_list.html:17
 msgid "Nova tarefa"
 msgstr "New task"
 
-#: templates/ui/tasks/task_form.html:24
+#: docs/full_dump_atual.txt:10133 templates/ui/tasks/task_form.html:24
 msgid "Cadastre uma nova tarefa."
 msgstr "Create a new task."
 
-#: templates/ui/tasks/task_list.html:15
+#: docs/full_dump_atual.txt:10182 templates/ui/tasks/task_list.html:15
 msgid "Organize suas tarefas e prazos."
 msgstr "Organize your tasks and deadlines."
 
-#: templates/ui/tasks/task_list.html:24
+#: docs/full_dump_atual.txt:10191 templates/ui/tasks/task_list.html:24
 msgid "Buscar"
 msgstr "Search"
 
-#: templates/ui/tasks/task_list.html:53
+#: docs/full_dump_atual.txt:10192 docs/full_dump_atual.txt:10266
+#: templates/ui/tasks.html:14 templates/ui/tasks/task_list.html:25
+msgid "Buscar tarefa"
+msgstr "Search task"
+
+#: docs/full_dump_atual.txt:10198 docs/full_dump_atual.txt:10282
+#: docs/full_dump_atual.txt:10330 templates/ui/tasks.html:30
+#: templates/ui/tasks.html:78 templates/ui/tasks/task_list.html:31
+msgid "A fazer"
+msgstr "To do"
+
+#: docs/full_dump_atual.txt:10200 docs/full_dump_atual.txt:10284
+#: docs/full_dump_atual.txt:10326 templates/ui/tasks.html:32
+#: templates/ui/tasks.html:74 templates/ui/tasks/task_list.html:33
+msgid "Concluida"
+msgstr "Completed"
+
+#: docs/full_dump_atual.txt:10220 templates/ui/tasks/task_list.html:53
+#: utils/constants.py:61
 msgid "Tarefa"
 msgstr "Task"
 
-#: templates/ui/tasks/task_list.html:56
+#: docs/full_dump_atual.txt:10223 templates/ui/tasks/task_list.html:56
 msgid "Estresse"
 msgstr "Stress"
+
+#: docs/full_dump_atual.txt:10245 docs/full_dump_atual.txt:10339
+#: templates/ui/tasks.html:87 templates/ui/tasks/task_list.html:78
+msgid "Nenhuma tarefa cadastrada."
+msgstr "No tasks registered."
+
+#: docs/full_dump_atual.txt:10260 templates/ui/tasks.html:8
+msgid "Lista de tarefas academicas"
+msgstr "Academic task list"
+
+#: docs/full_dump_atual.txt:10271 docs/full_dump_atual.txt:10311
+#: templates/ui/tasks.html:19 templates/ui/tasks.html:59
+msgid "Stress"
+msgstr "Stress"
+
+#: docs/full_dump_atual.txt:10289 templates/ui/tasks.html:37
+msgid "Todas as datas"
+msgstr "All dates"
+
+#: docs/full_dump_atual.txt:10290 templates/ui/tasks.html:38
+msgid "Atrasadas"
+msgstr "Overdue"
+
+#: docs/full_dump_atual.txt:10291 templates/ui/tasks.html:39
+msgid "Hoje"
+msgstr "Today"
+
+#: docs/full_dump_atual.txt:10292 templates/ui/tasks.html:40
+msgid "Proxima semana"
+msgstr "Next week"
+
+#: docs/full_dump_atual.txt:10293 templates/ui/tasks.html:41
+msgid "Proximo mes"
+msgstr "Next month"
+
+#: templates/ui/first_access.html:9
+msgid "Primeiro acesso"
+msgstr ""
+
+#: templates/ui/first_access.html:12 templates/ui/first_access.html:66
+#, fuzzy
+#| msgid "Criar"
+msgid "Criar conta"
+msgstr "Create"
+
+#: templates/ui/first_access.html:13
+msgid "Preencha seus dados para iniciar no Campus Calm."
+msgstr ""
+
+#: templates/ui/first_access.html:18
+msgid "Revise os campos abaixo."
+msgstr ""
+
+#: templates/ui/first_access.html:71
+#, fuzzy
+#| msgid "Voltar ao login"
+msgid "Voltar para login"
+msgstr "Back to login"
+
+#: templates/ui/login.html:42
+msgid "Primeiro acesso / Criar conta"
+msgstr ""
+
+#: templates/ui/messages/message_list.html:61
+msgid "Acao"
+msgstr ""
+
+#: templates/ui/messages/message_list.html:63
+#, fuzzy
+#| msgid "Email enviado"
+msgid "Enviado"
+msgstr "Email sent"
+
+#: templates/ui/messages/message_list.html:64
+msgid "Tentativas"
+msgstr ""
+
+#: templates/ui/messages/message_list.html:65
+msgid "Erro"
+msgstr ""
+
+#: templates/ui/reminders/reminder_list.html:21
+#, fuzzy
+#| msgid "Editar lembrete"
+msgid "Gerar lembretes"
+msgstr "Edit reminder"
 
 #: utils/constants.py:34
 msgid "Todo"
