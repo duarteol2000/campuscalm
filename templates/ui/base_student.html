@@ -1,0 +1,126 @@
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% get_available_languages as AVAILABLE_LANGUAGES %}
+{% get_language_info_list for AVAILABLE_LANGUAGES as languages %}
+<!DOCTYPE html>
+<html lang="{{ CURRENT_LANGUAGE }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusCalm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{% static 'css/app.css' %}" rel="stylesheet">
+  <link href="{% static 'css/student.css' %}" rel="stylesheet">
+</head>
+<body class="student-body">
+  <input type="checkbox" id="student-nav-toggle" class="student-nav-toggle" aria-hidden="true">
+  <div class="student-shell">
+    <label class="student-overlay" for="student-nav-toggle" aria-hidden="true"></label>
+
+    <!-- Sidebar -->
+    {% block sidebar %}
+    <aside class="student-sidebar">
+      <div class="student-sidebar-inner">
+        <div class="student-brand">
+          <img src="{% static 'img/logo-campus-calm.png' %}" alt="CampusCalm" class="student-brand-logo">
+          <div>
+            <div class="student-brand-title">CampusCalm</div>
+            <div class="student-brand-subtitle">{% trans "Painel do aluno" %}</div>
+          </div>
+        </div>
+
+        <div class="student-user">
+          {% blocktrans with name=request.user.name|default:request.user.email %}Olá, {{ name }}{% endblocktrans %}
+        </div>
+
+        <form class="student-language" method="post" action="{% url 'set_language' %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <label class="form-label small text-muted mb-1" for="language-select">{% trans "Idioma" %}</label>
+          {% with current_lang=CURRENT_LANGUAGE|cut:"-"|cut:"_" %}
+            <select id="language-select" class="form-select form-select-sm" name="language" onchange="this.form.submit()">
+              {% for language in languages %}
+                {% with code=language.code|cut:"-"|cut:"_"|lower %}
+                  <option value="{{ language.code }}"{% if language.code|cut:"-"|cut:"_" == current_lang %} selected{% endif %}>
+                    {% if code == "ptbr" %}🇧🇷{% elif code == "ptpt" %}🇵🇹{% elif code == "en" %}🇺🇸{% else %}🌐{% endif %}
+                    {{ language.name_local }}
+                  </option>
+                {% endwith %}
+              {% endfor %}
+            </select>
+          {% endwith %}
+        </form>
+
+        {% url 'ui-dashboard' as dashboard_url %}
+        {% url 'ui-onboarding' as onboarding_url %}
+        {% url 'ui-semester-list' as semesters_url %}
+        {% url 'ui-semesters' as semesters_alt_url %}
+        {% url 'ui-task-list' as tasks_url %}
+        {% url 'ui-tasks' as tasks_alt_url %}
+        {% url 'ui-agenda-list' as agenda_url %}
+        {% url 'ui-reminder-list' as reminders_url %}
+        {% url 'ui-message-list' as messages_url %}
+        {% url 'ui-messages' as messages_alt_url %}
+
+        <nav class="student-nav">
+          <a class="{% if request.path == dashboard_url %}is-active{% endif %}" href="{{ dashboard_url }}">{% trans "Dashboard" %}</a>
+          <a class="{% if request.path|slice:":11" == onboarding_url|slice:":11" %}is-active{% endif %}" href="{{ onboarding_url }}">{% trans "Onboarding" %}</a>
+          <a class="{% if request.path|slice:":10" == semesters_url|slice:":10" or request.path|slice:":10" == semesters_alt_url|slice:":10" %}is-active{% endif %}" href="{{ semesters_url }}">{% trans "Semestres" %}</a>
+          <a class="{% if request.path|slice:":8" == tasks_url|slice:":8" or request.path|slice:":6" == tasks_alt_url|slice:":6" %}is-active{% endif %}" href="{{ tasks_url }}">{% trans "Tarefas" %}</a>
+          <a class="{% if request.path|slice:":7" == agenda_url|slice:":7" %}is-active{% endif %}" href="{{ agenda_url }}">{% trans "Agenda" %}</a>
+          <a class="{% if request.path|slice:":11" == reminders_url|slice:":11" %}is-active{% endif %}" href="{{ reminders_url }}">{% trans "Lembretes" %}</a>
+          <a class="{% if request.path|slice:":10" == messages_url|slice:":10" or request.path|slice:":10" == messages_alt_url|slice:":10" %}is-active{% endif %}" href="{{ messages_url }}">{% trans "Mensagens" %}</a>
+        </nav>
+
+        <div class="student-logout">
+          <form method="post" action="{% url 'ui-logout' %}">
+            {% csrf_token %}
+            <button class="student-link" type="submit">{% trans "Sair" %}</button>
+          </form>
+        </div>
+      </div>
+    </aside>
+    {% endblock %}
+
+    <div class="student-main">
+      <!-- Topbar -->
+      {% block topbar %}
+      <header class="student-topbar">
+        <div class="student-topbar-left">
+          <label class="student-nav-toggle-button" for="student-nav-toggle">{% trans "Menu" %}</label>
+          <div>
+            <p class="student-greeting">{% blocktrans with name=request.user.name|default:request.user.email %}Olá, {{ name }}{% endblocktrans %}</p>
+            <p class="student-subtitle">{% trans "Ambiente de estudo" %}</p>
+          </div>
+        </div>
+        <div class="student-topbar-actions">
+          <a class="student-btn student-btn-ghost" href="{% url 'ui-task-create' %}">{% trans "Nova tarefa" %}</a>
+          <a class="student-btn student-btn-ghost" href="{% url 'ui-agenda-create' %}">{% trans "Novo evento" %}</a>
+          <a class="student-btn student-btn-primary" href="{% url 'ui-reminder-create' %}">{% trans "Novo lembrete" %}</a>
+        </div>
+      </header>
+      {% endblock %}
+
+      <!-- Conteúdo -->
+      <main class="student-content">
+        <div class="student-container">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags|default:"info" }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% trans "Fechar" %}"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

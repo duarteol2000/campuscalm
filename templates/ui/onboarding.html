@@ -1,56 +1,64 @@
-{% extends "base.html" %}
+{% extends "ui/base_student.html" %}
 {% load i18n %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-4">
+<!-- Cabeçalho da página -->
+<div class="student-page-header">
   <div>
-    <h1 class="h4 mb-1">{% trans "Onboarding" %}</h1>
-    <div class="text-muted">{% trans "Etapas para completar a configuracao" %}</div>
+    <h1 class="student-page-title">{% trans "Onboarding" %}</h1>
+    <p class="student-page-subtitle">{% trans "Etapas para completar a configuracao" %}</p>
   </div>
 </div>
 
-<div class="card shadow-sm">
-  <div class="card-body">
-    <ul class="list-group list-group-flush">
-      {% for step in steps %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <div class="fw-semibold">{{ step.label }}</div>
-            <div class="text-muted small">{{ step.message }}</div>
-          </div>
-          {% if step.missing %}
-            <span class="badge text-bg-warning">⚠</span>
-          {% else %}
-            <span class="badge text-bg-success">✓</span>
-          {% endif %}
+<!-- Checklist de etapas -->
+<div class="student-card">
+  <div class="student-card-header">
+    <h2 class="student-card-title">{% trans "Status das etapas" %}</h2>
+    <span class="student-card-muted">{% trans "Acompanhe o progresso" %}</span>
+  </div>
+  <ul class="student-checklist">
+    {% for step in steps %}
+      <li class="student-checklist-item">
+        <div>
+          <div class="student-list-title">{{ step.label }}</div>
+          <div class="student-list-meta">{{ step.message }}</div>
+        </div>
+        {% if step.missing %}
+          <span class="student-badge pending">⚠</span>
+        {% else %}
+          <span class="student-badge ok">✓</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- Acoes recomendadas -->
+{% if required_actions %}
+  <div class="student-card">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Acoes recomendadas" %}</h2>
+    </div>
+    <ul class="student-list">
+      {% for action in required_actions %}
+        <li class="student-list-item">
+          <span>{{ action }}</span>
         </li>
       {% endfor %}
     </ul>
   </div>
-</div>
-
-{% if required_actions %}
-<div class="card shadow-sm mt-3">
-  <div class="card-header bg-white fw-semibold">{% trans "Acoes recomendadas" %}</div>
-  <div class="card-body">
-    <ul class="mb-0">
-      {% for action in required_actions %}
-        <li>{{ action }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
 {% endif %}
 
-<div class="card shadow-sm mt-3">
-  <div class="card-header bg-white fw-semibold">{% trans "Sugestoes rapidas" %}</div>
-  <div class="card-body">
-    <ul class="mb-0">
-      <li><a href="/semesters/">{% trans "Ver semestres" %}</a></li>
-      <li><a href="/tasks/">{% trans "Ver tarefas" %}</a></li>
-      <li><a href="/agenda/">{% trans "Ver agenda" %}</a></li>
-      <li><a href="/api/semester/assessments/">{% trans "Cadastrar avaliacao (API)" %}</a></li>
-    </ul>
+<!-- Sugestoes rapidas -->
+<div class="student-card">
+  <div class="student-card-header">
+    <h2 class="student-card-title">{% trans "Sugestoes rapidas" %}</h2>
   </div>
+  <ul class="student-list">
+    <li class="student-list-item"><a href="{% url 'ui-semesters' %}">{% trans "Ver semestres" %}</a></li>
+    <li class="student-list-item"><a href="{% url 'ui-tasks' %}">{% trans "Ver tarefas" %}</a></li>
+    <li class="student-list-item"><a href="{% url 'ui-agenda-list' %}">{% trans "Ver agenda" %}</a></li>
+    <li class="student-list-item"><a href="/api/semester/assessments/">{% trans "Cadastrar avaliacao (API)" %}</a></li>
+  </ul>
 </div>
 {% endblock %}

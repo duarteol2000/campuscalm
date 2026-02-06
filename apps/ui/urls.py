@@ -2,7 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from ui.forms import EmailAuthenticationForm
-from ui.views import dashboard_view, first_access_view, onboarding_view, semesters_view, tasks_view
+from ui.views import dashboard_view, first_access_view, home_view, onboarding_view, semesters_view, tasks_view
 from ui.views_academic import (
     assessment_create_view,
     assessment_delete_view,
@@ -37,6 +37,7 @@ urlpatterns = [
         ),
         name="ui-login",
     ),
+    path("home/", home_view, name="ui-home"),
     path("primeiro-acesso/", first_access_view, name="ui-first-access"),
     path("logout/", auth_views.LogoutView.as_view(next_page="/login/"), name="ui-logout"),
     path(

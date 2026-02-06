@@ -50,6 +50,10 @@ STEP_LABELS = {
 }
 
 
+def home_view(request):
+    return render(request, "ui/home.html")
+
+
 def _build_steps(progress):
     current_step, missing_steps, required_actions = compute_status(progress)
     steps = []
@@ -64,12 +68,18 @@ def _build_steps(progress):
                 "message": message if is_missing else _("Concluido"),
             }
         )
+    total_steps = len(steps)
+    completed_steps = total_steps - len(missing_steps)
+    progress_percent = int((completed_steps / total_steps) * 100) if total_steps else 0
     return {
         "current_step": current_step,
         "missing_steps": missing_steps,
         "required_actions": required_actions,
         "steps": steps,
         "is_complete": len(missing_steps) == 0,
+        "total_steps": total_steps,
+        "completed_steps": completed_steps,
+        "progress_percent": progress_percent,
     }
 
 

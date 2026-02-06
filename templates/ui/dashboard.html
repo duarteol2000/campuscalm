@@ -1,153 +1,198 @@
-{% extends "base.html" %}
+{% extends "ui/base_student.html" %}
 {% load i18n %}
 
 {% block content %}
 {% trans "Sem dados" as label_no_data %}
-<div class="d-flex align-items-center justify-content-between mb-3">
+{% url 'ui-dashboard' as dashboard_url %}
+
+<!-- Cabeçalho da página -->
+<div class="student-page-header">
   <div>
-    <h1 class="h4 mb-1">{% trans "Dashboard" %}</h1>
-    <div class="text-muted">{% trans "Resumo da semana" %}</div>
+    <h1 class="student-page-title">{% trans "Dashboard" %}</h1>
+    <p class="student-page-subtitle">{% trans "Resumo da semana" %}</p>
   </div>
-  <form class="d-flex" method="get">
-    <input class="form-control form-control-sm me-2" type="text" name="q" placeholder="{% trans "Buscar tarefa ou evento" %}"
+  <form class="student-search" method="get">
+    <input class="form-control form-control-sm" type="text" name="q" placeholder="{% trans "Buscar tarefa ou evento" %}"
            value="{{ search_query }}">
     <button class="btn btn-sm btn-outline-secondary" type="submit">{% trans "Aplicar" %}</button>
-    <a class="btn btn-sm btn-link ms-2" href="/?clear=1">{% trans "Limpar" %}</a>
+    <a class="btn btn-sm btn-link" href="{{ dashboard_url }}?clear=1">{% trans "Limpar" %}</a>
   </form>
 </div>
 
+<!-- Alerta de onboarding -->
 {% if not onboarding_status.is_complete %}
-<div class="alert alert-warning">
-  <div class="fw-semibold">{% trans "Onboarding incompleto" %}</div>
-  <div>{% trans "Finalize as etapas pendentes para liberar todo o painel." %}</div>
-  <a class="btn btn-sm btn-outline-dark mt-2" href="/onboarding/">{% trans "Continuar configuracao" %}</a>
-</div>
+  <div class="student-alert">
+    <div class="fw-semibold">{% trans "Onboarding incompleto" %}</div>
+    <div>{% trans "Finalize as etapas pendentes para liberar todo o painel." %}</div>
+  </div>
 {% endif %}
 
-<div class="row g-3">
-  <div class="col-md-3">
-    <div class="card shadow-sm card-soft-blue">
-      <div class="card-body">
-        <div class="text-muted small">{% trans "Humor da semana" %}</div>
-        <div class="fs-4 fw-bold">{{ dashboard_data.mood_most_common|default:label_no_data }}</div>
-        <div class="text-muted small">{% blocktrans with total=dashboard_data.mood_weekly_total %}{{ total }} registros{% endblocktrans %}</div>
-      </div>
+<div class="student-grid">
+  <!-- Progresso do onboarding -->
+  <section class="student-card student-span-7">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Progresso do onboarding" %}</h2>
+      <span class="student-card-muted">{{ onboarding_status.completed_steps }}/{{ onboarding_status.total_steps }}</span>
     </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card shadow-sm card-soft-purple">
-      <div class="card-body">
-        <div class="text-muted small">{% trans "Minutos de foco" %}</div>
-        <div class="fs-4 fw-bold">{{ dashboard_data.focus_minutes_week }}</div>
-        <div class="text-muted small">{% trans "ultimos 7 dias" %}</div>
-      </div>
+    <div class="student-progress">
+      <div class="student-progress-bar" style="width: {{ onboarding_status.progress_percent }}%;"></div>
     </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card shadow-sm card-soft-amber">
-      <div class="card-body">
-        <div class="text-muted small">{% trans "Estresse da semana" %}</div>
-        <div class="fs-4 fw-bold">{{ dashboard_data.stress_avg_week|default:label_no_data }}</div>
-        <div class="text-muted small">{% trans "media dos check-ins" %}</div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card shadow-sm card-soft-green">
-      <div class="card-body">
-        <div class="text-muted small">{% trans "Proximos prazos" %}</div>
-        <div class="fs-4 fw-bold">{{ dashboard_data.upcoming_count }}</div>
-        <div class="text-muted small">{% trans "tarefas e eventos" %}</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row g-3 mt-3">
-  <div class="col-lg-7">
-    <div class="card shadow-sm">
-      <div class="card-header bg-white fw-semibold">{% trans "Proximos eventos" %}</div>
-      <div class="card-body">
-        {% if dashboard_data.upcoming_events %}
-          <ul class="list-group list-group-flush">
-            {% for event in dashboard_data.upcoming_events %}
-              <li class="list-group-item d-flex justify-content-between">
-                <span>{{ event.title }}</span>
-                <span class="text-muted small">{{ event.start_at|date:"d/m/Y H:i" }}</span>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <div class="text-muted">{% trans "Nenhum evento nos proximos dias." %}</div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-5">
-    <div class="card shadow-sm">
-      <div class="card-header bg-white fw-semibold">{% trans "Próximas tarefas" %}</div>
-      <div class="card-body">
-        {% if dashboard_data.upcoming_tasks %}
-          <ul class="list-group list-group-flush">
-            {% for task in dashboard_data.upcoming_tasks %}
-              <li class="list-group-item d-flex justify-content-between">
-                <span>{{ task.title }}</span>
-                <span class="text-muted small">{{ task.due_date|date:"d/m/Y" }}</span>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <div class="text-muted">{% trans "Nenhuma tarefa proxima." %}</div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="card shadow-sm mt-4">
-  <div class="card-header bg-white fw-semibold">{% trans "Progresso por disciplina" %}</div>
-  <div class="card-body">
-    {% if dashboard_data.course_progress %}
-      {% for course in dashboard_data.course_progress %}
-        <div class="mb-3">
-          <div class="d-flex justify-content-between">
-            <div class="fw-semibold">{{ course.title }}</div>
-            <div class="text-muted small">{{ course.semester }}</div>
-          </div>
-          <div class="text-muted small">
-            {% blocktrans with current=course.current_average passing=course.passing_grade %}Media atual: {{ current }} | Media minima: {{ passing }}{% endblocktrans %}
-          </div>
-          <div class="progress mt-2" style="height: 8px;">
-            <div class="progress-bar" role="progressbar" style="width: {{ course.progress_percent }}%;"></div>
-          </div>
-        </div>
-      {% endfor %}
-    {% else %}
-      <div class="text-muted">{% trans "Nenhuma disciplina cadastrada." %}</div>
-    {% endif %}
-  </div>
-</div>
-
-<div class="card shadow-sm mt-4">
-  <div class="card-header bg-white fw-semibold">{% trans "Status do Onboarding" %}</div>
-  <div class="card-body">
-    <ul class="list-group list-group-flush">
+    <ul class="student-checklist">
       {% for step in onboarding_status.steps %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <li class="student-checklist-item">
           <span>{{ step.label }}</span>
           {% if step.missing %}
-            <span class="badge text-bg-warning">{% trans "Pendente" %}</span>
+            <span class="student-badge pending">{% trans "Pendente" %}</span>
           {% else %}
-            <span class="badge text-bg-success">{% trans "Ok" %}</span>
+            <span class="student-badge ok">{% trans "Ok" %}</span>
           {% endif %}
         </li>
       {% endfor %}
     </ul>
     {% if not onboarding_status.is_complete %}
       <div class="mt-3">
-        <a class="btn btn-primary btn-sm" href="/onboarding/">{% trans "Continuar configuracao" %}</a>
+        <a class="student-btn student-btn-primary" href="{% url 'ui-onboarding' %}">{% trans "Continuar configuracao" %}</a>
       </div>
     {% endif %}
-  </div>
+  </section>
+
+  <!-- Card Hoje -->
+  <section class="student-card student-span-5">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Hoje" %}</h2>
+      <span class="student-card-muted">{% trans "Visao rapida" %}</span>
+    </div>
+    <ul class="student-list">
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "Proxima tarefa" %}</div>
+          {% if dashboard_data.upcoming_tasks %}
+            <div class="student-list-meta">{{ dashboard_data.upcoming_tasks.0.title }}</div>
+          {% else %}
+            <div class="student-list-meta">{% trans "Sem itens no momento" %}</div>
+          {% endif %}
+        </div>
+        {% if dashboard_data.upcoming_tasks %}
+          <span class="student-list-meta">{{ dashboard_data.upcoming_tasks.0.due_date|date:"d/m/Y" }}</span>
+        {% endif %}
+      </li>
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "Proximo evento" %}</div>
+          {% if dashboard_data.upcoming_events %}
+            <div class="student-list-meta">{{ dashboard_data.upcoming_events.0.title }}</div>
+          {% else %}
+            <div class="student-list-meta">{% trans "Sem itens no momento" %}</div>
+          {% endif %}
+        </div>
+        {% if dashboard_data.upcoming_events %}
+          <span class="student-list-meta">{{ dashboard_data.upcoming_events.0.start_at|date:"d/m/Y" }}</span>
+        {% endif %}
+      </li>
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "Lembretes" %}</div>
+          <div class="student-list-meta">{% trans "Sem itens no momento" %}</div>
+        </div>
+        <span class="student-list-meta">—</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Próximas tarefas -->
+  <section class="student-card student-span-7">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Proximas tarefas" %}</h2>
+      <a class="student-card-muted" href="{% url 'ui-task-list' %}">{% trans "Ver todas" %}</a>
+    </div>
+    {% if dashboard_data.upcoming_tasks %}
+      <ul class="student-list">
+        {% for task in dashboard_data.upcoming_tasks %}
+          <li class="student-list-item">
+            <span class="student-list-title">{{ task.title }}</span>
+            <span class="student-list-meta">{{ task.due_date|date:"d/m/Y" }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="student-card-muted">{% trans "Nenhuma tarefa proxima." %}</p>
+    {% endif %}
+  </section>
+
+  <!-- Próximo evento -->
+  <section class="student-card student-span-5">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Agenda" %}</h2>
+      <a class="student-card-muted" href="{% url 'ui-agenda-list' %}">{% trans "Ver agenda" %}</a>
+    </div>
+    {% if dashboard_data.upcoming_events %}
+      <div class="student-list">
+        <div class="student-list-item">
+          <div>
+            <div class="student-list-title">{{ dashboard_data.upcoming_events.0.title }}</div>
+            <div class="student-list-meta">{{ dashboard_data.upcoming_events.0.start_at|date:"d/m/Y H:i" }}</div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p class="student-card-muted">{% trans "Nenhum evento nos proximos dias." %}</p>
+    {% endif %}
+  </section>
+
+  <!-- Progresso por disciplina -->
+  <section class="student-card student-span-12">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Progresso por disciplina" %}</h2>
+      <span class="student-card-muted">{% trans "Acompanhe seu desempenho" %}</span>
+    </div>
+    {% if dashboard_data.course_progress %}
+      {% for course in dashboard_data.course_progress %}
+        <div class="student-course">
+          <div class="student-course-header">
+            <div class="student-list-title">{{ course.title }}</div>
+            <div class="student-list-meta">{{ course.semester }}</div>
+          </div>
+          <div class="student-card-muted">
+            {% blocktrans with current=course.current_average passing=course.passing_grade %}Media atual: {{ current }} | Media minima: {{ passing }}{% endblocktrans %}
+          </div>
+          <div class="student-progress">
+            <div class="student-progress-bar" style="width: {{ course.progress_percent }}%;"></div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="student-card-muted">{% trans "Nenhuma disciplina cadastrada." %}</p>
+    {% endif %}
+  </section>
+
+  <!-- Insights -->
+  <section class="student-card student-span-12">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Insights" %}</h2>
+      <span class="student-card-muted">{% trans "Visao geral da semana" %}</span>
+    </div>
+    <div class="student-insights">
+      <div class="student-insight">
+        <div class="student-insight-label">{% trans "Humor mais comum" %}</div>
+        <div class="student-insight-value">{{ dashboard_data.mood_most_common|default:label_no_data }}</div>
+        <div class="student-card-muted small">{% blocktrans with total=dashboard_data.mood_weekly_total %}{{ total }} registros{% endblocktrans %}</div>
+      </div>
+      <div class="student-insight">
+        <div class="student-insight-label">{% trans "Minutos de foco" %}</div>
+        <div class="student-insight-value">{{ dashboard_data.focus_minutes_week }}</div>
+        <div class="student-card-muted small">{% trans "Ultimos 7 dias" %}</div>
+      </div>
+      <div class="student-insight">
+        <div class="student-insight-label">{% trans "Estresse medio" %}</div>
+        <div class="student-insight-value">{{ dashboard_data.stress_avg_week|default:label_no_data }}</div>
+        <div class="student-card-muted small">{% trans "Media dos check-ins" %}</div>
+      </div>
+      <div class="student-insight">
+        <div class="student-insight-label">{% trans "Proximos prazos" %}</div>
+        <div class="student-insight-value">{{ dashboard_data.upcoming_count }}</div>
+        <div class="student-card-muted small">{% trans "Tarefas e eventos" %}</div>
+      </div>
+    </div>
+  </section>
 </div>
 {% endblock %}

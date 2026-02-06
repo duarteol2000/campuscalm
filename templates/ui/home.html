@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusCalm | Algorithm Insights Sistemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="side-panel" aria-label="Navegação institucional">
+      <div class="side-brand">
+        <img src="{% static 'img/logo-campus-calm.png' %}" alt="CampusCalm" class="side-logo">
+        <p class="side-title">CampusCalm</p>
+        <p class="side-subtitle">Projeto institucional</p>
+      </div>
+      <nav class="side-nav">
+        <a class="active" href="#inicio">Visão geral</a>
+        <a href="#sobre">Sobre</a>
+        <a href="#solucoes">Soluções</a>
+        <a href="#campuscalm">CampusCalm</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <div class="side-card">
+        <p class="side-card-title">Conheça o projeto</p>
+        <p>Materiais institucionais e visão geral do CampusCalm.</p>
+        <a class="side-button" href="#campuscalm">Ver detalhes</a>
+      </div>
+    </aside>
+
+    <div class="page-body">
+      <!-- Header institucional -->
+      <header class="site-header" id="inicio">
+        <div class="container header-content">
+          <div class="brand">
+            <img src="{% static 'img/logoalgorithminsights_empresa.png' %}" alt="Algorithm Insights Sistemas" class="brand-logo">
+            <div class="brand-copy">
+              <p class="brand-title">Algorithm Insights Sistemas</p>
+              <p class="brand-tagline">Transformando dados em decisões inteligentes e ajudando você a alcançar o seu sonho.</p>
+            </div>
+          </div>
+          <div class="header-right">
+            <nav class="site-nav" aria-label="Menu principal">
+              <a href="#inicio">Início</a>
+              <a href="#sobre">Sobre</a>
+              <a href="#solucoes">Soluções</a>
+              <a href="#campuscalm">CampusCalm</a>
+              <a href="#contato">Contato</a>
+            </nav>
+            <div class="header-actions">
+              <a class="btn btn-primary" href="/login/">Entrar</a>
+              <a class="btn btn-ghost" href="/primeiro-acesso/">Criar conta</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <!-- Hero -->
+        <section class="hero">
+          <div class="container hero-grid">
+            <div class="hero-copy">
+              <p class="eyebrow">Algorithm Insights Sistemas</p>
+              <h1>CampusCalm — Tecnologia e bem-estar aplicados à educação</h1>
+              <p class="lead">
+                Uma iniciativa institucional que combina tecnologia, cuidado e organização
+                para apoiar ambientes educacionais mais equilibrados e humanos.
+              </p>
+              <div class="hero-actions">
+                <a class="btn btn-primary" href="#campuscalm">Conheça o Projeto</a>
+                <a class="btn btn-secondary" href="/login/">Acessar Área do Aluno</a>
+              </div>
+            </div>
+            <div class="hero-panel" aria-hidden="true">
+              <div class="hero-card">
+                <span class="hero-tag">Institucional</span>
+                <h2>Clareza e serenidade na jornada educacional</h2>
+                <p>
+                  Estrutura pensada para apoiar pessoas, com foco em processos simples e
+                  decisões bem orientadas.
+                </p>
+                <div class="hero-metrics">
+                  <div>
+                    <span class="metric-title">Bem-estar</span>
+                    <span class="metric-text">Apoio contínuo</span>
+                  </div>
+                  <div>
+                    <span class="metric-title">Tecnologia</span>
+                    <span class="metric-text">Base sólida</span>
+                  </div>
+                  <div>
+                    <span class="metric-title">Educação</span>
+                    <span class="metric-text">Ambiente integrado</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sobre o projeto -->
+        <section class="section" id="sobre">
+          <div class="container">
+            <div class="section-header">
+              <h2>Sobre o CampusCalm</h2>
+              <p>
+                O CampusCalm é um projeto institucional voltado a integrar tecnologia e
+                bem-estar no contexto educacional. Com linguagem clara e foco em pessoas,
+                promove rotinas mais organizadas e uma experiência acadêmica mais tranquila.
+              </p>
+            </div>
+            <div class="feature-grid">
+              <div class="feature-card">
+                <h3>Bem-estar como prioridade</h3>
+                <p>Estruturas que respeitam o ritmo humano e estimulam equilíbrio.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Tecnologia aplicada</h3>
+                <p>Recursos digitais que simplificam processos e favorecem decisões claras.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Ambiente educacional</h3>
+                <p>Integração cuidadosa entre organização acadêmica e suporte diário.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Vínculo institucional -->
+        <section class="section section-alt" id="campuscalm">
+          <div class="container link-grid">
+            <div>
+              <h2>Vínculo institucional</h2>
+              <p>
+                O CampusCalm é uma iniciativa da Algorithm Insights Sistemas. A proposta
+                nasce da experiência em tecnologia corporativa aplicada à educação, garantindo
+                credibilidade, governança e um olhar técnico consistente.
+              </p>
+            </div>
+            <div class="institution-card">
+              <p class="institution-title">Algorithm Insights Sistemas</p>
+              <p>
+                Base tecnológica sólida, visão institucional e compromisso com soluções
+                responsáveis para o ambiente educacional.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Soluções / Pilares -->
+        <section class="section" id="solucoes">
+          <div class="container">
+            <div class="section-header">
+              <h2>Soluções e pilares</h2>
+              <p>Componentes essenciais do CampusCalm para uma experiência educacional mais consistente.</p>
+            </div>
+            <div class="pillar-grid">
+              <div class="pillar-card pillar-span-6">
+                <div class="pillar-icon" aria-hidden="true"></div>
+                <h3>Tecnologia Educacional</h3>
+                <p>Ferramentas organizadas para apoiar fluxos acadêmicos com clareza.</p>
+              </div>
+              <div class="pillar-card pillar-span-6">
+                <div class="pillar-icon" aria-hidden="true"></div>
+                <h3>Bem-estar Digital</h3>
+                <p>Práticas e recursos que favorecem equilíbrio e atenção no cotidiano.</p>
+              </div>
+              <div class="pillar-card pillar-span-5">
+                <div class="pillar-icon" aria-hidden="true"></div>
+                <h3>Automação Inteligente</h3>
+                <p>Processos simplificados com foco em eficiência e tranquilidade operacional.</p>
+              </div>
+              <div class="pillar-card pillar-span-7">
+                <div class="pillar-icon" aria-hidden="true"></div>
+                <h3>Análise e Organização</h3>
+                <p>Estruturação de informações para decisões mais claras e conscientes.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="site-footer" id="contato">
+        <div class="container footer-grid">
+          <div class="footer-brand">
+            <div class="footer-brand-row">
+              <img src="{% static 'img/logoalgorithminsights_empresa.png' %}" alt="Algorithm Insights Sistemas" class="footer-logo">
+              <div>
+                <p class="footer-title">Algorithm Insights Sistemas</p>
+                <p class="footer-tagline">Transformando dados em decisões inteligentes e ajudando você a alcançar o seu sonho.</p>
+              </div>
+            </div>
+            <p class="footer-text">Soluções institucionais com foco em tecnologia e bem-estar educacional.</p>
+          </div>
+          <div class="footer-info">
+            <p class="footer-heading">Contato institucional</p>
+            <p class="footer-text">Espaço reservado para canais oficiais de contato.</p>
+          </div>
+          <div class="footer-info">
+            <p class="footer-heading">Redes sociais</p>
+            <div class="socials">
+              <span class="social-pill">Ícone</span>
+              <span class="social-pill">Ícone</span>
+              <span class="social-pill">Ícone</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
