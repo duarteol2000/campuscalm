@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from brain.constants import CONTEXT_MESSAGES
+from brain.constants import ANXIETY_KEYWORDS, CONTEXT_MESSAGES, EXAM_KEYWORDS
 from brain.models import GatilhoEmocional, InteracaoAluno, MicroIntervencao, RespostaEmocional
 
 
@@ -39,6 +39,16 @@ CATEGORY_PRIORITY = [
 SOCIAL_STRONG_HINTS = ("obrigad", "valeu")
 
 
+def choose_variant(options: list[str], last_text: str | None) -> str:
+    unique_options = list(dict.fromkeys(options or []))
+    if not unique_options:
+        return ""
+    if last_text in unique_options and len(unique_options) > 1:
+        filtered = [text for text in unique_options if text != last_text]
+        return random.choice(filtered)
+    return random.choice(unique_options)
+
+
 def _normalize_text(value):
     normalized = unicodedata.normalize("NFD", str(value or "").lower())
     no_accents = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
@@ -62,6 +72,17 @@ def _contains_keyword(message_text, message_words, keyword):
     if " " in keyword:
         return keyword in message_text
     return keyword in message_words
+
+
+def _has_any_keyword(message_text, keywords):
+    if not message_text:
+        return False
+    message_words = set(message_text.split())
+    for raw_keyword in keywords:
+        keyword = _normalize_text(raw_keyword)
+        if keyword and _contains_keyword(message_text, message_words, keyword):
+            return True
+    return False
 
 
 def _detect_categoria(message_text):
@@ -109,19 +130,11 @@ def _detect_categoria(message_text):
     return category_by_slug.get(chosen_slug)
 
 
-def _pick_category_reply(categoria, user):
+def _pick_category_reply(categoria, last_response_text):
     respostas = list(RespostaEmocional.objects.filter(categoria=categoria, ativo=True).values_list("texto", flat=True))
     if not respostas:
         return None
-
-    chosen = random.choice(respostas)
-    last_interaction = InteracaoAluno.objects.filter(user=user).order_by("-created_at", "-id").first()
-    unique_responses = set(respostas)
-    if len(unique_responses) > 1 and last_interaction and chosen == last_interaction.resposta_texto:
-        alternatives = [text for text in unique_responses if text != last_interaction.resposta_texto]
-        if alternatives:
-            chosen = random.choice(alternatives)
-    return chosen
+    return choose_variant(respostas, last_response_text)
 
 
 def _load_recent_history(user):
@@ -135,7 +148,7 @@ def _load_recent_history(user):
     )
 
 
-def _pick_contextual_reply(categoria, history, now):
+def _pick_contextual_reply(categoria, history, now, last_response_text):
     if not categoria:
         return None
 
@@ -148,14 +161,14 @@ def _pick_contextual_reply(categoria, history, now):
 
     if current_slug == "stress":
         if len(history_slugs) >= stress_threshold and all(slug == "stress" for slug in history_slugs[:stress_threshold]):
-            return CONTEXT_MESSAGES["stress_repeat"]
+            return choose_variant(CONTEXT_MESSAGES["stress_repeat"], last_response_text)
         return None
 
     if current_slug == "evolucao":
         if len(history_slugs) >= evolucao_threshold and all(
             slug == "evolucao" for slug in history_slugs[:evolucao_threshold]
         ):
-            return CONTEXT_MESSAGES["evolucao_repeat"]
+            return choose_variant(CONTEXT_MESSAGES["evolucao_repeat"], last_response_text)
 
         limite_24h = now - timedelta(hours=stress_to_evolucao_window)
         has_recent_stress = any(
@@ -165,9 +178,31 @@ def _pick_contextual_reply(categoria, history, now):
             for item in history
         )
         if has_recent_stress:
-            return CONTEXT_MESSAGES["stress_to_evolucao"]
+            return choose_variant(CONTEXT_MESSAGES["stress_to_evolucao"], last_response_text)
 
     return None
+
+
+def _pick_micro_intervention(request, categoria):
+    if not categoria or categoria.slug in {"social", "evolucao"}:
+        return []
+
+    options = list(MicroIntervencao.objects.filter(ativo=True).order_by("id"))
+    if not options:
+        return []
+
+    session_key = "brain_last_micro_intervention_name"
+    last_micro_name = request.session.get(session_key)
+
+    candidates = options
+    if last_micro_name and len(options) > 1:
+        filtered = [item for item in options if item.nome != last_micro_name]
+        if filtered:
+            candidates = filtered
+
+    selected = random.choice(candidates)
+    request.session[session_key] = selected.nome
+    return [{"nome": selected.nome, "texto": selected.texto}]
 
 
 class WidgetChatView(APIView):
@@ -181,20 +216,32 @@ class WidgetChatView(APIView):
         mensagem_usuario = serializer.validated_data["message"].strip()
         normalized_message = _normalize_text(mensagem_usuario)
         now = timezone.now()
+        last_response_text = (
+            InteracaoAluno.objects.filter(user=request.user)
+            .order_by("-created_at", "-id")
+            .values_list("resposta_texto", flat=True)
+            .first()
+        )
 
         categoria = _detect_categoria(normalized_message)
         if categoria:
+            reply_text = None
+            if categoria.slug == "stress":
+                has_anxiety = _has_any_keyword(normalized_message, ANXIETY_KEYWORDS)
+                has_exam = _has_any_keyword(normalized_message, EXAM_KEYWORDS)
+                if has_anxiety and has_exam:
+                    reply_text = choose_variant(CONTEXT_MESSAGES["stress_anxiety"], last_response_text)
+                elif has_anxiety:
+                    reply_text = choose_variant(CONTEXT_MESSAGES["stress_anxiety"], last_response_text)
+
             historico = _load_recent_history(request.user)
-            reply_text = _pick_contextual_reply(categoria, historico, now)
             if not reply_text:
-                reply_text = _pick_category_reply(categoria, request.user)
+                reply_text = _pick_contextual_reply(categoria, historico, now, last_response_text)
+            if not reply_text:
+                reply_text = _pick_category_reply(categoria, last_response_text)
             if not reply_text:
                 reply_text = random.choice(FALLBACK_REPLIES)
-            if categoria.slug in {"social", "evolucao"}:
-                payload_micro_intervencoes = []
-            else:
-                micro_intervencoes = MicroIntervencao.objects.filter(ativo=True).order_by("id")[:2]
-                payload_micro_intervencoes = [{"nome": item.nome, "texto": item.texto} for item in micro_intervencoes]
+            payload_micro_intervencoes = _pick_micro_intervention(request, categoria)
         else:
             reply_text = random.choice(FALLBACK_REPLIES)
             payload_micro_intervencoes = []

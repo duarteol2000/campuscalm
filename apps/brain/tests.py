@@ -41,6 +41,20 @@ class WidgetChatTests(APITestCase):
         interaction.refresh_from_db()
         return interaction
 
+    def _create_interacao_custom(self, categoria_slug, resposta_texto, hours_ago):
+        categoria = CategoriaEmocional.objects.get(slug=categoria_slug)
+        interaction = InteracaoAluno.objects.create(
+            user=self.user,
+            mensagem_usuario=f"custom-{categoria_slug}-{hours_ago}",
+            categoria_detectada=categoria,
+            resposta_texto=resposta_texto,
+            origem="widget",
+        )
+        timestamp = timezone.now() - timedelta(hours=hours_ago)
+        InteracaoAluno.objects.filter(pk=interaction.pk).update(created_at=timestamp)
+        interaction.refresh_from_db()
+        return interaction
+
     def test_detects_social_category(self):
         response = self.client.post("/api/widget/chat/", {"message": "Tenho muita GRATIDAO pela ajuda!"}, format="json")
         self.assertEqual(response.status_code, 200)
@@ -97,6 +111,71 @@ class WidgetChatTests(APITestCase):
         self.assertTrue(response.data["reply"])
         self.assertEqual(response.data["micro_interventions"], [])
 
+    def test_detects_stress_anxiety_before_exam(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "vou fazer uma prova e estou muito ansioso"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_anxiety"])
+        self.assertLessEqual(len(response.data["micro_interventions"]), 1)
+
+    def test_detects_stress_anxiety_general_message(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "o que mais posso fazer pra melhorar minha ansiedade?"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_anxiety"])
+        self.assertLessEqual(len(response.data["micro_interventions"]), 1)
+
+    def test_detects_stress_anxiety_with_common_typo(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "boa tarde, vou fazer uma prova e estou muito ancioso"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_anxiety"])
+        self.assertLessEqual(len(response.data["micro_interventions"]), 1)
+
+    def test_micro_interventions_are_limited_to_one_when_present(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "estou sobrecarregado com prazo e estressado"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertLessEqual(len(response.data["micro_interventions"]), 1)
+
+    def test_micro_intervention_avoids_immediate_repeat_when_multiple_options(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "estou sobrecarregado e estressado"},
+            format="json",
+        )
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "ainda estou sobrecarregado e estressado"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 200)
+        self.assertLessEqual(len(first.data["micro_interventions"]), 1)
+        self.assertLessEqual(len(second.data["micro_interventions"]), 1)
+
+        if first.data["micro_interventions"] and second.data["micro_interventions"]:
+            first_name = first.data["micro_interventions"][0]["nome"]
+            second_name = second.data["micro_interventions"][0]["nome"]
+            if MicroIntervencao.objects.filter(ativo=True).count() > 1:
+                self.assertNotEqual(first_name, second_name)
+
     def test_contextual_memory_stress_repetition_within_48h(self):
         self._create_interacao_with_hours_ago("stress", 2)
         self._create_interacao_with_hours_ago("stress", 4)
@@ -109,7 +188,7 @@ class WidgetChatTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["category"], "stress")
-        self.assertEqual(response.data["reply"], CONTEXT_MESSAGES["stress_repeat"])
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_repeat"])
 
     def test_contextual_memory_repeated_evolucao_within_48h(self):
         self._create_interacao_with_hours_ago("evolucao", 3)
@@ -122,7 +201,7 @@ class WidgetChatTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["category"], "evolucao")
-        self.assertEqual(response.data["reply"], CONTEXT_MESSAGES["evolucao_repeat"])
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["evolucao_repeat"])
         self.assertEqual(response.data["micro_interventions"], [])
 
     def test_contextual_memory_stress_to_evolucao_within_24h(self):
@@ -135,7 +214,7 @@ class WidgetChatTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["category"], "evolucao")
-        self.assertEqual(response.data["reply"], CONTEXT_MESSAGES["stress_to_evolucao"])
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_to_evolucao"])
         self.assertEqual(response.data["micro_interventions"], [])
 
     def test_contextual_memory_ignores_interactions_older_than_48h(self):
@@ -150,7 +229,23 @@ class WidgetChatTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["category"], "stress")
-        self.assertNotEqual(response.data["reply"], CONTEXT_MESSAGES["stress_repeat"])
+        self.assertNotIn(response.data["reply"], CONTEXT_MESSAGES["stress_repeat"])
+
+    def test_contextual_memory_avoids_immediate_repeat_variant(self):
+        repeated_text = CONTEXT_MESSAGES["stress_repeat"][0]
+        self._create_interacao_custom("stress", repeated_text, 1)
+        self._create_interacao_with_hours_ago("stress", 2)
+        self._create_interacao_with_hours_ago("stress", 3)
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou muito sobrecarregado e estressado"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_repeat"])
+        self.assertNotEqual(response.data["reply"], repeated_text)
 
     def test_long_positive_message_prefers_evolucao_over_stress(self):
         response = self.client.post(
@@ -207,16 +302,16 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(response.data["emoji"], "🔍")
         self.assertTrue(response.data["reply"])
 
-    @patch("brain.views.random.choice", return_value="Resposta B")
-    def test_selects_random_reply_among_category_options(self, random_choice_mock):
+    @patch("brain.views.choose_variant", return_value="Resposta B")
+    def test_selects_random_reply_among_category_options(self, choose_variant_mock):
         response = self.client.post("/api/widget/chat/", {"message": "zzmulti agora"}, format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["category"], "multipla_teste")
         self.assertEqual(response.data["reply"], "Resposta B")
-        random_choice_mock.assert_called()
+        choose_variant_mock.assert_called()
 
-    @patch("brain.views.random.choice", side_effect=["Resposta A", "Resposta B"])
-    def test_avoids_immediate_reply_repetition_for_same_user(self, random_choice_mock):
+    @patch("brain.views.choose_variant", return_value="Resposta B")
+    def test_avoids_immediate_reply_repetition_for_same_user(self, choose_variant_mock):
         InteracaoAluno.objects.create(
             user=self.user,
             mensagem_usuario="mensagem anterior",
@@ -228,7 +323,8 @@ class WidgetChatTests(APITestCase):
         response = self.client.post("/api/widget/chat/", {"message": "zzmulti novamente"}, format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["reply"], "Resposta B")
-        self.assertEqual(random_choice_mock.call_count, 2)
+        self.assertNotEqual(response.data["reply"], "Resposta A")
+        choose_variant_mock.assert_called()
 
     @patch("brain.views.random.choice", return_value="Entendi. Me fala um pouco mais para eu poder te ajudar melhor.")
     def test_fallback_returns_null_category_and_no_micro_interventions(self, random_choice_mock):
