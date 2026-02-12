@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "semester",
     "content",
     "coach_ai",
+    "brain",
     "notifications",
     "access_requests",
     "onboarding.apps.OnboardingConfig",

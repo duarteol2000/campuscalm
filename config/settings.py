@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "semester",
     "content",
     "coach_ai",
+    "brain",
     "notifications",
     "access_requests",
     "onboarding.apps.OnboardingConfig",
@@ -144,6 +145,13 @@ WHATSAPP_CLOUD_TOKEN = os.getenv("WHATSAPP_CLOUD_TOKEN", "")
 WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
 WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "")
 SITE_BASE_URL = os.getenv("SITE_BASE_URL", "")
+
+# Brain contextual memory settings (MVP 1.4)
+BRAIN_MEMORY_HOURS = 48
+BRAIN_HISTORY_LIMIT = 10
+BRAIN_STRESS_REPEAT_THRESHOLD = 3
+BRAIN_EVOLUCAO_REPEAT_THRESHOLD = 2
+BRAIN_STRESS_TO_EVOLUCAO_WINDOW_HOURS = 24
 
 if DEBUG:
     CSRF_TRUSTED_ORIGINS = [

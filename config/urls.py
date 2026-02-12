@@ -21,6 +21,7 @@ urlpatterns = [
     path("api/agenda/", include("agenda.urls")),
     path("api/semester/", include("semester.urls")),
     path("api/content/", include("content.urls")),
+    path("api/widget/", include("brain.urls")),
     path("api/notifications/", include("notifications.urls")),
     path("api/access/", include("access_requests.urls")),
     path("api/onboarding/", include("onboarding.urls")),
