@@ -1,9 +1,15 @@
 from django import forms
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext_lazy as _
 
 
 class EmailAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        "inactive": _("Confirme seu e-mail para entrar."),
+    }
+
     username = forms.EmailField(
         label=_("Email"),
         widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "seu.email@universidade.edu"}),
@@ -12,6 +18,22 @@ class EmailAuthenticationForm(AuthenticationForm):
         label=_("Senha"),
         widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Sua senha"}),
     )
+
+    def clean(self):
+        username = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
+
+        if username is not None and password:
+            self.user_cache = authenticate(self.request, username=username, password=password)
+            if self.user_cache is None:
+                user_model = get_user_model()
+                user = user_model._default_manager.filter(email__iexact=username).first()
+                if user and user.check_password(password) and not user.is_active:
+                    raise forms.ValidationError(self.error_messages["inactive"], code="inactive")
+                raise self.get_invalid_login_error()
+            self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
 
 
 # Bloco: Formulario de primeiro acesso

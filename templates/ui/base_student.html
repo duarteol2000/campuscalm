@@ -14,6 +14,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="{% static 'css/app.css' %}" rel="stylesheet">
   <link href="{% static 'css/student.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'ui/css/campuscalm_widget.css' %}">
 </head>
 <body class="student-body">
   <input type="checkbox" id="student-nav-toggle" class="student-nav-toggle" aria-hidden="true">
@@ -92,7 +93,20 @@
         <div class="student-topbar-left">
           <label class="student-nav-toggle-button" for="student-nav-toggle">{% trans "Menu" %}</label>
           <div>
-            <p class="student-greeting">{% blocktrans with name=request.user.name|default:request.user.email %}Olá, {{ name }}{% endblocktrans %}</p>
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ request.user.name|default:request.user.email }}
+              </button>
+
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <form method="post" action="{% url 'logout' %}" class="px-3 py-1">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger w-100">{% trans "Sair" %}</button>
+                  </form>
+                </li>
+              </ul>
+            </div>
             <p class="student-subtitle">{% trans "Ambiente de estudo" %}</p>
           </div>
         </div>
@@ -121,6 +135,8 @@
     </div>
   </div>
 
+  {% include "ui/partials/campuscalm_widget.html" %}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'ui/js/campuscalm_widget.js' %}" defer></script>
 </body>
 </html>

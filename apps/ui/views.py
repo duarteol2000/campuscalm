@@ -1,14 +1,22 @@
 from collections import Counter
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import User, UserProfile
+from accounts.models import UserProfile
 from agenda.models import CalendarEvent, ReminderRule
 from billing.models import Plan, UserSubscription
 from mood.models import MoodEntry
@@ -26,9 +34,6 @@ from utils.academic_progress import (
 from utils.constants import (
     EVENT_TYPE_CHOICES,
     CHANNEL_IN_APP,
-    CHANNEL_EMAIL,
-    CHANNEL_WHATSAPP,
-    NOTIF_PENDING,
     SEMESTER_ACTIVE,
     SEMESTER_FINISHED,
     TASK_DOING,
@@ -52,6 +57,34 @@ STEP_LABELS = {
 
 def home_view(request):
     return render(request, "ui/home.html")
+
+
+def _build_activation_url(request, uidb64, token):
+    activate_path = reverse("ui-activate-account", kwargs={"uidb64": uidb64, "token": token})
+    site_base_url = (settings.SITE_BASE_URL or "").strip().rstrip("/")
+    if site_base_url:
+        return f"{site_base_url}{activate_path}"
+    return request.build_absolute_uri(activate_path)
+
+
+def _send_activation_email(request, user):
+    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    activation_url = _build_activation_url(request, uidb64, token)
+    context = {"user": user, "activation_url": activation_url}
+
+    subject = _("Ative sua conta no CampusCalm")
+    text_body = render_to_string("accounts/email/activate_account.txt", context)
+    html_body = render_to_string("accounts/email/activate_account.html", context)
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+    )
+    email.attach_alternative(html_body, "text/html")
+    email.send(fail_silently=False)
 
 
 def _build_steps(progress):
@@ -85,22 +118,24 @@ def _build_steps(progress):
 
 # Bloco: Primeiro acesso / Criar conta
 def first_access_view(request):
+    user_model = get_user_model()
     if request.method == "POST":
         form = FirstAccessForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data["email"].lower()
-            if User.objects.filter(email=email).exists():
-                messages.error(request, _("Ja existe um usuario com este email."))
+            if user_model.objects.filter(email=email).exists():
+                form.add_error("email", _("Ja existe um usuario com este email."))
                 return render(request, "ui/first_access.html", {"form": form})
 
-            user = User.objects.create_user(
+            user = user_model.objects.create_user(
                 email=email,
                 name=form.cleaned_data["name"],
                 phone_number=form.cleaned_data.get("phone", ""),
                 password=form.cleaned_data["password1"],
+                is_active=False,
             )
 
-            profile, created_profile = UserProfile.objects.get_or_create(user=user)
+            profile = UserProfile.objects.get_or_create(user=user)[0]
             profile.phone = form.cleaned_data.get("phone", "")
             profile.plan = form.cleaned_data["plan"]
             profile.allow_email = form.cleaned_data.get("allow_email", True)
@@ -114,46 +149,33 @@ def first_access_view(request):
             if plan:
                 UserSubscription.objects.get_or_create(user=user, defaults={"plan": plan})
 
-            # Bloco: Notificacoes de boas-vindas
-            subject = _("Seu acesso ao Campus Calm esta pronto")
-            email_body = _(
-                "Ola {name},\n\n"
-                "Seu primeiro acesso ao Campus Calm foi criado com sucesso.\n"
-                "Sua conta ja esta ativa e voce ja pode entrar no sistema usando\n"
-                "seu e-mail e a senha cadastrada.\n\n"
-                "Seja bem-vindo(a)!"
-            ).format(name=user.name)
-            NotificationQueue.objects.create(
-                user=user,
-                channel=CHANNEL_EMAIL,
-                title=subject,
-                message=email_body,
-                scheduled_for=timezone.now(),
-                status=NOTIF_PENDING,
-            )
-
-            if profile.allow_whatsapp:
-                whatsapp_body = _(
-                    "Ola {name} 👋\n"
-                    "Seu primeiro acesso ao Campus Calm foi criado com sucesso.\n"
-                    "Sua conta ja esta ativa e voce ja pode acessar o sistema.\n"
-                    "Seja bem-vindo(a)!"
-                ).format(name=user.name)
-                NotificationQueue.objects.create(
-                    user=user,
-                    channel=CHANNEL_WHATSAPP,
-                    title=subject,
-                    message=whatsapp_body,
-                    scheduled_for=timezone.now(),
-                    status=NOTIF_PENDING,
-                    to_phone=profile.phone or user.phone_number,
-                )
-
-            messages.success(request, _("Conta criada com sucesso. Faca login para continuar."))
+            _send_activation_email(request, user)
+            messages.success(request, _("Enviamos um link de ativacao para seu e-mail."))
             return redirect("ui-login")
     else:
         form = FirstAccessForm()
     return render(request, "ui/first_access.html", {"form": form})
+
+
+def activate_account_view(request, uidb64, token):
+    user_model = get_user_model()
+    user = None
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = user_model.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, user_model.DoesNotExist):
+        user = None
+
+    if user and default_token_generator.check_token(user, token):
+        if not user.is_active:
+            user.is_active = True
+            user.save(update_fields=["is_active"])
+            messages.success(request, _("Conta ativada com sucesso. Agora voce pode entrar."))
+        else:
+            messages.info(request, _("Sua conta ja esta ativada."))
+    else:
+        messages.error(request, _("Link de ativacao invalido ou expirado."))
+    return redirect("ui-login")
 
 
 @login_required(login_url="/login/")

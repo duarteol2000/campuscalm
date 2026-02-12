@@ -1,0 +1,52 @@
+<div class="cc-widget" data-campuscalm-widget>
+  <button
+    type="button"
+    class="cc-widget-trigger"
+    data-cc-trigger
+    title="Organizar mente"
+    aria-label="Organizar mente"
+    aria-controls="campuscalm-widget-panel"
+    aria-expanded="false"
+  >
+    <span class="cc-widget-icon" aria-hidden="true">◎</span>
+    <span class="cc-widget-tooltip">Organizar mente</span>
+  </button>
+
+  <section
+    id="campuscalm-widget-panel"
+    class="cc-widget-panel"
+    data-cc-panel
+    role="dialog"
+    aria-label="CampusCalm"
+    aria-hidden="true"
+    hidden
+  >
+    <header class="cc-widget-header">
+      <div>
+        <h2 class="cc-widget-title">CampusCalm</h2>
+        <p class="cc-widget-subtitle">Organização emocional e foco</p>
+      </div>
+      <button type="button" class="cc-widget-close" data-cc-close aria-label="Fechar">X</button>
+    </header>
+
+    <div class="cc-widget-messages" data-cc-messages role="log" aria-live="polite">
+      <div class="cc-widget-bubble cc-widget-bubble-bot">
+        Oi! Quer organizar o que esta te preocupando agora?
+        Se você quiser, eu te ajudo a transformar isso em 10 minutos de ação.
+      </div>
+    </div>
+
+    <form class="cc-widget-form" data-cc-form novalidate>
+      <label class="visually-hidden" for="campuscalm-widget-input">Mensagem</label>
+      <textarea
+        id="campuscalm-widget-input"
+        class="cc-widget-input"
+        data-cc-input
+        rows="1"
+        aria-label="Mensagem para CampusCalm"
+        placeholder="Escreva o que esta acontecendo..."
+      ></textarea>
+      <button type="submit" class="cc-widget-send">Enviar</button>
+    </form>
+  </section>
+</div>

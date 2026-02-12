@@ -1,0 +1,223 @@
+.cc-widget {
+  position: fixed;
+  right: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 1080;
+  pointer-events: none;
+}
+
+.cc-widget * {
+  box-sizing: border-box;
+}
+
+.cc-widget-trigger,
+.cc-widget-panel {
+  pointer-events: auto;
+}
+
+.cc-widget-trigger {
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #1d4ed8, #2563eb);
+  color: #f8fafc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 16px 30px rgba(30, 64, 175, 0.28);
+  position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cc-widget-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 35px rgba(30, 64, 175, 0.34);
+}
+
+.cc-widget-trigger:focus-visible,
+.cc-widget-close:focus-visible,
+.cc-widget-send:focus-visible,
+.cc-widget-input:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.cc-widget-icon {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cc-widget-tooltip {
+  position: absolute;
+  right: 68px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.16s ease, visibility 0.16s ease;
+}
+
+.cc-widget-trigger:hover .cc-widget-tooltip,
+.cc-widget-trigger:focus-visible .cc-widget-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.cc-widget-panel {
+  position: absolute;
+  right: 0;
+  bottom: 72px;
+  width: min(360px, calc(100vw - 24px));
+  max-height: min(70vh, 540px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid #dbe5f3;
+  background: #ffffff;
+  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.985);
+  transition: transform 0.18s ease, opacity 0.18s ease, visibility 0.18s ease;
+}
+
+.cc-widget.is-open .cc-widget-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.cc-widget-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fbff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cc-widget-title {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.cc-widget-subtitle {
+  margin: 4px 0 0;
+  color: #475569;
+  font-size: 0.79rem;
+}
+
+.cc-widget-close {
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1;
+  border-radius: 8px;
+  padding: 4px 7px;
+  cursor: pointer;
+}
+
+.cc-widget-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.cc-widget-messages {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  min-height: 220px;
+  max-height: 320px;
+  background: linear-gradient(180deg, #f9fbff 0%, #ffffff 35%);
+}
+
+.cc-widget-bubble {
+  max-width: 88%;
+  border-radius: 14px;
+  padding: 9px 11px;
+  font-size: 0.87rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.cc-widget-bubble-bot {
+  align-self: flex-start;
+  color: #1f2937;
+  background: #eef3ff;
+  border: 1px solid #dbe7ff;
+}
+
+.cc-widget-bubble-user {
+  align-self: flex-end;
+  color: #f8fafc;
+  background: #2563eb;
+}
+
+.cc-widget-form {
+  border-top: 1px solid #e2e8f0;
+  padding: 10px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.cc-widget-input {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-height: 40px;
+  max-height: 120px;
+  resize: vertical;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.cc-widget-send {
+  border: 0;
+  border-radius: 10px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.cc-widget-send:hover {
+  background: #1e40af;
+}
+
+@media (max-width: 767.98px) {
+  .cc-widget {
+    right: 12px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cc-widget-panel {
+    width: min(85vw, 360px);
+    max-height: min(66vh, 500px);
+    bottom: 68px;
+  }
+
+  .cc-widget-tooltip {
+    display: none;
+  }
+}

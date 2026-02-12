@@ -58,7 +58,7 @@
     <li class="student-list-item"><a href="{% url 'ui-semesters' %}">{% trans "Ver semestres" %}</a></li>
     <li class="student-list-item"><a href="{% url 'ui-tasks' %}">{% trans "Ver tarefas" %}</a></li>
     <li class="student-list-item"><a href="{% url 'ui-agenda-list' %}">{% trans "Ver agenda" %}</a></li>
-    <li class="student-list-item"><a href="/api/semester/assessments/">{% trans "Cadastrar avaliacao (API)" %}</a></li>
+    <li class="student-list-item"><a href="{% url 'ui-semester-list' %}">{% trans "Cadastrar avaliacao" %}</a></li>
   </ul>
 </div>
 {% endblock %}

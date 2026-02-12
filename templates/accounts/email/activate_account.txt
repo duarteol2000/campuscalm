@@ -1,0 +1,8 @@
+Ative sua conta no CampusCalm
+
+Ola{% if user.name %}, {{ user.name }}{% endif %}.
+
+Para concluir seu cadastro e acessar a plataforma, confirme seu e-mail no link abaixo:
+{{ activation_url }}
+
+Se voce nao solicitou este cadastro, ignore esta mensagem.
