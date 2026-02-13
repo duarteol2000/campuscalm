@@ -1,6 +1,7 @@
 from unittest.mock import patch
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework.test import APITestCase
@@ -219,6 +220,143 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(response.data["category"], "stress")
         self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_main"])
         self.assertNotEqual(response.data["reply"], "Estou aqui com voce. Quer me contar um pouco mais sobre isso?")
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_new_variations_trigger_main_with_stress_context(self):
+        variations = [
+            "q faco",
+            "oq eu faco?",
+            "o que eu faço?",
+            "oq fazer",
+            "que faço",
+            "me ajuda pf",
+            "me ajuda por favor",
+        ]
+
+        for message in variations:
+            with self.subTest(message=message):
+                InteracaoAluno.objects.filter(user=self.user).delete()
+                self.client.post(
+                    "/api/widget/chat/",
+                    {"message": "Estou com medo e muito nervosa para a prova"},
+                    format="json",
+                )
+                response = self.client.post("/api/widget/chat/", {"message": message}, format="json")
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data["category"], "stress")
+                self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_main"])
+                self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_new_variation_without_stress_context_uses_normal_flow(self):
+        response = self.client.post("/api/widget/chat/", {"message": "q faco"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_main"])
+
+    def test_short_direction_english_triggers_main_with_stress_context(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "I'm nervous about my exam"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "What should I do?"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_main_en"])
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_english_followup_positive_closes_flow(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "I'm nervous about my exam"},
+            format="json",
+        )
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "What should I do?"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "better"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_ok_en"])
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_english_followup_negative_returns_body_regulation(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "I'm nervous about my exam"},
+            format="json",
+        )
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "What should I do?"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "still nervous"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_body_en"])
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_english_without_stress_context_uses_normal_flow(self):
+        response = self.client.post("/api/widget/chat/", {"message": "What should I do?"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_main_en"])
+
+    def test_language_cookie_en_returns_english_fallback_for_unknown_message(self):
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "en"
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "blabla unknown text without specific trigger"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], None)
+        self.assertIn(response.data["reply"], {"I'm here with you. Can you tell me a little more about this?", "Got it. Tell me a bit more so I can help you better."})
+
+    def test_language_cookie_en_detects_stress_and_replies_in_english(self):
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "en"
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "I am very anxious about my exam tomorrow"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_anxiety_en"])
+        self.assertLessEqual(len(response.data["micro_interventions"]), 1)
+        if response.data["micro_interventions"]:
+            micro = response.data["micro_interventions"][0]
+            self.assertIn(
+                micro["nome"],
+                {"Drink water", "Breathing 4-4-4"},
+            )
+
+    def test_language_cookie_en_detects_social_and_replies_in_english(self):
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "en"
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "thank you, I appreciate it"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "social")
+        self.assertIn(response.data["reply"], {"Happy to help.", "Anytime you need, I'm here.", "You can count on me."})
         self.assertEqual(response.data["micro_interventions"], [])
 
     def test_short_direction_followup_positive_closes_flow(self):

@@ -15,11 +15,16 @@
     return;
   }
 
+  var currentLang = String(document.documentElement.getAttribute("lang") || "").toLowerCase();
+  var isEnglish = currentLang.indexOf("en") === 0;
   var API_ENDPOINT = "/api/widget/chat/";
-  var STORAGE_KEY = "campuscalm_widget_history_v1";
-  var LEGACY_INITIAL_BOT_MESSAGE = "Oi! Quer organizar o que esta te preocupando agora?";
-  var INITIAL_BOT_MESSAGE =
-    "Oi! Quer organizar o que esta te preocupando agora?\nSe voce quiser, eu te ajudo a transformar isso em 10 minutos de acao.";
+  var STORAGE_KEY = "campuscalm_widget_history_v1_" + (isEnglish ? "en" : "pt");
+  var LEGACY_INITIAL_BOT_MESSAGE = isEnglish
+    ? "Hi! Want to organize what's worrying you right now?"
+    : "Oi! Quer organizar o que esta te preocupando agora?";
+  var INITIAL_BOT_MESSAGE = isEnglish
+    ? "Hi! Want to organize what's worrying you right now?\nIf you want, I can help you turn this into 10 minutes of action."
+    : "Oi! Quer organizar o que esta te preocupando agora?\nSe voce quiser, eu te ajudo a transformar isso em 10 minutos de acao.";
   var history = loadHistory();
 
   if (!history.length) {
@@ -186,7 +191,8 @@
       return "";
     }
 
-    return "\n\nMicrointervencoes:\n" + lines.join("\n");
+    var title = isEnglish ? "Micro interventions" : "Microintervencoes";
+    return "\n\n" + title + ":\n" + lines.join("\n");
   }
 
   function getCsrfToken() {
@@ -210,12 +216,22 @@
         "medo",
         "nao estou preparado",
         "nao estudei o bastante",
+        "anxious",
+        "exam",
+        "afraid",
+        "not prepared",
       ])
     ) {
+      if (isEnglish) {
+        return "I understand. Let's split this into one small step now. What is the next simplest thing you can do in 10 minutes?";
+      }
       return "Entendi. Vamos dividir isso em 1 passo pequeno agora. O que e a proxima coisa mais simples que voce pode fazer em 10 minutos?";
     }
 
-    if (containsAny(text, ["cansado", "exausto", "dormi pouco", "sono"])) {
+    if (containsAny(text, ["cansado", "exausto", "dormi pouco", "sono", "tired", "exhausted", "sleepy"])) {
+      if (isEnglish) {
+        return "Your body is asking for an adjustment. Want a 2-minute breathing pause and then one light task?";
+      }
       return "Seu corpo esta pedindo um ajuste. Quer fazer uma pausa de 2 minutos (respiracao) e depois escolher 1 tarefa leve?";
     }
 
@@ -225,15 +241,27 @@
         "redes sociais",
         "me tira a atencao",
         "nao consigo concentrar",
+        "distracted",
+        "social media",
+        "cant focus",
       ])
     ) {
+      if (isEnglish) {
+        return "Let's reduce friction: put your phone away for 10 minutes and choose one single task. Which task do you want to attack first?";
+      }
       return "Vamos reduzir a friccao: coloque o celular longe por 10 minutos e escolha uma tarefa unica. Qual tarefa voce quer atacar primeiro?";
     }
 
-    if (containsAny(text, ["travei", "nao consigo entender", "bloqueio"])) {
+    if (containsAny(text, ["travei", "nao consigo entender", "bloqueio", "stuck", "cant understand"])) {
+      if (isEnglish) {
+        return "Okay. Let's replace 'understand everything' with 'understand one part'. Which exact topic is blocking you?";
+      }
       return "Ok. Vamos trocar 'entender tudo' por 'entender 1 parte'. Qual e o topico exato que esta travando?";
     }
 
+    if (isEnglish) {
+      return "Got it. Want to turn this into a short 10-minute plan now?";
+    }
     return "Entendi. Quer transformar isso em um plano curto de 10 minutos agora?";
   }
 
