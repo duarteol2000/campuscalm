@@ -38,6 +38,23 @@
         <div class="mb-3">
           <label class="form-label">{{ field.label }}</label>
           {{ field }}
+          {% if field.name == "stress_level" %}
+            <div class="mt-2">
+              <div class="d-flex justify-content-between small text-muted">
+                <span>{% trans "Estresse" %}</span>
+                <span id="stressValueLabel">1/5</span>
+              </div>
+              <div class="progress" style="height: 10px;">
+                <div id="stressProgressBar"
+                     class="progress-bar"
+                     role="progressbar"
+                     style="width: 20%;"
+                     aria-valuemin="1"
+                     aria-valuemax="5"
+                     aria-valuenow="1"></div>
+              </div>
+            </div>
+          {% endif %}
           {% if field.help_text %}
             <div class="form-text">{{ field.help_text }}</div>
           {% endif %}
@@ -52,4 +69,53 @@
     </form>
   </div>
 </div>
+
+<script>
+  (function () {
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getColorClass(value) {
+      if (value <= 1) return "bg-success";
+      if (value <= 3) return "bg-warning";
+      return "bg-danger";
+    }
+
+    function initStressBar() {
+      var input = document.querySelector("#id_stress_level, [name='stress_level']");
+      var bar = document.getElementById("stressProgressBar");
+      var label = document.getElementById("stressValueLabel");
+      if (!input || !bar || !label) {
+        return;
+      }
+
+      function update() {
+        var value = parseInt(input.value || "1", 10);
+        if (isNaN(value)) {
+          value = 1;
+        }
+        value = clamp(value, 1, 5);
+        var percent = (value / 5) * 100;
+
+        bar.style.width = percent + "%";
+        bar.setAttribute("aria-valuenow", String(value));
+        label.textContent = value + "/5";
+
+        bar.classList.remove("bg-success", "bg-warning", "bg-danger");
+        bar.classList.add(getColorClass(value));
+      }
+
+      input.addEventListener("change", update);
+      input.addEventListener("input", update);
+      update();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initStressBar);
+      return;
+    }
+    initStressBar();
+  })();
+</script>
 {% endblock %}

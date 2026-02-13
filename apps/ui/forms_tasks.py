@@ -12,7 +12,7 @@ class TaskForm(forms.ModelForm):
             "title": _("Titulo"),
             "description": _("Descricao"),
             "due_date": _("Data de entrega"),
-            "stress_level": _("Nivel de estresse(0 a 5)"),
+            "stress_level": _("Nivel de estresse (1 a 5)"),
             "status": _("Status"),
         }
         widgets = {

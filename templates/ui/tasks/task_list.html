@@ -63,7 +63,20 @@
                 <td>{{ task.title }}</td>
                 <td>{{ task.due_date|date:"d/m/Y" }}</td>
                 <td><span class="badge text-bg-light">{{ task.get_status_display }}</span></td>
-                <td><span class="badge text-bg-secondary">{{ task.stress_level }}</span></td>
+                <td style="min-width: 150px;">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                      {% widthratio task.stress_level 5 100 as stress_percent %}
+                      <div class="progress-bar {% if task.stress_level <= 1 %}bg-success{% elif task.stress_level <= 3 %}bg-warning{% else %}bg-danger{% endif %}"
+                           role="progressbar"
+                           style="width: {{ stress_percent }}%;"
+                           aria-valuemin="1"
+                           aria-valuemax="5"
+                           aria-valuenow="{{ task.stress_level }}"></div>
+                    </div>
+                    <small class="text-muted">{{ task.stress_level }}/5</small>
+                  </div>
+                </td>
                 <td class="text-end">
                   <a class="btn btn-sm btn-outline-primary" href="{% url 'ui-task-detail' task.pk %}">{% trans "Ver" %}</a>
                   <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-task-edit' task.pk %}">{% trans "Editar" %}</a>
