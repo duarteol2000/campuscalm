@@ -144,6 +144,33 @@ class WidgetChatTests(APITestCase):
         self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_anxiety"])
         self.assertLessEqual(len(response.data["micro_interventions"]), 1)
 
+    def test_weak_positive_with_negative_context_falls_back_to_stress(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "show, mas estou muito ansioso para a prova"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+
+    def test_weak_positive_preserved_when_message_is_positive(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "show, consegui terminar tudo"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "evolucao")
+
+    def test_strong_positive_phrase_remains_evolucao(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "que massa, consegui tirar boa nota"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "evolucao")
+
     def test_micro_interventions_are_limited_to_one_when_present(self):
         response = self.client.post(
             "/api/widget/chat/",
@@ -175,6 +202,90 @@ class WidgetChatTests(APITestCase):
             second_name = second.data["micro_interventions"][0]["nome"]
             if MicroIntervencao.objects.filter(ativo=True).count() > 1:
                 self.assertNotEqual(first_name, second_name)
+
+    def test_short_direction_intent_returns_stress_guidance_main(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou com medo de nao conseguir passar na prova"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "O que faco?"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_main"])
+        self.assertNotEqual(response.data["reply"], "Estou aqui com voce. Quer me contar um pouco mais sobre isso?")
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_followup_positive_closes_flow(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou com medo de nao conseguir passar na prova"},
+            format="json",
+        )
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "O que faco?"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "melhorou"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_ok"])
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_followup_negative_returns_body_regulation(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou com medo de nao conseguir passar na prova"},
+            format="json",
+        )
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "O que faco?"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "nao resolveu, ainda to nervosa"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_body"])
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_direction_second_o_que_faco_returns_body_regulation(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou com medo de nao conseguir passar na prova"},
+            format="json",
+        )
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "O que faco?"},
+            format="json",
+        )
+
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "o que faco"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_short_direction_body"])
+        self.assertEqual(response.data["micro_interventions"], [])
 
     def test_contextual_memory_stress_repetition_within_48h(self):
         self._create_interacao_with_hours_ago("stress", 2)

@@ -37,6 +37,71 @@ CATEGORY_PRIORITY = [
 ]
 
 SOCIAL_STRONG_HINTS = ("obrigad", "valeu")
+NEGATIVE_KEYWORDS = [
+    "ansioso",
+    "ansiosa",
+    "ansiedade",
+    "nervoso",
+    "nervosa",
+    "cansado",
+    "cansada",
+    "estressado",
+    "estressada",
+    "dificil",
+    "difícil",
+    "medo",
+    "preocupado",
+    "preocupada",
+    "triste",
+]
+WEAK_POSITIVE_KEYWORDS = [
+    "show",
+    "top",
+    "massa",
+]
+SHORT_DIRECTION_PATTERNS = (
+    "o que faco",
+    "oque faco",
+    "oq faco",
+    "e agora",
+    "me ajuda",
+    "socorro",
+    "nao sei",
+)
+SHORT_DIRECTION_CONTEXT_HINTS = (
+    "medo",
+    "ansiosa",
+    "ansioso",
+    "nervosa",
+    "nervoso",
+    "prova",
+    "teste",
+    "apresentacao",
+)
+SHORT_DIRECTION_POSITIVE_REPLIES = (
+    "estou bem",
+    "melhorou",
+    "to bem",
+    "tô bem",
+    "ok",
+    "certo",
+    "obrigada",
+    "valeu",
+    "ajudou",
+)
+SHORT_DIRECTION_NEGATIVE_REPLIES = (
+    "nao resolveu",
+    "não resolveu",
+    "nao ajudou",
+    "não ajudou",
+    "ainda estou nervosa",
+    "ainda to nervosa",
+    "ainda tô nervosa",
+    "continuo nervosa",
+    "ainda ansiosa",
+    "to mal",
+    "tô mal",
+)
 
 
 def choose_variant(options: list[str], last_text: str | None) -> str:
@@ -85,11 +150,55 @@ def _has_any_keyword(message_text, keywords):
     return False
 
 
+def _matches_short_direction_intent(message_text):
+    if not message_text:
+        return False
+    words = message_text.split()
+    is_short = len(message_text) <= 20 or len(words) <= 3
+    if not is_short:
+        return False
+    return any(pattern in message_text for pattern in SHORT_DIRECTION_PATTERNS)
+
+
+def _has_recent_stress_context(history):
+    if not history:
+        return False
+
+    recent = history[:3]
+    last_category = next(
+        (item.categoria_detectada.slug for item in recent if item.categoria_detectada),
+        None,
+    )
+    if last_category == "stress":
+        return True
+
+    last_user_message = _normalize_text(recent[0].mensagem_usuario) if recent[0].mensagem_usuario else ""
+    return any(hint in last_user_message for hint in SHORT_DIRECTION_CONTEXT_HINTS)
+
+
+def _pick_short_direction_followup_reply(message_text, last_response_text):
+    main_options = CONTEXT_MESSAGES["stress_short_direction_main"]
+    if last_response_text not in main_options:
+        return None
+
+    if any(term in message_text for term in SHORT_DIRECTION_POSITIVE_REPLIES):
+        return choose_variant(CONTEXT_MESSAGES["stress_short_direction_ok"], last_response_text)
+
+    if _matches_short_direction_intent(message_text):
+        return choose_variant(CONTEXT_MESSAGES["stress_short_direction_body"], last_response_text)
+
+    if any(term in message_text for term in SHORT_DIRECTION_NEGATIVE_REPLIES):
+        return choose_variant(CONTEXT_MESSAGES["stress_short_direction_body"], last_response_text)
+
+    return None
+
+
 def _detect_categoria(message_text):
     if not message_text:
         return None
 
     message_words = set(message_text.split())
+    has_negative_keywords = _has_any_keyword(message_text, NEGATIVE_KEYWORDS)
     gatilhos = GatilhoEmocional.objects.filter(ativo=True, categoria__ativo=True).select_related("categoria").order_by("id")
     score_by_slug = defaultdict(int)
     category_by_slug = {}
@@ -101,7 +210,10 @@ def _detect_categoria(message_text):
         keywords = _extract_keywords(gatilho.palavras_chave)
         for keyword in keywords:
             if _contains_keyword(message_text, message_words, keyword):
-                weight = 2 if " " in keyword else 1
+                if keyword in WEAK_POSITIVE_KEYWORDS and has_negative_keywords:
+                    weight = 0
+                else:
+                    weight = 2 if " " in keyword else 1
                 score_by_slug[slug] += weight
 
     if not score_by_slug:
@@ -222,9 +334,41 @@ class WidgetChatView(APIView):
             .values_list("resposta_texto", flat=True)
             .first()
         )
+        historico = _load_recent_history(request.user)
+
+        followup_reply = _pick_short_direction_followup_reply(normalized_message, last_response_text)
+        if followup_reply:
+            categoria = GatilhoEmocional.objects.filter(categoria__slug="stress", categoria__ativo=True).select_related(
+                "categoria"
+            ).first()
+            categoria_stress = categoria.categoria if categoria else None
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=categoria_stress,
+                resposta_texto=followup_reply,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": followup_reply,
+                    "category": categoria_stress.slug if categoria_stress else None,
+                    "emoji": categoria_stress.emoji if categoria_stress else None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
 
         categoria = _detect_categoria(normalized_message)
-        if categoria:
+        if _matches_short_direction_intent(normalized_message) and _has_recent_stress_context(historico):
+            categoria_match = GatilhoEmocional.objects.filter(
+                categoria__slug="stress",
+                categoria__ativo=True,
+            ).select_related("categoria").first()
+            categoria = categoria_match.categoria if categoria_match else categoria
+            reply_text = choose_variant(CONTEXT_MESSAGES["stress_short_direction_main"], last_response_text)
+            payload_micro_intervencoes = []
+        elif categoria:
             reply_text = None
             if categoria.slug == "stress":
                 has_anxiety = _has_any_keyword(normalized_message, ANXIETY_KEYWORDS)
@@ -234,7 +378,6 @@ class WidgetChatView(APIView):
                 elif has_anxiety:
                     reply_text = choose_variant(CONTEXT_MESSAGES["stress_anxiety"], last_response_text)
 
-            historico = _load_recent_history(request.user)
             if not reply_text:
                 reply_text = _pick_contextual_reply(categoria, historico, now, last_response_text)
             if not reply_text:

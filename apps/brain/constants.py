@@ -54,4 +54,19 @@ CONTEXT_MESSAGES = {
         "Voce nao esta sozinho nisso. Vamos focar no que esta sob controle: qual assunto voce revisou melhor?",
         "Se a ansiedade estiver alta, a meta agora e estabilizar. Quer uma tecnica rapida de aterramento (5-4-3-2-1)?",
     ],
+    "stress_short_direction_main": [
+        "Você já revisou tudo. O que está acontecendo agora não é falta de preparo, é ansiedade falando alto.\n"
+        "Vamos fazer o seguinte: pare por 1 minuto e respire mais lento do que o normal.\n"
+        "Depois disso, escolha só 1 tópico que você domina e relembre mentalmente como explicaria ele para alguém.\n"
+        "Seu corpo vai entender que você está no controle."
+    ],
+    "stress_short_direction_ok": [
+        "Ótimo. Agora é executar. Você já fez sua parte."
+    ],
+    "stress_short_direction_body": [
+        "Se ainda está forte, é o corpo pedindo regulação.\n"
+        "Levanta, movimenta os ombros, dá alguns saltos leves e respira mais lento por 1 minuto.\n"
+        "Depois começa pela questão mais simples.\n"
+        "Você já fez o trabalho. Agora é executar."
+    ],
 }
