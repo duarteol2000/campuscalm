@@ -1,0 +1,25 @@
+{% load i18n %}
+<h6 class="mb-3">{% trans "Distribuicao emocional (ultimos 7 dias)" %}</h6>
+{% if rows %}
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>{% trans "Categoria" %}</th>
+          <th class="text-end">{% trans "Ocorrencias" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for slug, count in rows %}
+          <tr>
+            <td>{{ slug|title }}</td>
+            <td class="text-end">{{ count }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="text-muted small mb-0">{% blocktrans with total=total %}Total de interacoes analisadas: {{ total }}.{% endblocktrans %}</p>
+{% else %}
+  <p class="text-muted mb-0">{% trans "Sem interacoes emocionais suficientes na semana." %}</p>
+{% endif %}

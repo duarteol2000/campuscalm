@@ -171,23 +171,24 @@
       <h2 class="student-card-title">{% trans "Insights" %}</h2>
       <span class="student-card-muted">{% trans "Visao geral da semana" %}</span>
     </div>
+    <p class="student-card-muted mb-3">{{ dashboard_data.message_andamento|default:label_no_data }}</p>
     <div class="student-insights">
-      <div class="student-insight">
+      <div class="student-insight insight-clickable" data-insight-type="mood" role="button" tabindex="0" aria-label="{% trans "Detalhes de humor" %}">
         <div class="student-insight-label">{% trans "Humor mais comum" %}</div>
         <div class="student-insight-value">{{ dashboard_data.mood_most_common|default:label_no_data }}</div>
         <div class="student-card-muted small">{% blocktrans with total=dashboard_data.mood_weekly_total %}{{ total }} registros{% endblocktrans %}</div>
       </div>
-      <div class="student-insight">
+      <div class="student-insight insight-clickable" data-insight-type="focus" role="button" tabindex="0" aria-label="{% trans "Detalhes de foco" %}">
         <div class="student-insight-label">{% trans "Minutos de foco" %}</div>
         <div class="student-insight-value">{{ dashboard_data.focus_minutes_week }}</div>
         <div class="student-card-muted small">{% trans "Ultimos 7 dias" %}</div>
       </div>
-      <div class="student-insight">
+      <div class="student-insight insight-clickable" data-insight-type="stress" role="button" tabindex="0" aria-label="{% trans "Detalhes de estresse" %}">
         <div class="student-insight-label">{% trans "Estresse medio" %}</div>
         <div class="student-insight-value">{{ dashboard_data.stress_avg_week|default:label_no_data }}</div>
         <div class="student-card-muted small">{% trans "Media dos check-ins" %}</div>
       </div>
-      <div class="student-insight">
+      <div class="student-insight insight-clickable" data-insight-type="upcoming" role="button" tabindex="0" aria-label="{% trans "Detalhes de prazos" %}">
         <div class="student-insight-label">{% trans "Proximos prazos" %}</div>
         <div class="student-insight-value">{{ dashboard_data.upcoming_count }}</div>
         <div class="student-card-muted small">{% trans "Tarefas e eventos" %}</div>
@@ -195,4 +196,85 @@
     </div>
   </section>
 </div>
+
+<div class="modal fade" id="insightDetailModal" tabindex="-1" aria-labelledby="insightDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="insightDetailModalLabel">{% trans "Detalhes do insight" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans "Fechar" %}"></button>
+      </div>
+      <div class="modal-body" id="insightDetailModalBody">
+        <p class="text-muted mb-0">{% trans "Carregando detalhes..." %}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function initInsightModal() {
+      var cards = document.querySelectorAll(".insight-clickable[data-insight-type]");
+      if (!cards.length || typeof window.bootstrap === "undefined") {
+        return;
+      }
+
+      var modalEl = document.getElementById("insightDetailModal");
+      var modalBody = document.getElementById("insightDetailModalBody");
+      var modalTitle = document.getElementById("insightDetailModalLabel");
+      if (!modalEl || !modalBody || !modalTitle) {
+        return;
+      }
+
+      var modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+      var detailUrl = "{% url 'insights_detail' %}";
+
+      function loadInsightDetail(card) {
+        var insightType = card.getAttribute("data-insight-type");
+        var insightLabelEl = card.querySelector(".student-insight-label");
+        var insightLabel = insightLabelEl ? insightLabelEl.textContent.trim() : "";
+        modalTitle.textContent = insightLabel || "{% trans 'Detalhes do insight' %}";
+        modalBody.innerHTML = '<p class="text-muted mb-0">{% trans "Carregando detalhes..." %}</p>';
+        modal.show();
+
+        fetch(detailUrl + "?type=" + encodeURIComponent(insightType), {
+          credentials: "same-origin",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error("request failed");
+            }
+            return response.text();
+          })
+          .then(function (html) {
+            modalBody.innerHTML = html;
+          })
+          .catch(function () {
+            modalBody.innerHTML = '<p class="text-danger mb-0">{% trans "Nao foi possivel carregar os detalhes agora." %}</p>';
+          });
+      }
+
+      cards.forEach(function (card) {
+        card.addEventListener("click", function () {
+          loadInsightDetail(card);
+        });
+        card.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            loadInsightDetail(card);
+          }
+        });
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initInsightModal);
+      return;
+    }
+    initInsightModal();
+  })();
+</script>
 {% endblock %}

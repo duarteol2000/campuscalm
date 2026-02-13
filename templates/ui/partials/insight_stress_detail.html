@@ -1,0 +1,17 @@
+{% load i18n %}
+<h6 class="mb-3">{% trans "Resumo de estresse (ultimos 7 dias)" %}</h6>
+<ul class="list-group list-group-flush">
+  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <span>{% trans "Interacoes com stress" %}</span>
+    <strong>{{ stress_count }}</strong>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <span>{% trans "Interacoes totais" %}</span>
+    <strong>{{ total_interacoes }}</strong>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <span>{% trans "Estresse medio (escala 0-10)" %}</span>
+    <strong>{{ stress_avg_week }}</strong>
+  </li>
+</ul>
+<p class="text-muted small mt-3 mb-0">{% trans "Use esse sinal para ajustar o ritmo e priorizar uma acao curta por vez." %}</p>

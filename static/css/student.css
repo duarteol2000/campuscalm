@@ -367,6 +367,16 @@
   padding: 12px;
 }
 
+.insight-clickable {
+  cursor: pointer;
+}
+
+.insight-clickable:hover,
+.insight-clickable:focus-visible {
+  border-color: #9fc5f8;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
 .student-insight-label {
   font-size: 0.8rem;
   color: var(--student-muted);

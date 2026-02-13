@@ -1,0 +1,25 @@
+{% load i18n %}
+<h6 class="mb-3">{% trans "Sessoes de foco (ultimos 7 dias)" %}</h6>
+{% if sessions %}
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>{% trans "Data" %}</th>
+          <th class="text-end">{% trans "Minutos" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for session in sessions %}
+          <tr>
+            <td>{{ session.started_at|date:"d/m/Y H:i" }}</td>
+            <td class="text-end">{{ session.focus_minutes }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="text-muted small mb-0">{% blocktrans with total=total_minutes %}Total de foco acumulado: {{ total }} minutos.{% endblocktrans %}</p>
+{% else %}
+  <p class="text-muted mb-0">{% trans "Nenhuma sessao de foco registrada na semana." %}</p>
+{% endif %}

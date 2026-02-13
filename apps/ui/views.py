@@ -1,5 +1,4 @@
-from collections import Counter
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -19,12 +19,13 @@ from django.utils.translation import gettext_lazy as _
 from accounts.models import UserProfile
 from agenda.models import CalendarEvent, ReminderRule
 from billing.models import Plan, UserSubscription
-from mood.models import MoodEntry
+from brain.models import InteracaoAluno
 from notifications.models import NotificationQueue
 from onboarding.services import refresh_user_progress
 from planner.models import Task
 from pomodoro.models import PomodoroSession
-from semester.models import Course, Semester, SemesterCheckin
+from semester.models import Course, Semester
+from brain.services import build_dashboard_insights, maybe_send_absence_email
 from utils.academic_progress import (
     calculate_course_average,
     calculate_needed_to_pass,
@@ -194,26 +195,7 @@ def dashboard_view(request):
     else:
         search_query = request.session.get(session_key, {}).get("q", "")
 
-    now = timezone.now()
-    week_ago = now - timedelta(days=7)
-
-    mood_entries = MoodEntry.objects.filter(user=user, created_at__gte=week_ago)
-    mood_counts = Counter(mood_entries.values_list("mood", flat=True))
-    most_common_mood = None
-    if mood_counts:
-        most_common_mood = mood_counts.most_common(1)[0][0]
-
-    focus_minutes = (
-        PomodoroSession.objects.filter(user=user, started_at__gte=week_ago)
-        .values_list("focus_minutes", flat=True)
-    )
-    total_focus_minutes = sum(focus_minutes)
-
-    stress_values = SemesterCheckin.objects.filter(semester__user=user, created_at__gte=week_ago).values_list(
-        "overall_stress", flat=True
-    )
-    stress_avg = round(sum(stress_values) / len(stress_values), 2) if stress_values else None
-
+    insights_data = build_dashboard_insights(user)
     today = timezone.localdate()
     next_week = today + timedelta(days=7)
     upcoming_tasks = Task.objects.filter(user=user, due_date__gte=today, due_date__lte=next_week).order_by("due_date")
@@ -243,15 +225,20 @@ def dashboard_view(request):
             "doing": tasks.filter(status=TASK_DOING).count(),
             "done": tasks.filter(status=TASK_DONE).count(),
         },
-        "mood_weekly_total": mood_entries.count(),
-        "mood_most_common": most_common_mood,
-        "focus_minutes_week": total_focus_minutes,
-        "stress_avg_week": stress_avg,
+        "message_andamento": insights_data["message_andamento"],
+        "mood_weekly_total": insights_data["mood_weekly_total"],
+        "mood_most_common": insights_data["mood_most_common"],
+        "focus_minutes_week": insights_data["focus_minutes_week"],
+        "stress_avg_week": insights_data["stress_avg_week"],
         "upcoming_tasks": upcoming_tasks[:5],
         "upcoming_events": upcoming_events[:5],
-        "upcoming_count": upcoming_tasks.count() + upcoming_events.count(),
+        "upcoming_count": insights_data["upcoming_count"],
         "course_progress": course_progress[:5],
     }
+
+    if insights_data.get("absence_alert_active"):
+        dashboard_url = request.build_absolute_uri(reverse("ui-dashboard"))
+        maybe_send_absence_email(user=user, dashboard_url=dashboard_url)
 
     return render(
         request,
@@ -262,6 +249,93 @@ def dashboard_view(request):
             "search_query": search_query,
         },
     )
+
+
+@login_required(login_url="/login/")
+def insights_detail_view(request):
+    insight_type = (request.GET.get("type") or "").strip().lower()
+    valid_types = {"mood", "stress", "focus", "upcoming"}
+    if insight_type not in valid_types:
+        return HttpResponseBadRequest("invalid insight type")
+
+    user = request.user
+    now = timezone.now()
+    week_ago = now - timedelta(days=7)
+    context = {}
+
+    if insight_type == "mood":
+        interactions = (
+            InteracaoAluno.objects.filter(user=user, created_at__gte=week_ago, categoria_detectada__isnull=False)
+            .select_related("categoria_detectada")
+            .order_by("-created_at")
+        )
+        counts = {}
+        for interaction in interactions:
+            slug = interaction.categoria_detectada.slug
+            counts[slug] = counts.get(slug, 0) + 1
+        mood_rows = sorted(counts.items(), key=lambda item: item[1], reverse=True)
+        context = {
+            "rows": mood_rows,
+            "total": len(interactions),
+        }
+        template_name = "ui/partials/insight_mood_detail.html"
+    elif insight_type == "stress":
+        interactions = InteracaoAluno.objects.filter(user=user, created_at__gte=week_ago)
+        total_interacoes = interactions.count()
+        stress_count = interactions.filter(categoria_detectada__slug="stress").count()
+        stress_avg_week = build_dashboard_insights(user)["stress_avg_week"]
+        context = {
+            "stress_count": stress_count,
+            "total_interacoes": total_interacoes,
+            "stress_avg_week": stress_avg_week,
+        }
+        template_name = "ui/partials/insight_stress_detail.html"
+    elif insight_type == "focus":
+        sessions = PomodoroSession.objects.filter(user=user, started_at__gte=week_ago).order_by("-started_at")
+        total_minutes = sum(session.focus_minutes for session in sessions)
+        context = {
+            "sessions": sessions[:20],
+            "total_minutes": total_minutes,
+        }
+        template_name = "ui/partials/insight_focus_detail.html"
+    else:
+        today = timezone.localdate()
+        next_week = today + timedelta(days=7)
+        tasks = (
+            Task.objects.filter(user=user, due_date__gte=today, due_date__lte=next_week)
+            .exclude(status=TASK_DONE)
+            .order_by("due_date")
+        )
+        events = CalendarEvent.objects.filter(
+            user=user,
+            start_at__date__gte=today,
+            start_at__date__lte=next_week,
+        ).order_by("start_at")
+        upcoming_items = []
+        for task in tasks:
+            upcoming_items.append(
+                {
+                    "kind": "task",
+                    "title": task.title,
+                    "when": timezone.make_aware(datetime.combine(task.due_date, time.min)),
+                }
+            )
+        for event in events:
+            upcoming_items.append(
+                {
+                    "kind": "event",
+                    "title": event.title,
+                    "when": event.start_at,
+                }
+            )
+        upcoming_items.sort(key=lambda item: item["when"])
+        context = {
+            "items": upcoming_items,
+            "total": len(upcoming_items),
+        }
+        template_name = "ui/partials/insight_upcoming_detail.html"
+
+    return render(request, template_name, context)
 
 
 @login_required(login_url="/login/")
