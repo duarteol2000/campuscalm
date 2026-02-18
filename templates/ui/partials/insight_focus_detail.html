@@ -21,5 +21,7 @@
   </div>
   <p class="text-muted small mb-0">{% blocktrans with total=total_minutes %}Total de foco acumulado: {{ total }} minutos.{% endblocktrans %}</p>
 {% else %}
-  <p class="text-muted mb-0">{% trans "Nenhuma sessao de foco registrada na semana." %}</p>
+  <p class="text-muted mb-2">{% trans "Ainda nao ha dados desta semana." %}</p>
+  <p class="text-muted small mb-0">{% trans "Sem sessoes de foco registradas nesta semana. Que tal iniciar um foco de 10 minutos?" %}</p>
 {% endif %}
+<a class="btn btn-sm btn-primary mt-3" href="{% url 'ui-task-create' %}">{% trans "Iniciar foco" %}</a>

@@ -63,19 +63,28 @@
                 <td>{{ task.title }}</td>
                 <td>{{ task.due_date|date:"d/m/Y" }}</td>
                 <td><span class="badge text-bg-light">{{ task.get_status_display }}</span></td>
-                <td style="min-width: 150px;">
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 8px;">
-                      {% widthratio task.stress_level 5 100 as stress_percent %}
-                      <div class="progress-bar {% if task.stress_level <= 1 %}bg-success{% elif task.stress_level <= 3 %}bg-warning{% else %}bg-danger{% endif %}"
+                <td class="task-stress-cell">
+                  {% with stress_value=task.stress_level|default:0 %}
+                  <div class="task-stress-wrap d-flex align-items-center gap-2">
+                    <div class="progress task-stress-progress flex-grow-1">
+                      {% widthratio stress_value 5 100 as stress_percent %}
+                      <div class="progress-bar task-stress-bar {% if stress_value <= 1 %}bg-success{% elif stress_value <= 3 %}bg-warning{% else %}bg-danger{% endif %}"
                            role="progressbar"
-                           style="width: {{ stress_percent }}%;"
-                           aria-valuemin="1"
+                           {% if stress_value > 0 %}
+                           style="width: max(15%, {{ stress_percent }}%);"
+                           {% else %}
+                           style="width: 0%;"
+                           {% endif %}
+                           aria-valuemin="0"
                            aria-valuemax="5"
-                           aria-valuenow="{{ task.stress_level }}"></div>
+                           aria-valuenow="{{ stress_value }}"></div>
                     </div>
-                    <small class="text-muted">{{ task.stress_level }}/5</small>
+                    <small class="task-stress-value text-muted">{{ stress_value }}/5</small>
+                    {% if stress_value == 5 %}
+                      <span class="task-stress-high" title="{% trans 'Alta pressao' %}" aria-label="{% trans 'Alta pressao' %}">🔥</span>
+                    {% endif %}
                   </div>
+                  {% endwith %}
                 </td>
                 <td class="text-end">
                   <a class="btn btn-sm btn-outline-primary" href="{% url 'ui-task-detail' task.pk %}">{% trans "Ver" %}</a>

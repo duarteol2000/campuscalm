@@ -21,5 +21,7 @@
   </div>
   <p class="text-muted small mb-0">{% blocktrans with total=total %}Total de interacoes analisadas: {{ total }}.{% endblocktrans %}</p>
 {% else %}
-  <p class="text-muted mb-0">{% trans "Sem interacoes emocionais suficientes na semana." %}</p>
+  <p class="text-muted mb-2">{% trans "Ainda nao ha dados desta semana." %}</p>
+  <p class="text-muted small mb-0">{% trans "Ainda nao ha interacoes ou check-ins suficientes esta semana. Faca um check-in rapido e volte aqui." %}</p>
 {% endif %}
+<a class="btn btn-sm btn-primary mt-3" href="{% url 'ui-message-list' %}">{% trans "Fazer check-in" %}</a>

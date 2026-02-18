@@ -144,5 +144,5 @@ Mensagens automaticas:
 
 ## Tests
 ```bash
-python manage.py test
+python manage.py test brain -v 2
 ```

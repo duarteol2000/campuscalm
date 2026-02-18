@@ -1,0 +1,318 @@
+MANUAL DO USUARIO INICIANTE - CAMPUSCALM
+Versao: 1.0
+
+CampusCalm nao e apenas um organizador de tarefas.
+E um painel para reduzir sobrecarga e manter clareza durante o semestre.
+
+==================================================
+INDICE
+==================================================
+1. O que e o CampusCalm
+2. Primeiro acesso (criacao de conta)
+3. Login, idioma e recuperacao de senha
+4. Entendendo o menu lateral
+5. O que e Onboarding
+6. Como cadastrar Semestre, Disciplina e Avaliacao
+7. Como cadastrar e acompanhar Tarefas
+8. Como usar Agenda (eventos)
+9. Como configurar Lembretes
+10. Como ler Mensagens (historico)
+11. Como ler o Dashboard
+12. Como ler o bloco Insights
+13. Como usar o chat do CampusCalm
+14. Roteiro rapido para o primeiro dia
+15. Duvidas comuns
+
+==================================================
+1) O QUE E O CAMPUSCALM
+==================================================
+CampusCalm e um painel para ajudar estudantes a:
+- organizar prazos (tarefas e eventos),
+- acompanhar progresso academico,
+- reduzir sobrecarga,
+- receber lembretes e apoio no estudo.
+
+Pense nele como seu "painel de controle" da semana.
+
+==================================================
+2) PRIMEIRO ACESSO (CRIACAO DE CONTA)
+==================================================
+Passo a passo:
+1. Abra a tela de login.
+2. Clique em "Primeiro acesso / Criar conta".
+3. Preencha:
+   - Nome
+   - Email
+   - Telefone (opcional)
+   - Plano
+   - Senha e Confirmar senha
+4. Marque (se quiser) autorizacoes de contato:
+   - Email
+   - WhatsApp
+   - SMS
+5. Clique em "Criar conta".
+6. Confira seu email e clique no link de ativacao.
+7. Depois volte ao login e entre normalmente.
+
+Importante:
+- Sem ativar no email, a conta nao entra.
+
+==================================================
+3) LOGIN, IDIOMA E RECUPERACAO DE SENHA
+==================================================
+Login:
+1. Informe email e senha.
+2. Clique em "Entrar".
+
+Trocar idioma:
+- Na tela de login e no painel existe seletor de idioma.
+- Escolha o idioma e a pagina atualiza automaticamente.
+
+Esqueci senha:
+1. Clique em "Esqueci minha senha".
+2. Informe seu email.
+3. Abra o link recebido e redefina.
+
+==================================================
+4) ENTENDENDO O MENU LATERAL
+==================================================
+No menu voce encontra:
+- Dashboard: resumo geral da sua semana.
+- Onboarding: checklist de configuracao inicial.
+- Semestres: cadastro de semestre, disciplina e avaliacao.
+- Tarefas: prazos e atividades.
+- Agenda: eventos e compromissos.
+- Lembretes: regras de notificacao.
+- Mensagens: historico de envios/notificacoes.
+
+Atalhos no topo:
+- Nova tarefa
+- Novo evento
+- Novo lembrete
+
+==================================================
+5) O QUE E ONBOARDING
+==================================================
+Onboarding = configuracao inicial obrigatoria para liberar todo o painel.
+
+O "Progresso do onboarding" mostra:
+- quantas etapas voce concluiu,
+- quantas faltam,
+- percentual total em barra.
+
+Etapas principais:
+1. Perfil
+2. Semestre ativo
+3. Pelo menos 1 disciplina
+4. Pelo menos 1 avaliacao
+5. Pelo menos 1 regra de lembrete
+6. Dashboard pronto
+
+Se aparecer "Pendente", faca a acao recomendada da etapa.
+
+==================================================
+6) COMO CADASTRAR SEMESTRE, DISCIPLINA E AVALIACAO
+==================================================
+6.1 Criar Semestre
+1. Menu "Semestres".
+2. Clique em "Novo Semestre".
+3. Preencha:
+   - Nome do semestre
+   - Data de inicio
+   - Data de termino
+   - Status (Ativo/Finalizado)
+4. Clique em "Criar".
+
+6.2 Criar Disciplina
+1. Entre no semestre criado (botao "Ver").
+2. Clique em "Nova Disciplina".
+3. Preencha nome, professor, creditos, nota minima, etc.
+4. Salve.
+
+6.3 Criar Avaliacao
+1. Abra a disciplina.
+2. Clique em "Nova Avaliacao".
+3. Preencha titulo, nota, nota maxima, peso e data.
+4. Salve.
+
+Como ler o progresso da disciplina:
+- Media atual: desempenho medio atual.
+- Media minima: nota para passar.
+- Falta para passar: quanto ainda precisa.
+- Barra de progresso: seu avancar na disciplina.
+
+==================================================
+7) COMO CADASTRAR E ACOMPANHAR TAREFAS
+==================================================
+Criar tarefa:
+1. Menu "Tarefas" > "Nova tarefa".
+2. Preencha:
+   - Titulo
+   - Descricao
+   - Data de entrega
+   - Nivel de estresse (0 a 5)
+   - Status (A fazer, Em andamento, Concluida)
+3. Salve.
+
+Entender o "Nivel de estresse":
+- 0 a 1: baixo (verde)
+- 3: medio (amarelo)
+- 4 a 5: alto (vermelho)
+
+Na listagem de tarefas:
+- Voce pode filtrar por status e busca por texto.
+- A coluna "Estresse" mostra barra + valor numerico (ex: 3/5).
+
+==================================================
+8) COMO USAR AGENDA (EVENTOS)
+==================================================
+Criar evento:
+1. Menu "Agenda" > "Novo evento".
+2. Preencha:
+   - Titulo
+   - Tipo (prova, entrega, apresentacao etc.)
+   - Inicio e fim
+   - Tarefa relacionada (opcional)
+   - Observacoes
+3. Salve.
+
+Para que serve:
+- visualizar compromissos por data/hora,
+- evitar choque de prazos,
+- organizar semana de estudo.
+
+==================================================
+9) COMO CONFIGURAR LEMBRETES
+==================================================
+Criar regra de lembrete:
+1. Menu "Lembretes" > "Novo lembrete".
+2. Defina:
+   - Tipo de alvo (tarefa ou evento)
+   - Minutos antes
+   - Canais (Email, WhatsApp, SMS)
+   - Ativo
+3. Salve.
+
+Botao "Gerar lembretes":
+- gera notificacoes com base nas regras ativas.
+
+==================================================
+10) COMO LER MENSAGENS (HISTORICO)
+==================================================
+Em "Mensagens" voce ve notificacoes registradas:
+- Titulo e resumo da mensagem
+- Canal usado
+- Status (pendente, enviado, erro)
+- Acao
+- Data agendada e data de envio
+- Numero de tentativas
+- Erro (se houver)
+
+Use filtros por Status e Canal para achar mais rapido.
+
+==================================================
+11) COMO LER O DASHBOARD
+==================================================
+O Dashboard e o resumo da semana.
+
+Blocos principais:
+1. Progresso do onboarding
+   - mostra o quanto falta da configuracao inicial.
+2. Hoje
+   - proxima tarefa e proximo evento.
+3. Proximas tarefas
+   - lista curta de prazos.
+4. Agenda
+   - proximo compromisso.
+5. Progresso por disciplina
+   - media atual e barra por disciplina.
+6. Insights
+   - leitura inteligente da semana (humor, foco, estresse e prazos).
+
+==================================================
+12) COMO LER O BLOCO INSIGHTS
+==================================================
+Cards mostrados:
+- Visao geral da semana
+- Humor mais comum
+- Minutos de foco
+- Estresse medio
+- Proximos prazos
+
+O objetivo do bloco Insights e orientar sua proxima decisao da semana.
+
+O que significa cada item:
+- Visao geral da semana: mensagem objetiva para sua proxima acao.
+- Humor mais comum: tendencia emocional mais registrada na semana.
+- Minutos de foco: total de foco nos ultimos 7 dias.
+- Estresse medio: nivel medio de estresse da semana (escala 0 a 10).
+- Proximos prazos: soma de tarefas + eventos nos proximos dias.
+
+Dica importante:
+- Clique nos cards de Insights para abrir detalhes no modal.
+- No modal, voce encontra explicacao e CTA (botao de acao).
+
+==================================================
+13) COMO USAR O CHAT DO CAMPUSCALM
+==================================================
+No canto da tela existe o widget "Organizar mente".
+
+Como usar:
+1. Clique no botao do widget.
+2. Escreva sua mensagem (ex: "estou ansioso para a prova").
+3. Envie.
+4. Leia a resposta e aplique o passo sugerido.
+
+O chat orienta passos curtos. Ele nao substitui seu estudo, apenas organiza sua proxima acao.
+
+Boas praticas:
+- seja especifico (ex: prova, prazo, cansaco, foco),
+- use frases curtas,
+- teste o idioma certo no seletor.
+
+==================================================
+14) ROTEIRO RAPIDO PARA O PRIMEIRO DIA
+==================================================
+1. Criar e ativar conta por email.
+2. Fazer login.
+3. Completar onboarding:
+   - criar semestre,
+   - adicionar disciplina,
+   - cadastrar 1 avaliacao,
+   - criar 1 regra de lembrete.
+4. Criar 3 tarefas da semana.
+5. Criar eventos importantes na agenda.
+6. Abrir dashboard e revisar Insights.
+7. Clicar no card de stress/humor para detalhes.
+8. Usar o chat para organizar o proximo passo.
+
+==================================================
+15) DUVIDAS COMUNS
+==================================================
+1. "Nao consigo entrar."
+- Verifique se ativou a conta no email.
+- Confira email/senha.
+- Use "Esqueci minha senha" se necessario.
+
+2. "Meu onboarding nao avanca."
+- Confira se existe:
+  - semestre ativo,
+  - pelo menos 1 disciplina,
+  - pelo menos 1 avaliacao,
+  - pelo menos 1 lembrete ativo.
+
+3. "Insights sem dados."
+- Cadastre tarefas/eventos.
+- Use mais o sistema durante a semana.
+- Faça check-ins/interacoes para gerar historico.
+
+4. "Nao recebi lembrete."
+- Verifique se a regra esta ativa.
+- Confira canal escolhido.
+- Veja a tela "Mensagens" para status/erro.
+
+5. "Troquei idioma e algumas partes nao mudaram."
+- Atualize a pagina.
+- Confira se o idioma foi salvo no seletor.
+
+FIM

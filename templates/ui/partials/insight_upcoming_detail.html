@@ -16,5 +16,7 @@
   </ul>
   <p class="text-muted small mt-3 mb-0">{% blocktrans with total=total %}Total de prazos no periodo: {{ total }}.{% endblocktrans %}</p>
 {% else %}
-  <p class="text-muted mb-0">{% trans "Sem tarefas ou eventos nos proximos 7 dias." %}</p>
+  <p class="text-muted mb-2">{% trans "Ainda nao ha dados desta semana." %}</p>
+  <p class="text-muted small mb-0">{% trans "Sem prazos nos proximos 7 dias. Se quiser, adicione uma tarefa pequena para hoje." %}</p>
 {% endif %}
+<a class="btn btn-sm btn-primary mt-3" href="{% url 'ui-task-create' %}">{% trans "Criar tarefa" %}</a>

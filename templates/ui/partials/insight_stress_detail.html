@@ -1,17 +1,23 @@
 {% load i18n %}
 <h6 class="mb-3">{% trans "Resumo de estresse (ultimos 7 dias)" %}</h6>
-<ul class="list-group list-group-flush">
-  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-    <span>{% trans "Interacoes com stress" %}</span>
-    <strong>{{ stress_count }}</strong>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-    <span>{% trans "Interacoes totais" %}</span>
-    <strong>{{ total_interacoes }}</strong>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-    <span>{% trans "Estresse medio (escala 0-10)" %}</span>
-    <strong>{{ stress_avg_week }}</strong>
-  </li>
-</ul>
-<p class="text-muted small mt-3 mb-0">{% trans "Use esse sinal para ajustar o ritmo e priorizar uma acao curta por vez." %}</p>
+{% if total_interacoes > 0 %}
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+      <span>{% trans "Interacoes com stress" %}</span>
+      <strong>{{ stress_count }}</strong>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+      <span>{% trans "Interacoes totais" %}</span>
+      <strong>{{ total_interacoes }}</strong>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+      <span>{% trans "Estresse medio (escala 0-10)" %}</span>
+      <strong>{{ stress_avg_week }}</strong>
+    </li>
+  </ul>
+  <p class="text-muted small mt-3 mb-0">{% trans "Use esse sinal para ajustar o ritmo e priorizar uma acao curta por vez." %}</p>
+{% else %}
+  <p class="text-muted mb-2">{% trans "Ainda nao ha dados desta semana." %}</p>
+  <p class="text-muted small mb-0">{% trans "Sem dados de estresse nesta semana. Um check-in rapido ajuda voce a se entender melhor." %}</p>
+{% endif %}
+<a class="btn btn-sm btn-primary mt-3" href="{% url 'ui-task-list' %}">{% trans "Registrar check-in de estresse" %}</a>
