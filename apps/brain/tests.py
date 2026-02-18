@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from brain.constants import CONTEXT_MESSAGES
 from brain.models import CategoriaEmocional, GatilhoEmocional, InteracaoAluno, MicroIntervencao, RespostaEmocional
+from brain.views import BLINDAGEM_NEUTRAL_REPLY, BLINDAGEM_REPLY
 
 User = get_user_model()
 
@@ -574,6 +575,58 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(response.data["reply"], "Resposta B")
         self.assertNotEqual(response.data["reply"], "Resposta A")
         choose_variant_mock.assert_called()
+
+    def test_blindagem_activates_after_two_null_classifications(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "texto sem gatilho alfa"},
+            format="json",
+        )
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "texto sem gatilho beta"},
+            format="json",
+        )
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.data["category"], None)
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.data["category"], None)
+        self.assertEqual(second.data["reply"], BLINDAGEM_REPLY)
+        self.assertEqual(second.data["micro_interventions"], [])
+
+    def test_blindagem_choice_ansiedade_maps_directly_to_stress(self):
+        self.client.post("/api/widget/chat/", {"message": "texto sem gatilho alfa"}, format="json")
+        self.client.post("/api/widget/chat/", {"message": "texto sem gatilho beta"}, format="json")
+
+        response = self.client.post("/api/widget/chat/", {"message": "ansiedade"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertNotEqual(response.data["reply"], BLINDAGEM_REPLY)
+        self.assertTrue(response.data["reply"])
+
+    def test_blindagem_does_not_activate_when_second_message_is_classified(self):
+        self.client.post("/api/widget/chat/", {"message": "texto sem gatilho alfa"}, format="json")
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "estou muito ansioso para a prova"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertNotEqual(response.data["reply"], BLINDAGEM_REPLY)
+
+    def test_blindagem_anti_loop_returns_neutral_guidance(self):
+        self.client.post("/api/widget/chat/", {"message": "texto sem gatilho alfa"}, format="json")
+        self.client.post("/api/widget/chat/", {"message": "texto sem gatilho beta"}, format="json")
+        response = self.client.post("/api/widget/chat/", {"message": "texto sem gatilho gama"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], None)
+        self.assertEqual(response.data["reply"], BLINDAGEM_NEUTRAL_REPLY)
+        self.assertEqual(response.data["micro_interventions"], [])
 
     @patch("brain.views.random.choice", return_value="Entendi. Me fala um pouco mais para eu poder te ajudar melhor.")
     def test_fallback_returns_null_category_and_no_micro_interventions(self, random_choice_mock):

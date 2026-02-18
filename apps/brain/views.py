@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from brain.constants import ANXIETY_KEYWORDS, CONTEXT_MESSAGES, EXAM_KEYWORDS
-from brain.models import GatilhoEmocional, InteracaoAluno, MicroIntervencao, RespostaEmocional
+from brain.models import CategoriaEmocional, GatilhoEmocional, InteracaoAluno, MicroIntervencao, RespostaEmocional
 
 
 class WidgetChatRequestSerializer(serializers.Serializer):
@@ -29,6 +29,21 @@ ENGLISH_FALLBACK_REPLIES = [
     "I'm here with you. Can you tell me a little more about this?",
     "Got it. Tell me a bit more so I can help you better.",
 ]
+BLINDAGEM_REPLY = (
+    "Vamos simplificar.\n"
+    "Escolha o que mais se aproxima do que voce precisa agora:\n\n"
+    "• Ansiedade\n"
+    "• Organizacao\n"
+    "• Estudos\n"
+    "• Prazo"
+)
+BLINDAGEM_NEUTRAL_REPLY = "Vamos por partes: diga em uma palavra se e ansiedade, organizacao, estudos ou prazo."
+BLINDAGEM_CATEGORY_MAP = {
+    "ansiedade": "stress",
+    "organizacao": "foco_alto",
+    "estudos": "duvida",
+    "prazo": "stress",
+}
 
 CATEGORY_PRIORITY = [
     "evolucao",
@@ -96,6 +111,13 @@ SHORT_DIRECTION_PATTERNS = (
     "i dont know",
     "i don't know",
     "what now",
+)
+GENERIC_QUESTION_PATTERNS = SHORT_DIRECTION_PATTERNS + (
+    "o que eu faco",
+    "o que eu faco agora",
+    "oque eu faco",
+    "o que fazer",
+    "nao sei o que fazer",
 )
 SHORT_DIRECTION_CONTEXT_HINTS = (
     "medo",
@@ -409,6 +431,52 @@ def _pick_short_direction_followup_reply(message_text, last_response_text):
     return None
 
 
+def _is_generic_question(message_text):
+    if not message_text:
+        return False
+    words = message_text.split()
+    is_short = len(message_text) <= 40 or len(words) <= 6
+    if not is_short:
+        return False
+    return _has_any_keyword(message_text, GENERIC_QUESTION_PATTERNS)
+
+
+def _was_blindagem_recently_activated(history):
+    return any(item.resposta_texto == BLINDAGEM_REPLY for item in history[:3])
+
+
+def _is_repeated_generic_question(message_text, history):
+    if not history:
+        return False
+    if not _is_generic_question(message_text):
+        return False
+    last_message = _normalize_text(history[0].mensagem_usuario or "")
+    return bool(last_message) and last_message == message_text
+
+
+def _should_activate_blindagem(categoria, message_text, history):
+    if categoria is not None or not history:
+        return False
+
+    last_categoria_null = history[0].categoria_detectada is None
+    repeated_generic_question = _is_repeated_generic_question(message_text, history)
+    return last_categoria_null or repeated_generic_question
+
+
+def _resolve_categoria_by_slug(slug):
+    if not slug:
+        return None
+    return CategoriaEmocional.objects.filter(slug=slug, ativo=True).first()
+
+
+def _resolve_blindagem_choice(message_text, history):
+    if not history:
+        return None
+    if history[0].resposta_texto != BLINDAGEM_REPLY:
+        return None
+    return BLINDAGEM_CATEGORY_MAP.get(message_text)
+
+
 def _detect_categoria(message_text, is_english=False):
     if not message_text:
         return None
@@ -589,10 +657,7 @@ class WidgetChatView(APIView):
 
         followup_reply = _pick_short_direction_followup_reply(normalized_message, last_response_text)
         if followup_reply:
-            categoria = GatilhoEmocional.objects.filter(categoria__slug="stress", categoria__ativo=True).select_related(
-                "categoria"
-            ).first()
-            categoria_stress = categoria.categoria if categoria else None
+            categoria_stress = _resolve_categoria_by_slug("stress")
             InteracaoAluno.objects.create(
                 user=request.user,
                 mensagem_usuario=mensagem_usuario,
@@ -610,13 +675,38 @@ class WidgetChatView(APIView):
                 status=status.HTTP_200_OK,
             )
 
+        blindagem_choice_slug = _resolve_blindagem_choice(normalized_message, historico)
+        if blindagem_choice_slug:
+            categoria = _resolve_categoria_by_slug(blindagem_choice_slug)
+            if categoria:
+                reply_text = _pick_category_reply(categoria, last_response_text, is_english=is_english)
+            else:
+                reply_text = None
+            if not reply_text:
+                fallback_options = ENGLISH_FALLBACK_REPLIES if is_english else FALLBACK_REPLIES
+                reply_text = random.choice(fallback_options)
+            payload_micro_intervencoes = _pick_micro_intervention(request, categoria, is_english=is_english)
+
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=categoria,
+                resposta_texto=reply_text,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": reply_text,
+                    "category": categoria.slug if categoria else None,
+                    "emoji": categoria.emoji if categoria else None,
+                    "micro_interventions": payload_micro_intervencoes,
+                },
+                status=status.HTTP_200_OK,
+            )
+
         categoria = _detect_categoria(normalized_message, is_english=is_english)
         if _matches_short_direction_intent(normalized_message) and _has_recent_stress_context(historico):
-            categoria_match = GatilhoEmocional.objects.filter(
-                categoria__slug="stress",
-                categoria__ativo=True,
-            ).select_related("categoria").first()
-            categoria = categoria_match.categoria if categoria_match else categoria
+            categoria = _resolve_categoria_by_slug("stress") or categoria
             if is_english and _is_english_short_direction_message(normalized_message):
                 reply_text = choose_variant(CONTEXT_MESSAGES["stress_short_direction_main_en"], last_response_text)
             else:
@@ -645,8 +735,15 @@ class WidgetChatView(APIView):
                 reply_text = random.choice(fallback_options)
             payload_micro_intervencoes = _pick_micro_intervention(request, categoria, is_english=is_english)
         else:
-            fallback_options = ENGLISH_FALLBACK_REPLIES if is_english else FALLBACK_REPLIES
-            reply_text = random.choice(fallback_options)
+            should_activate_blindagem = _should_activate_blindagem(categoria, normalized_message, historico)
+            if should_activate_blindagem:
+                if _was_blindagem_recently_activated(historico):
+                    reply_text = BLINDAGEM_NEUTRAL_REPLY
+                else:
+                    reply_text = BLINDAGEM_REPLY
+            else:
+                fallback_options = ENGLISH_FALLBACK_REPLIES if is_english else FALLBACK_REPLIES
+                reply_text = random.choice(fallback_options)
             payload_micro_intervencoes = []
 
         InteracaoAluno.objects.create(
