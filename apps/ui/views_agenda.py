@@ -12,12 +12,18 @@ from ui.forms_agenda import CalendarEventForm
 @login_required(login_url="/login/")
 def agenda_list_view(request):
     events = CalendarEvent.objects.filter(user=request.user).order_by("start_at")
+    highlight_event = request.GET.get("highlight_event", "").strip()
+    try:
+        highlight_event_id = int(highlight_event) if highlight_event else None
+    except (TypeError, ValueError):
+        highlight_event_id = None
     return render(
         request,
         "ui/agenda/agenda_list.html",
         {
             "events": events,
             "now": timezone.now(),
+            "highlight_event": highlight_event_id,
         },
     )
 

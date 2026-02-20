@@ -5,14 +5,17 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import permissions, status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from notifications.models import IncomingMessage, NotificationQueue
-from notifications.serializers import NotificationQueueSerializer
+from notifications.models import InAppNotification, IncomingMessage, NotificationQueue
+from notifications.serializers import InAppNotificationSerializer, NotificationQueueSerializer
 from notifications.services.whatsapp_service import send_whatsapp_message_raw
 from utils.constants import (
     ACTION_CANCELED,
@@ -49,6 +52,55 @@ class PendingNotificationsView(APIView):
             user=request.user, status=NOTIF_PENDING, scheduled_for__lte=now
         ).order_by("scheduled_for")
         return Response(NotificationQueueSerializer(pending, many=True).data)
+
+
+class InAppUnreadCountView(APIView):
+    # Bloco: API do sino (contagem de nao lidas)
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        unread_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
+        return Response({"unread_count": unread_count})
+
+
+class InAppLatestListView(APIView):
+    # Bloco: API do sino (ultimas notificacoes)
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            limit = int(request.GET.get("limit", 5))
+        except (TypeError, ValueError):
+            limit = 5
+        limit = max(1, min(limit, 20))
+
+        queryset = InAppNotification.objects.filter(user=request.user).order_by("-created_at")[:limit]
+        return Response(InAppNotificationSerializer(queryset, many=True).data)
+
+
+class InAppMarkReadView(APIView):
+    # Bloco: API do sino (marcar uma notificacao como lida)
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk: int):
+        notification = get_object_or_404(InAppNotification, pk=pk, user=request.user)
+        if not notification.is_read:
+            notification.is_read = True
+            notification.save(update_fields=["is_read"])
+        return Response({"ok": True})
+
+
+class InAppMarkAllReadView(APIView):
+    # Bloco: API do sino (marcar todas como lidas)
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        InAppNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return Response({"ok": True})
 
 
 # Bloco: Webhook WhatsApp Cloud

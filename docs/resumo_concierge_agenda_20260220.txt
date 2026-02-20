@@ -1,0 +1,79 @@
+RESUMO - CONCIERGE DE EVENTOS NA AGENDA VIA CHAT (CampusCalm)
+Data: 2026-02-20
+
+OBJETIVO IMPLEMENTADO
+- Foi adicionado fluxo guiado de criacao de EVENTOS na Agenda via chat, no mesmo padrao do concierge de tarefas.
+- Contrato JSON do endpoint /api/widget/chat/ foi mantido (reply, category, emoji, micro_interventions).
+
+1) FLUXO CONCIERGE DE EVENTOS (2 ETAPAS)
+- Novo pending_action: create_event (reutilizando ChatPendingAction).
+- Step 1:
+  "Qual o compromisso na agenda?"
+- Step 2:
+  "Qual a data e hora?"
+- Final:
+  cria CalendarEvent + InAppNotification e responde:
+  "✅ Evento criado: {title}"
+  "🗓 Quando: {data} {hora}"
+  "🔔 Veja em Agenda"
+
+2) REGRAS DE DETECCAO (HEURISTICA)
+- Intencao de evento detectada por palavras como:
+  agenda, agendar, agende, marcar, marque, evento, reuniao, prova, consulta, aula, apresentacao, seminario etc.
+- Tambem considera combinacao de data+hora explicita com termo de compromisso.
+- Quando evento eh detectado, prioridade vai para fluxo de agenda (antes de tarefas).
+
+3) NAO TRAVAR FLUXO EMOCIONAL
+- Se o usuario entrar com mensagem emocional no meio do fluxo de evento:
+  - responde emocionalmente,
+  - NAO avanca step,
+  - NAO cria evento,
+  - mantém pending_action create_event.
+
+4) CANCELAMENTO E EXPIRACAO
+- Expiracao de pending mantida em 15 minutos.
+- Cancelamento mantido com os mesmos comandos do concierge atual.
+- Limpeza do pending ao finalizar sucesso/duplicidade/cancelamento.
+
+5) CRIACAO DO EVENTO
+- Model usado: agenda.CalendarEvent
+- Campos preenchidos:
+  - user
+  - title
+  - event_type (resolvido por heuristica)
+  - start_at (data+hora parseadas)
+  - end_at (start_at + 60 min por padrao)
+  - notes (descricao)
+- Notificacao criada:
+  - title: "Evento agendado"
+  - body: titulo do evento
+  - target_url: /agenda/?highlight_event={id}
+
+6) HIGHLIGHT NA AGENDA
+- Implementado query param highlight_event=<id> na listagem.
+- Linha recebe classe de destaque + scrollIntoView suave.
+- Visual alinhado ao comportamento ja existente em tarefas.
+
+7) ARQUIVOS ALTERADOS
+- apps/brain/views.py
+- apps/brain/tests.py
+- apps/ui/views_agenda.py
+- templates/ui/agenda/agenda_list.html
+- static/css/student.css
+- apps/ui/tests_agenda.py (novo)
+
+8) TESTES ADICIONADOS/COBERTURA
+- brain:
+  - fluxo completo create_event (2 passos)
+  - emocional no meio nao avanca
+- ui:
+  - agenda list com highlight_event no contexto + marcação visual
+
+9) VALIDACAO EXECUTADA
+- python manage.py test brain ui notifications -v 2  -> OK
+- python manage.py check                           -> OK
+
+OBS
+- Nao houve alteracao de models de tarefa.
+- Nao houve mudanca de contrato JSON do chat.
+- Integracao com sino/notificacoes in-app mantida.

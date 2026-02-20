@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from notifications.models import IncomingMessage, NotificationQueue
+from notifications.models import InAppNotification, IncomingMessage, NotificationQueue
 
 
 @admin.register(NotificationQueue)
@@ -13,3 +13,9 @@ class NotificationQueueAdmin(admin.ModelAdmin):
 class IncomingMessageAdmin(admin.ModelAdmin):
     list_display = ("phone_from", "parsed_action", "received_at", "matched_notification")
     list_filter = ("parsed_action",)
+
+
+@admin.register(InAppNotification)
+class InAppNotificationAdmin(admin.ModelAdmin):
+    list_display = ("user", "title", "is_read", "created_at")
+    list_filter = ("is_read", "user")

@@ -10,6 +10,7 @@
   var messagesContainer = root.querySelector("[data-cc-messages]");
   var form = root.querySelector("[data-cc-form]");
   var input = root.querySelector("[data-cc-input]");
+  var counter = root.querySelector("[data-cc-counter]");
 
   if (!trigger || !panel || !closeButton || !messagesContainer || !form || !input) {
     return;
@@ -18,6 +19,7 @@
   var currentLang = String(document.documentElement.getAttribute("lang") || "").toLowerCase();
   var isEnglish = currentLang.indexOf("en") === 0;
   var API_ENDPOINT = "/api/widget/chat/";
+  var MAX_MESSAGE_LENGTH = 300;
   var STORAGE_KEY = "campuscalm_widget_history_v1_" + (isEnglish ? "en" : "pt");
   var LEGACY_INITIAL_BOT_MESSAGE = isEnglish
     ? "Hi! Want to organize what's worrying you right now?"
@@ -36,6 +38,7 @@
   }
 
   renderHistory(history);
+  syncInputLengthState();
 
   trigger.addEventListener("click", function () {
     if (panel.hidden) {
@@ -59,6 +62,10 @@
       event.preventDefault();
       submitMessage();
     }
+  });
+
+  input.addEventListener("input", function () {
+    syncInputLengthState();
   });
 
   function openWidget() {
@@ -89,6 +96,7 @@
 
     appendMessage("user", text);
     input.value = "";
+    syncInputLengthState();
     requestBackendReply(text);
   }
 
@@ -125,8 +133,11 @@
 
   function requestBackendReply(text) {
     fetchBackendReply(text)
-      .then(function (reply) {
-        appendMessage("bot", reply);
+      .then(function (result) {
+        appendMessage("bot", result.text);
+        if (result.shouldRefreshTasks) {
+          scheduleTaskRefresh();
+        }
       })
       .catch(function () {
         window.setTimeout(function () {
@@ -171,7 +182,10 @@
     var reply = payload.reply.trim();
     var emojiPrefix = payload.emoji ? String(payload.emoji).trim() + " " : "";
     var microLines = formatMicroInterventions(payload.micro_interventions);
-    return emojiPrefix + reply + microLines;
+    return {
+      text: emojiPrefix + reply + microLines,
+      shouldRefreshTasks: shouldRefreshTasksAfterReply(reply),
+    };
   }
 
   function formatMicroInterventions(items) {
@@ -204,6 +218,42 @@
       }
     }
     return "";
+  }
+
+  function shouldRefreshTasksAfterReply(replyText) {
+    var normalizedReply = normalizeText(replyText);
+    return (
+      normalizedReply.indexOf("tarefa criada") !== -1 ||
+      normalizedReply.indexOf("pronto tarefa criada") !== -1 ||
+      normalizedReply.indexOf("criei a tarefa") !== -1 ||
+      normalizedReply.indexOf("veja em tarefas") !== -1 ||
+      normalizedReply.indexOf("task created") !== -1
+    );
+  }
+
+  function scheduleTaskRefresh() {
+    window.setTimeout(function () {
+      window.location.reload();
+    }, 900);
+  }
+
+  function syncInputLengthState() {
+    if (!input) {
+      return;
+    }
+    if (input.value.length > MAX_MESSAGE_LENGTH) {
+      input.value = input.value.slice(0, MAX_MESSAGE_LENGTH);
+    }
+    if (counter) {
+      var currentLength = input.value.length;
+      counter.textContent = currentLength + "/" + MAX_MESSAGE_LENGTH;
+      counter.classList.remove("is-warning", "is-danger");
+      if (currentLength > 280) {
+        counter.classList.add("is-danger");
+      } else if (currentLength >= 240) {
+        counter.classList.add("is-warning");
+      }
+    }
   }
 
   function buildMockReply(rawText) {

@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from datetime import timedelta
+from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -7,9 +7,20 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from agenda.models import CalendarEvent
 from brain.constants import CONTEXT_MESSAGES
-from brain.models import CategoriaEmocional, GatilhoEmocional, InteracaoAluno, MicroIntervencao, RespostaEmocional
+from brain.models import (
+    CategoriaEmocional,
+    ChatPendingAction,
+    GatilhoEmocional,
+    InteracaoAluno,
+    MicroIntervencao,
+    RespostaEmocional,
+)
 from brain.views import BLINDAGEM_NEUTRAL_REPLY, BLINDAGEM_REPLY
+from notifications.models import InAppNotification
+from planner.models import Task
+from utils.constants import EVENT_PROVA
 
 User = get_user_model()
 
@@ -73,6 +84,22 @@ class WidgetChatTests(APITestCase):
         )
         self.assertEqual(response.data["micro_interventions"], [])
         self.assertEqual(InteracaoAluno.objects.count(), 1)
+
+    def test_greeting_message_returns_greeting_reply(self):
+        response = self.client.post("/api/widget/chat/", {"message": "bom dia"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["reply"], "Bom dia! Como posso te ajudar hoje?")
+        self.assertEqual(response.data["category"], None)
+        self.assertEqual(response.data["emoji"], None)
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_greeting_message_uppercase_returns_greeting_reply(self):
+        response = self.client.post("/api/widget/chat/", {"message": "BOM DIA!!!"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["reply"], "Bom dia! Como posso te ajudar hoje?")
+        self.assertEqual(response.data["category"], None)
+        self.assertEqual(response.data["emoji"], None)
+        self.assertEqual(response.data["micro_interventions"], [])
 
     def test_social_message_obrigado_returns_empty_micro_interventions(self):
         response = self.client.post("/api/widget/chat/", {"message": "obrigado"}, format="json")
@@ -627,6 +654,404 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(response.data["category"], None)
         self.assertEqual(response.data["reply"], BLINDAGEM_NEUTRAL_REPLY)
         self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_task_concierge_two_step_flow_creates_task_and_notification(self):
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Crie uma tarefa"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual a descricao da tarefa", first.data["reply"])
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Revisar Arquitetura de Máquinas"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("Qual a data e hora de entrega", second.data["reply"])
+
+        third = self.client.post(
+            "/api/widget/chat/",
+            {"message": "amanhã 18h"},
+            format="json",
+        )
+        self.assertEqual(third.status_code, 200)
+        self.assertIn("✅ Tarefa criada:", third.data["reply"])
+        self.assertIn("🔔 Veja em Tarefas", third.data["reply"])
+
+        task = Task.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(task)
+        self.assertEqual(task.due_date, tomorrow)
+        self.assertIn("revisar arquitetura", task.title)
+
+        notification = InAppNotification.objects.filter(user=self.user, title="Tarefa criada").order_by("-id").first()
+        self.assertIsNotNone(notification)
+        self.assertIn(f"highlight_task={task.id}", notification.target_url)
+        self.assertFalse(ChatPendingAction.objects.filter(user=self.user).exists())
+
+    def test_task_concierge_skips_step_one_when_title_is_clear(self):
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": 'Crie tarefa: "Arquitetura de Máquinas"'},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual a data e hora de entrega", first.data["reply"])
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "25/02 09:00"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("✅ Tarefa criada:", second.data["reply"])
+
+        task = Task.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(task)
+        self.assertEqual(task.due_date, date(tomorrow.year, 2, 25))
+        self.assertIn("arquitetura de máquinas", task.title.lower())
+
+    def test_task_concierge_generic_quero_criar_asks_scope_first(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "quero criar uma tarefa"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual a descricao da tarefa", first.data["reply"])
+
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.step, 1)
+        self.assertEqual(pending.draft_title, "")
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Entregar trabalho do professor fulano"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("Qual a data e hora de entrega", second.data["reply"])
+
+    def test_event_concierge_two_step_flow_creates_event_and_notification(self):
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Agende uma reuniao"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual o compromisso na agenda", first.data["reply"])
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Reuniao com professor"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("data e hora", second.data["reply"])
+
+        third = self.client.post(
+            "/api/widget/chat/",
+            {"message": "amanha 14h"},
+            format="json",
+        )
+        self.assertEqual(third.status_code, 200)
+        self.assertIn("Evento criado", third.data["reply"])
+        self.assertIn("Veja em Agenda", third.data["reply"])
+
+        event = CalendarEvent.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(timezone.localtime(event.start_at).date(), tomorrow)
+        self.assertEqual(timezone.localtime(event.start_at).time().hour, 14)
+
+        notification = InAppNotification.objects.filter(user=self.user, title="Evento agendado").order_by("-id").first()
+        self.assertIsNotNone(notification)
+        self.assertIn(f"highlight_event={event.id}", notification.target_url)
+        self.assertFalse(ChatPendingAction.objects.filter(user=self.user).exists())
+
+    def test_event_concierge_generic_request_asks_scope_first(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "quero criar uma agenda"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Qual o compromisso na agenda", response.data["reply"])
+
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.pending_action, "create_event")
+        self.assertEqual(pending.step, 1)
+        self.assertEqual((pending.draft_title or "").strip(), "")
+
+    def test_event_concierge_step_two_shows_type_options(self):
+        self.client.post("/api/widget/chat/", {"message": "quero criar uma agenda"}, format="json")
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Reuniao com professor"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Qual o tipo do evento?", response.data["reply"])
+        self.assertIn("prova, entrega, aula, reuniao, outro", response.data["reply"])
+        self.assertIn("data e hora", response.data["reply"])
+
+    def test_event_concierge_accepts_explicit_type_choice(self):
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        self.client.post("/api/widget/chat/", {"message": "quero criar uma agenda"}, format="json")
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Revisao final"},
+            format="json",
+        )
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "prova amanha 14h"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Evento criado", response.data["reply"])
+
+        event = CalendarEvent.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.event_type, EVENT_PROVA)
+        self.assertEqual(timezone.localtime(event.start_at).date(), tomorrow)
+
+    def test_event_concierge_accepts_type_only_then_asks_only_datetime(self):
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        self.client.post("/api/widget/chat/", {"message": "quero criar uma agenda"}, format="json")
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Prova de cálculo"},
+            format="json",
+        )
+
+        third = self.client.post(
+            "/api/widget/chat/",
+            {"message": "prova"},
+            format="json",
+        )
+        self.assertEqual(third.status_code, 200)
+        self.assertIn("data e hora", third.data["reply"])
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.pending_action, "create_event")
+        self.assertEqual(pending.step, 2)
+
+        fourth = self.client.post(
+            "/api/widget/chat/",
+            {"message": "amanha 14h"},
+            format="json",
+        )
+        self.assertEqual(fourth.status_code, 200)
+        self.assertIn("✅ Evento criado:", fourth.data["reply"])
+        self.assertIn("🔔 Veja em Agenda", fourth.data["reply"])
+
+        event = CalendarEvent.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.event_type, EVENT_PROVA)
+        self.assertEqual(timezone.localtime(event.start_at).date(), tomorrow)
+
+    def test_event_concierge_does_not_advance_on_emotional_message(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Agende uma reuniao"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual o compromisso na agenda", first.data["reply"])
+
+        pending_before = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending_before)
+        self.assertEqual(pending_before.pending_action, "create_event")
+        self.assertEqual(pending_before.step, 1)
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "to muito ansioso hoje"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.data["category"], "stress")
+
+        pending_after = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending_after)
+        self.assertEqual(pending_after.pending_action, "create_event")
+        self.assertEqual(pending_after.step, 1)
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+
+    def test_intent_scoring_conflict_emotional_and_event_prioritizes_emotional_support(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou ansioso porque tenho prova amanhã às 9h"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertEqual(Task.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+        self.assertFalse(ChatPendingAction.objects.filter(user=self.user).exists())
+
+    def test_intent_scoring_conflict_task_and_event_prioritizes_event(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Revisar cálculo amanhã às 14h"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("data e hora", response.data["reply"])
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.pending_action, "create_event")
+        self.assertEqual(Task.objects.filter(user=self.user).count(), 0)
+
+    def test_intent_scoring_social_and_task_tie_prioritizes_task(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Bom dia, preciso estudar"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.pending_action, "create_task")
+        self.assertIn("Criando nova tarefa", response.data["reply"])
+
+    def test_intent_scoring_with_pending_event_keeps_event_flow(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Agende uma reuniao"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Reuniao com professor"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("data e hora", second.data["reply"])
+
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.pending_action, "create_event")
+        self.assertEqual(pending.step, 2)
+
+    def test_task_concierge_cancel_stops_flow_without_creating_task(self):
+        self.client.post("/api/widget/chat/", {"message": "Crie uma tarefa"}, format="json")
+        response = self.client.post("/api/widget/chat/", {"message": "cancelar"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("cancelei", response.data["reply"].lower())
+        self.assertEqual(Task.objects.filter(user=self.user).count(), 0)
+        self.assertFalse(ChatPendingAction.objects.filter(user=self.user).exists())
+
+    def test_task_concierge_parses_time_without_confusing_day_from_date(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Crie uma tarefa: Sistemas e Modelos"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual a data e hora de entrega", first.data["reply"])
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "23/02/2026 as 10 horas"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("✅ Tarefa criada:", second.data["reply"])
+
+        task = Task.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(task)
+        self.assertEqual(task.due_date, date(2026, 2, 23))
+        self.assertIn("Horario sugerido: 10:00", task.description)
+        self.assertNotIn("Crie uma tarefa", task.description)
+
+    def test_task_concierge_uses_only_scope_in_description(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Bom dia gostaria de criar uma tarefa para a disciplina de computacao: Arquitetura de hardware"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual a data e hora de entrega", first.data["reply"])
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "23/02/2026 as 11 horas"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("✅ Tarefa criada:", second.data["reply"])
+
+        task = Task.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(task)
+        self.assertIn("Arquitetura de hardware", task.description)
+        self.assertIn("Horario sugerido: 11:00", task.description)
+        self.assertNotIn("Bom dia gostaria de criar uma tarefa", task.description)
+
+    def test_task_concierge_parses_textual_time_words(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Crie uma tarefa: Revisar Sistemas"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual a data e hora de entrega", first.data["reply"])
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "23/02/2026 as dez e meia"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("✅ Tarefa criada:", second.data["reply"])
+
+        task = Task.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(task)
+        self.assertEqual(task.due_date, date(2026, 2, 23))
+        self.assertIn("Horario sugerido: 10:30", task.description)
+
+    def test_task_concierge_does_not_advance_on_emotional_message(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Crie uma tarefa"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Qual a descricao da tarefa", first.data["reply"])
+
+        pending_before = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending_before)
+        self.assertEqual(pending_before.step, 1)
+        self.assertEqual(pending_before.draft_description, "")
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Tô muito ansioso hoje"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.data["category"], "stress")
+
+        pending_after = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending_after)
+        self.assertEqual(pending_after.step, 1)
+        self.assertEqual(pending_after.draft_description, "")
+        self.assertEqual(Task.objects.filter(user=self.user).count(), 0)
 
     @patch("brain.views.random.choice", return_value="Entendi. Me fala um pouco mais para eu poder te ajudar melhor.")
     def test_fallback_returns_null_category_and_no_micro_interventions(self, random_choice_mock):

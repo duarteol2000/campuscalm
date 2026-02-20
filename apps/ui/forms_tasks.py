@@ -5,6 +5,10 @@ from planner.models import Task
 
 
 class TaskForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["due_date"].input_formats = ["%Y-%m-%d", "%d/%m/%Y"]
+
     class Meta:
         model = Task
         fields = ["title", "description", "due_date", "stress_level", "status"]
@@ -18,7 +22,7 @@ class TaskForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "description": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
-            "due_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "due_date": forms.DateInput(format="%Y-%m-%d", attrs={"class": "form-control", "type": "date"}),
             "stress_level": forms.NumberInput(attrs={"class": "form-control", "min": 1, "max": 5}),
             "status": forms.Select(attrs={"class": "form-select"}),
         }

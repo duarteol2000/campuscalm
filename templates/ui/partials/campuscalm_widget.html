@@ -38,14 +38,18 @@
 
     <form class="cc-widget-form" data-cc-form novalidate>
       <label class="visually-hidden" for="campuscalm-widget-input">Mensagem</label>
-      <textarea
-        id="campuscalm-widget-input"
-        class="cc-widget-input"
-        data-cc-input
-        rows="1"
-        aria-label="Mensagem para CampusCalm"
-        placeholder="Escreva o que esta acontecendo..."
-      ></textarea>
+      <div class="cc-widget-input-wrap">
+        <textarea
+          id="campuscalm-widget-input"
+          class="cc-widget-input"
+          data-cc-input
+          rows="4"
+          maxlength="300"
+          aria-label="Mensagem para CampusCalm"
+          placeholder="Escreva o que esta acontecendo..."
+        ></textarea>
+        <div class="cc-widget-counter" data-cc-counter aria-live="polite">0/300</div>
+      </div>
       <button type="submit" class="cc-widget-send">Enviar</button>
     </form>
   </section>

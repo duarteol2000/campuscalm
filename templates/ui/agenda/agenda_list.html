@@ -33,14 +33,19 @@
           </thead>
           <tbody>
             {% for event in events %}
-              <tr>
+              <tr
+                id="event-row-{{ event.id }}"
+                class="{% if highlight_event and event.id == highlight_event %}agenda-row-highlight{% endif %}"
+              >
                 <td>{{ event.title }}</td>
                 <td><span class="badge text-bg-light">{{ event.get_event_type_display }}</span></td>
                 <td>{{ event.start_at|date:"d/m/Y H:i" }}</td>
                 <td>{{ event.end_at|date:"d/m/Y H:i"|default:"-" }}</td>
-                <td class="text-end">
-                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-agenda-edit' event.pk %}">{% trans "Editar" %}</a>
-                  <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-agenda-delete' event.pk %}">{% trans "Excluir" %}</a>
+                <td class="text-end agenda-actions-cell">
+                  <div class="agenda-actions">
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-agenda-edit' event.pk %}">{% trans "Editar" %}</a>
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-agenda-delete' event.pk %}">{% trans "Excluir" %}</a>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
@@ -52,4 +57,22 @@
     {% endif %}
   </div>
 </div>
+
+{% if highlight_event %}
+<script>
+  (function () {
+    var row = document.getElementById("event-row-{{ highlight_event }}");
+    if (!row) {
+      return;
+    }
+    window.requestAnimationFrame(function () {
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      row.classList.add("agenda-row-highlight-pulse");
+      window.setTimeout(function () {
+        row.classList.remove("agenda-row-highlight-pulse");
+      }, 1400);
+    });
+  })();
+</script>
+{% endif %}
 {% endblock %}

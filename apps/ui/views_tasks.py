@@ -15,6 +15,11 @@ def task_list_view(request):
     tasks = Task.objects.filter(user=request.user)
     status_filter = request.GET.get("status", "")
     query = request.GET.get("q", "").strip()
+    highlight_task = request.GET.get("highlight_task", "").strip()
+    try:
+        highlight_task_id = int(highlight_task) if highlight_task else None
+    except (TypeError, ValueError):
+        highlight_task_id = None
 
     if status_filter in {TASK_TODO, TASK_DOING, TASK_DONE}:
         tasks = tasks.filter(status=status_filter)
@@ -30,6 +35,7 @@ def task_list_view(request):
             "tasks": tasks,
             "status_filter": status_filter,
             "query": query,
+            "highlight_task": highlight_task_id,
         },
     )
 

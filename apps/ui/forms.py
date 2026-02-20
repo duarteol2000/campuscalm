@@ -1,7 +1,11 @@
+from pathlib import Path
+
 from django import forms
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext_lazy as _
+
+from accounts.models import UserProfile
 
 
 class EmailAuthenticationForm(AuthenticationForm):
@@ -93,3 +97,43 @@ class FirstAccessForm(forms.Form):
         if data.get("password1") != data.get("password2"):
             self.add_error("password2", _("As senhas nao conferem."))
         return data
+
+
+class ProfileSettingsForm(forms.ModelForm):
+    MAX_AVATAR_SIZE = 2 * 1024 * 1024
+    ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
+    ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
+    class Meta:
+        model = UserProfile
+        fields = ("avatar", "gender")
+        widgets = {
+            "avatar": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/png,image/jpeg,image/webp",
+                }
+            ),
+            "gender": forms.Select(attrs={"class": "form-select"}),
+        }
+        labels = {
+            "avatar": _("Avatar"),
+            "gender": _("Genero (opcional)"),
+        }
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get("avatar")
+        if not avatar:
+            return avatar
+
+        if avatar.size > self.MAX_AVATAR_SIZE:
+            raise forms.ValidationError(_("O avatar deve ter no maximo 2MB."))
+
+        content_type = str(getattr(avatar, "content_type", "") or "").lower()
+        extension = Path(avatar.name).suffix.lower()
+        if content_type and content_type not in self.ALLOWED_CONTENT_TYPES:
+            raise forms.ValidationError(_("Formato invalido. Use JPG, PNG ou WEBP."))
+        if extension not in self.ALLOWED_EXTENSIONS:
+            raise forms.ValidationError(_("Extensao invalida. Use .jpg, .jpeg, .png ou .webp."))
+
+        return avatar

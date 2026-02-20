@@ -1,0 +1,156 @@
+RESUMO DE ALTERACOES - CAMPUSCALM
+Data: 2026-02-20 12:50 (aprox)
+
+1) RESUMO EXECUTIVO
+Foi evoluido o CampusCalm em tres frentes principais:
+- Cerebro hibrido/chat (inteligencia emocional + criacao guiada de tarefas).
+- Notificacoes in-app com sino na topbar.
+- UX do painel do aluno (tarefas, widget, perfil com avatar/genero).
+
+2) CHAT / CEREBRO HIBRIDO (apps/brain)
+2.1 Classificacao e resposta
+- Mantida classificacao por scoring com desempate por prioridade.
+- Mantidas regras de memoria contextual (48h) e anti-repeticao.
+- Mantidas regras:
+  - social -> micro_interventions []
+  - evolucao -> micro_interventions []
+- Stress ansiedade pre-prova com respostas especificas.
+- Fallback inteligente e blindagem para casos de baixa classificacao.
+
+2.2 Concierge de criacao de tarefa (2 etapas)
+- Fluxo em 2 passos com estado persistido em banco:
+  - Step 1: pedir descricao/escopo da tarefa.
+  - Step 2: pedir data/hora.
+  - Final: cria Task + InAppNotification.
+- Cancelamento e expiracao do estado pendente.
+- Nao avanca o fluxo quando o usuario manda mensagem emocional no meio.
+- Anti-duplicacao de tarefa recente.
+- Ajuste de UX: frase do passo 1 alterada para
+  "Qual a descricao da tarefa?"
+
+2.3 Parser de data/hora
+- Corrigido bug de captura de hora (nao confunde dia com hora).
+- Suporte a:
+  - 23/02/2026 as 11:00
+  - 23/02/2026 as 11 horas
+  - horario por extenso: "dez horas", "dez e meia"
+
+2.4 Saudacoes
+- Se mensagem for saudacao simples, responde saudacao:
+  - bom dia / boa tarde / boa noite
+- Funciona tambem em uppercase (ex.: "BOM DIA!!!").
+
+3) NOTIFICACOES IN-APP (apps/notifications)
+- Novo modelo InAppNotification.
+- Endpoints para sino:
+  - unread-count
+  - latest
+  - mark-read
+  - mark-all-read
+- Admin e serializer atualizados.
+- Integracao com criacao de tarefa via chat:
+  - Ao criar tarefa, gera notificacao com target_url para highlight da tarefa.
+
+4) TOPBAR E SINO (UI)
+- Sino na topbar com badge de nao lidas.
+- Dropdown com ultimas notificacoes.
+- Clique marca como lida e redireciona.
+- Adicionada micro animacao "pulse" quando chega notificacao nova.
+
+5) TAREFAS (UI)
+- Listagem:
+  - botoes Ver/Editar/Excluir alinhados lado a lado sem sobreposicao.
+  - suporte a highlight com scroll suave e efeito visual.
+  - titulo ajustado para "Tarefas do Dia" para maior clareza.
+- Formulario:
+  - correcoes no campo due_date para preencher corretamente no editar.
+
+6) WIDGET DO CHAT (FRONT)
+- Removido mock local e integrado ao endpoint real.
+- Campo de entrada ampliado (4 linhas visiveis).
+- Limite de 300 caracteres no front e backend.
+- Contador em tempo real com cores:
+  - 0-239: cinza
+  - 240-280: amarelo
+  - 281-300: vermelho
+- Auto-refresh apos confirmacao de tarefa criada pelo chat.
+
+7) PERFIL DO USUARIO (NOVO)
+- Nova pagina: /ui/profile/
+- Topbar agora mostra avatar + nome no dropdown.
+- Menu do usuario:
+  - Meu Perfil
+  - Sair
+- UserProfile recebeu campos:
+  - avatar (upload)
+  - gender (opcional)
+- Validacao de upload:
+  - tipos: jpg/png/webp
+  - max 2MB
+- Nome e email exibidos como read-only na pagina de perfil.
+
+8) MIGRATIONS ADICIONADAS
+- apps/accounts/migrations/0003_userprofile_avatar_userprofile_gender.py
+- apps/brain/migrations/0008_chatpendingaction.py
+- apps/notifications/migrations/0003_inappnotification.py
+
+9) TESTES ADICIONADOS/ATUALIZADOS
+- apps/brain/tests.py
+  - cobertura de concierge 2 passos
+  - nao avancar em mensagem emocional
+  - parser de hora numerica e por extenso
+  - saudacao (inclusive uppercase)
+  - descricao da tarefa sem texto de pedido bruto
+- apps/ui/tests_profile.py (novo)
+  - GET profile autenticado
+  - POST gender
+  - POST avatar
+  - permissao para anonimo
+- apps/ui/tests_tasks.py
+  - highlight
+  - prefill correto de due_date no editar
+- apps/notifications/tests.py
+  - unread count / mark read / latest
+
+10) VALIDACOES EXECUTADAS (nesta rodada)
+- python manage.py check
+- python manage.py test brain -v 2
+- python manage.py test ui -v 2
+- python manage.py test brain ui -v 2
+- python manage.py migrate (incluindo accounts.0003)
+
+11) ARQUIVOS PRINCIPAIS ALTERADOS/CRIADOS
+- apps/accounts/models.py
+- apps/accounts/admin.py
+- apps/accounts/migrations/0003_userprofile_avatar_userprofile_gender.py
+- apps/brain/views.py
+- apps/brain/tests.py
+- apps/brain/models.py
+- apps/brain/migrations/0008_chatpendingaction.py
+- apps/notifications/models.py
+- apps/notifications/views.py
+- apps/notifications/urls.py
+- apps/notifications/serializers.py
+- apps/notifications/admin.py
+- apps/notifications/tests.py
+- apps/notifications/migrations/0003_inappnotification.py
+- apps/ui/forms.py
+- apps/ui/forms_tasks.py
+- apps/ui/views.py
+- apps/ui/views_tasks.py
+- apps/ui/urls.py
+- apps/ui/tests_profile.py
+- apps/ui/tests_tasks.py
+- templates/ui/base_student.html
+- templates/ui/profile.html
+- templates/ui/tasks/task_list.html
+- templates/ui/partials/campuscalm_widget.html
+- static/css/student.css
+- static/ui/js/notifications_bell.js
+- static/ui/js/campuscalm_widget.js
+- static/ui/css/campuscalm_widget.css
+
+12) OBSERVACOES
+- Contrato JSON do endpoint do chat foi preservado.
+- Nao houve alteracao estrutural de contrato para o widget.
+- Para ambientes novos, aplicar migrations antes de usar as novas telas/funcionalidades.

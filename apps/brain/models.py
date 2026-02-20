@@ -55,3 +55,23 @@ class InteracaoAluno(models.Model):
 
     def __str__(self):
         return f"{self.user_id} - {self.created_at:%Y-%m-%d %H:%M:%S}"
+
+
+# Bloco: Estado de acao pendente no chat (concierge)
+class ChatPendingAction(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="brain_pending_action",
+    )
+    pending_action = models.CharField(max_length=40)
+    step = models.PositiveSmallIntegerField(default=1)
+    draft_title = models.CharField(max_length=200, blank=True)
+    draft_description = models.TextField(blank=True)
+    draft_due_date = models.DateField(null=True, blank=True)
+    draft_due_time = models.TimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user_id} - {self.pending_action} - step {self.step}"

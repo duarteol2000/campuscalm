@@ -9,6 +9,7 @@ from ui.views import (
     home_view,
     insights_detail_view,
     onboarding_view,
+    profile_view,
     semesters_view,
     tasks_view,
 )
@@ -47,6 +48,7 @@ urlpatterns = [
         name="ui-login",
     ),
     path("home/", home_view, name="ui-home"),
+    path("ui/profile/", profile_view, name="ui-profile"),
     path("primeiro-acesso/", first_access_view, name="ui-first-access"),
     path("ativar/<uidb64>/<token>/", activate_account_view, name="ui-activate-account"),
     path("logout/", auth_views.LogoutView.as_view(next_page="/login/"), name="ui-logout"),

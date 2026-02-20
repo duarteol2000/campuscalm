@@ -44,7 +44,7 @@ from utils.constants import (
     PLAN_PRO,
 )
 from utils.gating import STEPS, compute_status
-from ui.forms import FirstAccessForm
+from ui.forms import FirstAccessForm, ProfileSettingsForm
 
 STEP_LABELS = {
     "STEP_1_PROFILE": _("Perfil"),
@@ -177,6 +177,29 @@ def activate_account_view(request, uidb64, token):
     else:
         messages.error(request, _("Link de ativacao invalido ou expirado."))
     return redirect("ui-login")
+
+
+@login_required(login_url="/login/")
+def profile_view(request):
+    profile = UserProfile.objects.get_or_create(user=request.user)[0]
+
+    if request.method == "POST":
+        form = ProfileSettingsForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Perfil atualizado com sucesso."))
+            return redirect("ui-profile")
+        messages.error(request, _("Nao foi possivel salvar seu perfil. Verifique os campos e tente novamente."))
+    else:
+        form = ProfileSettingsForm(instance=profile)
+
+    return render(
+        request,
+        "ui/profile.html",
+        {
+            "form": form,
+        },
+    )
 
 
 @login_required(login_url="/login/")

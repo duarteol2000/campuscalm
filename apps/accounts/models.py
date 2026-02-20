@@ -51,10 +51,20 @@ class UserProfile(models.Model):
         (PLAN_FREE, "Free"),
         (PLAN_PAID, "Pago"),
     ]
+    GENDER_MALE = "M"
+    GENDER_FEMALE = "F"
+    GENDER_NON_BINARY = "N"
+    GENDER_CHOICES = [
+        (GENDER_MALE, "Masculino"),
+        (GENDER_FEMALE, "Feminino"),
+        (GENDER_NON_BINARY, "Nao binario"),
+    ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     phone = models.CharField(max_length=30, blank=True)
     plan = models.CharField(max_length=10, choices=PLAN_CHOICES, default=PLAN_FREE)
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, default="")
     allow_whatsapp = models.BooleanField(default=True)
     allow_sms = models.BooleanField(default=False)
     allow_email = models.BooleanField(default=True)

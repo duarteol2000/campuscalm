@@ -2,9 +2,10 @@ import re
 import random
 import unicodedata
 from collections import defaultdict
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 
 from rest_framework import permissions, serializers, status
@@ -13,12 +14,33 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from agenda.models import CalendarEvent
 from brain.constants import ANXIETY_KEYWORDS, CONTEXT_MESSAGES, EXAM_KEYWORDS
-from brain.models import CategoriaEmocional, GatilhoEmocional, InteracaoAluno, MicroIntervencao, RespostaEmocional
+from brain.models import (
+    CategoriaEmocional,
+    ChatPendingAction,
+    GatilhoEmocional,
+    InteracaoAluno,
+    MicroIntervencao,
+    RespostaEmocional,
+)
+from notifications.models import InAppNotification
+from planner.models import Task
+from utils.constants import (
+    EVENT_APRESENTACAO,
+    EVENT_AULA_IMPORTANTE,
+    EVENT_ENTREGA,
+    EVENT_ESTUDAR_FACULDADE,
+    EVENT_OUTRO,
+    EVENT_PROVA,
+    EVENT_REUNIAO_GRUPO,
+    EVENT_REUNIAO_PROFESSORES,
+    TASK_TODO,
+)
 
 
 class WidgetChatRequestSerializer(serializers.Serializer):
-    message = serializers.CharField(allow_blank=False, trim_whitespace=True)
+    message = serializers.CharField(allow_blank=False, trim_whitespace=True, max_length=300)
 
 
 FALLBACK_REPLIES = [
@@ -119,6 +141,192 @@ GENERIC_QUESTION_PATTERNS = SHORT_DIRECTION_PATTERNS + (
     "o que fazer",
     "nao sei o que fazer",
 )
+TASK_CREATION_KEYWORDS = (
+    "crie uma tarefa",
+    "criar tarefa",
+    "crie tarefa",
+    "crie a tarefa",
+    "crie a seguinte tarefa",
+    "criasse a seguinte tarefa",
+    "criasse a tarefa",
+    "criasse tarefa",
+    "preciso estudar",
+    "me lembre",
+    "lembra de",
+    "anote",
+    "coloca na minha lista",
+)
+TASK_TRIGGER_PREFIXES = (
+    "quero criar uma tarefa para",
+    "quero criar uma tarefa",
+    "quero criar tarefa para",
+    "quero criar tarefa",
+    "crie uma tarefa para",
+    "crie uma tarefa",
+    "crie a seguinte tarefa para",
+    "crie a seguinte tarefa",
+    "crie a tarefa para",
+    "crie a tarefa",
+    "crie tarefa para",
+    "crie tarefa",
+    "criasse a seguinte tarefa para",
+    "criasse a seguinte tarefa",
+    "criasse a tarefa para",
+    "criasse a tarefa",
+    "criasse tarefa para",
+    "criasse tarefa",
+    "criar tarefa para",
+    "criar tarefa",
+    "preciso estudar",
+    "me lembre de",
+    "me lembre",
+    "lembra de",
+    "anote",
+    "coloca na minha lista",
+)
+TASK_CREATION_ACTION_HINTS = (
+    "crie",
+    "criar",
+    "criasse",
+    "anote",
+    "anotar",
+    "adiciona",
+    "adicionar",
+    "coloca",
+    "colocar",
+)
+TASK_GREETING_PREFIXES = (
+    "bom dia",
+    "boa tarde",
+    "boa noite",
+    "oi",
+    "ola",
+    "olá",
+    "hello",
+    "hi",
+)
+TASK_CONCIERGE_ACTION = "create_task"
+TASK_CONCIERGE_EXPIRATION_MINUTES = 15
+TASK_CONCIERGE_ASK_SCOPE = "📝 Criando nova tarefa (1/2)\nEntendi, voce quer criar uma tarefa.\nQual a descricao da tarefa?"
+TASK_CONCIERGE_ASK_DUE = "📝 Criando nova tarefa (2/2)\nQual a data e hora de entrega?"
+TASK_CONCIERGE_CONFIRM = "✅ Tarefa criada: {title}\n🗓 Prazo: {due_date}\n🔔 Veja em Tarefas"
+TASK_CONCIERGE_RETRY_DUE = "Nao consegui entender a data/hora. Ex.: amanha 18h, hoje, 25/02 09:00, 25/02, sexta 14h."
+TASK_CONCIERGE_CANCEL = "Tudo bem, cancelei a criacao da tarefa."
+EVENT_CONCIERGE_ACTION = "create_event"
+EVENT_CONCIERGE_ASK_SCOPE = "🗓 Criando novo evento (1/2)\nQual o compromisso na agenda?"
+EVENT_CONCIERGE_ASK_WHEN = (
+    "🗓 Criando novo evento (2/2)\n"
+    "Perfeito. Qual o tipo do evento? (prova, entrega, aula, reuniao, outro)\n"
+    "Agora me diga a data e hora.\n"
+    "Ex.: prova amanha 14h | reuniao 25/02 09:00"
+)
+EVENT_CONCIERGE_CONFIRM = "✅ Evento criado: {title}\n🗓 Quando: {when}\n🔔 Veja em Agenda"
+EVENT_CONCIERGE_RETRY_WHEN = (
+    "Nao consegui entender. Informe tipo + data/hora. "
+    "Ex.: prova amanha 14h, reuniao 25/02 09:00."
+)
+EVENT_CONCIERGE_ASK_ONLY_WHEN = "Perfeito, tipo salvo. Agora me diga apenas a data e hora. Ex.: amanha 14h | 25/02 09:00"
+EVENT_CREATION_KEYWORDS = (
+    "agenda",
+    "agendar",
+    "agende",
+    "marcar",
+    "marque",
+    "marcasse",
+    "colocar na agenda",
+    "evento",
+)
+EVENT_COMMITMENT_KEYWORDS = (
+    "reuniao",
+    "prova",
+    "consulta",
+    "aula",
+    "evento",
+    "apresentacao",
+    "seminario",
+    "banca",
+    "entrega",
+    "compromisso",
+)
+EVENT_TRIGGER_PREFIXES = (
+    "quero agendar",
+    "agende para mim",
+    "agende",
+    "agendar",
+    "marcar",
+    "marque",
+    "colocar na agenda",
+    "coloque na agenda",
+    "evento",
+)
+EVENT_GENERIC_REQUEST_PATTERNS = (
+    "quero criar uma agenda",
+    "quero criar agenda",
+    "criar uma agenda",
+    "criar agenda",
+    "quero agendar",
+    "agendar evento",
+    "criar evento",
+    "marcar evento",
+)
+TASK_CANCEL_KEYWORDS = ("cancelar", "deixa", "nao", "não", "parar")
+TASK_URGENT_KEYWORDS = ("urgente", "desespero", "desesperado", "desesperada")
+GREETING_REPLIES = {
+    "bom dia": "Bom dia! Como posso te ajudar hoje?",
+    "boa tarde": "Boa tarde! Como posso te ajudar hoje?",
+    "boa noite": "Boa noite! Como posso te ajudar hoje?",
+}
+WEEKDAY_MAP = {
+    "segunda": 0,
+    "terca": 1,
+    "quarta": 2,
+    "quinta": 3,
+    "sexta": 4,
+    "sabado": 5,
+    "domingo": 6,
+}
+PORTUGUESE_HOUR_WORDS = {
+    "zero": 0,
+    "um": 1,
+    "uma": 1,
+    "dois": 2,
+    "duas": 2,
+    "tres": 3,
+    "quatro": 4,
+    "cinco": 5,
+    "seis": 6,
+    "sete": 7,
+    "oito": 8,
+    "nove": 9,
+    "dez": 10,
+    "onze": 11,
+    "doze": 12,
+    "treze": 13,
+    "catorze": 14,
+    "quatorze": 14,
+    "quinze": 15,
+    "dezesseis": 16,
+    "dezessete": 17,
+    "dezoito": 18,
+    "dezenove": 19,
+    "vinte": 20,
+    "vinte e um": 21,
+    "vinte e uma": 21,
+    "vinte e dois": 22,
+    "vinte e tres": 23,
+}
+PORTUGUESE_MINUTE_WORDS = {
+    "quinze": 15,
+    "trinta": 30,
+    "meia": 30,
+    "quarenta e cinco": 45,
+}
+PORTUGUESE_HOUR_WORDS_PATTERN = "|".join(
+    sorted((re.escape(word) for word in PORTUGUESE_HOUR_WORDS.keys()), key=len, reverse=True)
+)
+PORTUGUESE_MINUTE_WORDS_PATTERN = "|".join(
+    sorted((re.escape(word) for word in PORTUGUESE_MINUTE_WORDS.keys()), key=len, reverse=True)
+)
 SHORT_DIRECTION_CONTEXT_HINTS = (
     "medo",
     "ansiosa",
@@ -178,6 +386,44 @@ SHORT_DIRECTION_NEGATIVE_REPLIES_EN = (
     "didn't help",
     "didnt help",
     "still anxious",
+)
+EMOTIONAL_INTENT_KEYWORDS = (
+    "ansioso",
+    "ansiosa",
+    "ansiedade",
+    "triste",
+    "estressado",
+    "estressada",
+    "cansado",
+    "cansada",
+    "preocupado",
+    "preocupada",
+    "anxious",
+    "anxiety",
+    "stressed",
+    "sad",
+    "worried",
+    "tired",
+)
+TASK_INTENT_KEYWORDS = (
+    "tarefa",
+    "revisar",
+    "estudar",
+    "fazer",
+    "ler",
+    "treinar",
+    "study",
+    "review",
+    "task",
+)
+SOCIAL_INTENT_KEYWORDS = (
+    "bom dia",
+    "boa tarde",
+    "boa noite",
+    "oi",
+    "ola",
+    "hello",
+    "hi",
 )
 ENGLISH_ANXIETY_KEYWORDS = (
     "anxious",
@@ -477,6 +723,443 @@ def _resolve_blindagem_choice(message_text, history):
     return BLINDAGEM_CATEGORY_MAP.get(message_text)
 
 
+def _pick_greeting_reply(message_text):
+    if not message_text:
+        return None
+    return GREETING_REPLIES.get(message_text)
+
+
+def _compute_intent_scores(message_normalized):
+    scores = {
+        "emotional": 0,
+        "task": 0,
+        "event": 0,
+        "social": 0,
+        "general": 0,
+    }
+    if not message_normalized:
+        scores["general"] = 1
+        return scores
+
+    has_emotional_keywords = _has_any_keyword(message_normalized, EMOTIONAL_INTENT_KEYWORDS)
+    has_emotional_state = _has_any_keyword(message_normalized, ("to", "estou", "me sinto", "i feel"))
+    has_exam_context = _has_any_keyword(message_normalized, ("prova", "apresentacao", "exam", "presentation"))
+    if has_emotional_keywords:
+        scores["emotional"] += 3
+    if has_emotional_state:
+        scores["emotional"] += 2
+    if has_exam_context and (has_emotional_keywords or has_emotional_state):
+        scores["emotional"] += 2
+
+    has_date = _has_date_hint(message_normalized)
+    has_time = _has_time_hint(message_normalized)
+
+    if _has_any_keyword(message_normalized, TASK_INTENT_KEYWORDS):
+        scores["task"] += 3
+    if _has_any_keyword(message_normalized, ("preciso", "tenho que", "need to", "have to")):
+        scores["task"] += 2
+    if has_date and not has_time:
+        scores["task"] += 1
+
+    if _has_any_keyword(message_normalized, (*EVENT_CREATION_KEYWORDS, *EVENT_COMMITMENT_KEYWORDS)):
+        scores["event"] += 3
+    if has_time:
+        scores["event"] += 3
+    if has_date and has_time:
+        scores["event"] += 2
+
+    if _has_any_keyword(message_normalized, SOCIAL_INTENT_KEYWORDS):
+        scores["social"] += 3
+    if len(message_normalized.split()) <= 3:
+        scores["social"] += 1
+
+    if not any(value > 0 for key, value in scores.items() if key != "general"):
+        scores["general"] = 1
+
+    return scores
+
+
+def _decide_mode(scores, has_pending, pending_action=None):
+    emotional_score = int(scores.get("emotional", 0))
+    if has_pending:
+        if emotional_score >= 4:
+            return "emotional_support"
+        if pending_action == EVENT_CONCIERGE_ACTION:
+            return "event"
+        if pending_action == TASK_CONCIERGE_ACTION:
+            return "task"
+        return "general"
+
+    if emotional_score >= 4:
+        return "emotional_support"
+
+    priority = ("event", "task", "social", "general")
+    best_score = max(int(scores.get(mode, 0)) for mode in priority)
+    if best_score <= 0:
+        return "general"
+    for mode in priority:
+        if int(scores.get(mode, 0)) == best_score:
+            return mode
+    return "general"
+
+
+def _parse_due_time_from_text(normalized_message):
+    if not normalized_message:
+        return None
+
+    # Prioridade 1: formato com minutos explícitos (ex.: 09:00, 9h30).
+    explicit_with_minutes = list(
+        re.finditer(r"(?<!\d)([01]?\d|2[0-3])\s*(?::|h)\s*([0-5]\d)(?!\d)", normalized_message)
+    )
+    if explicit_with_minutes:
+        match = explicit_with_minutes[-1]
+        hour = int(match.group(1))
+        minute = int(match.group(2))
+        return timezone.datetime(2000, 1, 1, hour, minute).time()
+
+    # Prioridade 2: formato de hora com marcador (ex.: 18h, 10 horas, as 14h).
+    explicit_hour_only = list(
+        re.finditer(r"(?<!\d)([01]?\d|2[0-3])\s*(?:h\b|hora\b|horas\b)", normalized_message)
+    )
+    if explicit_hour_only:
+        match = explicit_hour_only[-1]
+        hour = int(match.group(1))
+        return timezone.datetime(2000, 1, 1, hour, 0).time()
+
+    # Prioridade 3: hora por extenso (ex.: dez e meia, dez horas).
+    textual_with_minutes = list(
+        re.finditer(
+            rf"(?<![a-z0-9])(?P<hour>{PORTUGUESE_HOUR_WORDS_PATTERN})\s+e\s+"
+            rf"(?P<minute>{PORTUGUESE_MINUTE_WORDS_PATTERN})(?![a-z0-9])",
+            normalized_message,
+        )
+    )
+    if textual_with_minutes:
+        match = textual_with_minutes[-1]
+        hour = PORTUGUESE_HOUR_WORDS[match.group("hour")]
+        minute = PORTUGUESE_MINUTE_WORDS[match.group("minute")]
+        return timezone.datetime(2000, 1, 1, hour, minute).time()
+
+    textual_hour_only = list(
+        re.finditer(
+            rf"(?<![a-z0-9])(?P<hour>{PORTUGUESE_HOUR_WORDS_PATTERN})\s*(?:hora\b|horas\b)(?![a-z0-9])",
+            normalized_message,
+        )
+    )
+    if textual_hour_only:
+        match = textual_hour_only[-1]
+        hour = PORTUGUESE_HOUR_WORDS[match.group("hour")]
+        return timezone.datetime(2000, 1, 1, hour, 0).time()
+
+    return None
+
+
+def _normalize_datetime_text(value):
+    normalized = unicodedata.normalize("NFD", str(value or "").lower())
+    no_accents = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+    keep_chars = re.sub(r"[^a-z0-9\s/:-]", " ", no_accents)
+    return re.sub(r"\s+", " ", keep_chars).strip()
+
+
+def _parse_due_date_and_time_from_text(raw_message, normalized_message):
+    today = timezone.localdate()
+    raw_datetime_text = _normalize_datetime_text(raw_message)
+    due_time = _parse_due_time_from_text(raw_datetime_text)
+
+    if "amanha" in normalized_message:
+        return today + timedelta(days=1), due_time
+    if "hoje" in normalized_message:
+        return today, due_time
+
+    explicit_match = re.search(r"\b(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\b", raw_datetime_text)
+    if explicit_match:
+        day = int(explicit_match.group(1))
+        month = int(explicit_match.group(2))
+        year_raw = explicit_match.group(3)
+        if year_raw:
+            year = int(year_raw)
+            if year < 100:
+                year += 2000
+        else:
+            year = today.year
+        try:
+            return date(year, month, day), due_time
+        except ValueError:
+            return None, due_time
+
+    for weekday, weekday_index in WEEKDAY_MAP.items():
+        if re.search(rf"\b{weekday}\b", normalized_message):
+            days_ahead = (weekday_index - today.weekday()) % 7
+            if days_ahead == 0:
+                days_ahead = 7
+            return today + timedelta(days=days_ahead), due_time
+
+    return None, due_time
+
+
+def _strip_greeting_prefix(text):
+    cleaned = text.strip()
+    for prefix in TASK_GREETING_PREFIXES:
+        if cleaned == prefix:
+            return ""
+        if cleaned.startswith(prefix + " "):
+            return cleaned[len(prefix) :].strip()
+    return cleaned
+
+
+def _has_task_creation_intent(normalized_message):
+    if _has_any_keyword(normalized_message, TASK_CREATION_KEYWORDS):
+        return True
+
+    if "tarefa" not in normalized_message:
+        return False
+
+    message_words = set(normalized_message.split())
+    for action in TASK_CREATION_ACTION_HINTS:
+        if _contains_keyword(normalized_message, message_words, action):
+            return True
+    return False
+
+
+def _has_date_hint(normalized_message):
+    if not normalized_message:
+        return False
+    if _has_any_keyword(normalized_message, ("hoje", "amanha", *WEEKDAY_MAP.keys())):
+        return True
+    return bool(re.search(r"\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b", normalized_message))
+
+
+def _has_time_hint(normalized_message):
+    if not normalized_message:
+        return False
+    if _parse_due_time_from_text(normalized_message):
+        return True
+    return bool(re.search(r"\b([01]?\d|2[0-3])h(?:[0-5]\d)?\b", normalized_message))
+
+
+def _has_event_creation_intent(normalized_message):
+    if not normalized_message:
+        return False
+
+    has_event_keyword = _has_any_keyword(normalized_message, EVENT_CREATION_KEYWORDS)
+    if has_event_keyword:
+        return True
+
+    has_commitment_hint = _has_any_keyword(normalized_message, EVENT_COMMITMENT_KEYWORDS)
+    return has_commitment_hint and _has_date_hint(normalized_message) and _has_time_hint(normalized_message)
+
+
+def _extract_task_title(normalized_message):
+    cleaned = _strip_greeting_prefix(normalized_message)
+    for prefix in TASK_TRIGGER_PREFIXES:
+        if cleaned.startswith(prefix):
+            cleaned = cleaned[len(prefix) :].strip()
+            break
+
+    if ":" in cleaned:
+        prefix_part, suffix_part = cleaned.split(":", 1)
+        if "tarefa" in prefix_part and suffix_part.strip():
+            cleaned = suffix_part.strip()
+
+    if cleaned.startswith("pra mim "):
+        cleaned = cleaned[8:].strip()
+    if cleaned.startswith("para mim "):
+        cleaned = cleaned[9:].strip()
+    cleaned = re.sub(r"^executar\s+", "", cleaned).strip()
+    cleaned = re.sub(r"^entre\s+hoje\s+e+\s+amanha\s*", "", cleaned).strip()
+    cleaned = re.sub(r"\s+(hoje|amanha)\b.*$", "", cleaned).strip()
+    cleaned = re.sub(r"\s+\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?(?:\s+\d{1,2}(?::\d{2})?\s*h?)?$", "", cleaned).strip()
+    cleaned = re.sub(r"\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:\s+\d{1,2}(?::\d{2})?\s*h?)?$", "", cleaned).strip()
+
+    if not cleaned:
+        return "Tarefa criada pelo chat"
+
+    cleaned = re.sub(r"^(para|de|do|da|pra)\s+", "", cleaned).strip()
+    cleaned = cleaned.strip(" \"'")
+    if not cleaned:
+        return "Tarefa criada pelo chat"
+    return cleaned[:200]
+
+
+def _extract_event_title(normalized_message):
+    cleaned = _strip_greeting_prefix(normalized_message)
+    for prefix in EVENT_TRIGGER_PREFIXES:
+        if cleaned.startswith(prefix):
+            cleaned = cleaned[len(prefix) :].strip()
+            break
+
+    if cleaned.startswith("pra mim "):
+        cleaned = cleaned[8:].strip()
+    if cleaned.startswith("para mim "):
+        cleaned = cleaned[9:].strip()
+
+    cleaned = re.sub(r"^um\s+", "", cleaned).strip()
+    cleaned = re.sub(r"^uma\s+", "", cleaned).strip()
+    cleaned = re.sub(r"^novo\s+", "", cleaned).strip()
+    cleaned = re.sub(r"^nova\s+", "", cleaned).strip()
+    cleaned = re.sub(r"\b(hoje|amanha)\b.*$", "", cleaned).strip()
+    cleaned = re.sub(r"\b(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b.*$", "", cleaned).strip()
+    cleaned = re.sub(r"\b([01]?\d|2[0-3])\s*(?::|h)\s*[0-5]?\d?\b.*$", "", cleaned).strip()
+    cleaned = re.sub(r"\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)\b.*$", "", cleaned).strip()
+    cleaned = cleaned.strip(" \"'")
+
+    if not cleaned:
+        return "Evento criado pelo chat"
+    return cleaned[:200]
+
+
+def _extract_clear_title_candidate(raw_message, normalized_message):
+    quote_match = re.search(r'"([^"]{3,200})"', raw_message)
+    if quote_match:
+        return quote_match.group(1).strip()
+
+    if ":" in raw_message:
+        prefix, suffix = raw_message.split(":", 1)
+        if "tarefa" in _normalize_text(prefix) and suffix.strip():
+            return suffix.strip().strip(" \"'")[:200]
+
+    fallback = _extract_task_title(normalized_message)
+    fallback_normalized = _normalize_text(fallback)
+    if re.fullmatch(r"(quero\s+)?(criar|crie|criasse)\s+(uma\s+)?(seguinte\s+)?tarefa", fallback_normalized):
+        return ""
+    if fallback and fallback != "Tarefa criada pelo chat" and len(fallback.split()) >= 2:
+        return fallback
+    return ""
+
+
+def _extract_clear_event_title_candidate(raw_message, normalized_message):
+    if _has_any_keyword(normalized_message, EVENT_GENERIC_REQUEST_PATTERNS) and not _has_any_keyword(
+        normalized_message, EVENT_COMMITMENT_KEYWORDS
+    ):
+        return ""
+
+    quote_match = re.search(r'"([^"]{3,200})"', raw_message)
+    if quote_match:
+        return quote_match.group(1).strip()
+
+    if ":" in raw_message:
+        prefix, suffix = raw_message.split(":", 1)
+        prefix_normalized = _normalize_text(prefix)
+        if suffix.strip() and (_has_any_keyword(prefix_normalized, EVENT_CREATION_KEYWORDS) or "agenda" in prefix_normalized):
+            return suffix.strip().strip(" \"'")[:200]
+
+    fallback = _extract_event_title(normalized_message)
+    generic_event_titles = {
+        "evento",
+        "reuniao",
+        "consulta",
+        "aula",
+        "compromisso",
+        "agenda",
+        "prova",
+        "entrega",
+        "seminario",
+        "apresentacao",
+    }
+    if fallback and fallback != "Evento criado pelo chat":
+        if fallback in generic_event_titles:
+            return ""
+        if len(fallback.split()) >= 2:
+            return fallback
+    return ""
+
+
+def _resolve_event_type_choice(normalized_text):
+    if _has_any_keyword(normalized_text, ("prova", "teste", "exame")):
+        return EVENT_PROVA
+    if _has_any_keyword(normalized_text, ("entrega", "prazo", "trabalho")):
+        return EVENT_ENTREGA
+    if _has_any_keyword(normalized_text, ("apresentacao", "seminario", "banca")):
+        return EVENT_APRESENTACAO
+    if _has_any_keyword(normalized_text, ("aula",)):
+        return EVENT_AULA_IMPORTANTE
+    if _has_any_keyword(normalized_text, ("reuniao com professor", "professor", "orientador")):
+        return EVENT_REUNIAO_PROFESSORES
+    if _has_any_keyword(normalized_text, ("reuniao", "grupo", "time")):
+        return EVENT_REUNIAO_GRUPO
+    if _has_any_keyword(normalized_text, ("estudar", "estudo", "revisar")):
+        return EVENT_ESTUDAR_FACULDADE
+    if _has_any_keyword(normalized_text, ("outro",)):
+        return EVENT_OUTRO
+    return None
+
+
+def _strip_pending_event_type_marker(description):
+    raw = str(description or "")
+    return re.sub(r"^\[event_type:[A-Z_]+\]\s*", "", raw).strip()
+
+
+def _extract_pending_event_type(pending):
+    match = re.match(r"^\[event_type:([A-Z_]+)\]\s*", str(pending.draft_description or ""))
+    if not match:
+        return None
+    return match.group(1)
+
+
+def _set_pending_event_type(pending, event_type):
+    cleaned_description = _strip_pending_event_type_marker(pending.draft_description)
+    marker = f"[event_type:{event_type}]"
+    pending.draft_description = f"{marker}\n{cleaned_description}".strip() if cleaned_description else marker
+
+
+def _resolve_event_type(normalized_text):
+    if _has_any_keyword(normalized_text, ("prova", "teste", "exame")):
+        return EVENT_PROVA
+    if _has_any_keyword(normalized_text, ("entrega", "prazo")):
+        return EVENT_ENTREGA
+    if _has_any_keyword(normalized_text, ("apresentacao", "seminario", "banca")):
+        return EVENT_APRESENTACAO
+    if _has_any_keyword(normalized_text, ("aula",)):
+        return EVENT_AULA_IMPORTANTE
+    if _has_any_keyword(normalized_text, ("professor", "orientador")):
+        return EVENT_REUNIAO_PROFESSORES
+    if _has_any_keyword(normalized_text, ("reuniao", "grupo", "time")):
+        return EVENT_REUNIAO_GRUPO
+    if _has_any_keyword(normalized_text, ("estudar", "estudo", "revisar")):
+        return EVENT_ESTUDAR_FACULDADE
+    return EVENT_OUTRO
+
+
+def _format_event_when(start_at):
+    local_value = timezone.localtime(start_at)
+    return local_value.strftime("%d/%m/%Y %H:%M")
+
+
+def _load_pending_action(user, now):
+    pending = ChatPendingAction.objects.filter(user=user).first()
+    if not pending:
+        return None
+    if pending.pending_action not in {TASK_CONCIERGE_ACTION, EVENT_CONCIERGE_ACTION}:
+        pending.delete()
+        return None
+    expiration_limit = now - timedelta(minutes=TASK_CONCIERGE_EXPIRATION_MINUTES)
+    if pending.updated_at < expiration_limit:
+        pending.delete()
+        return None
+    return pending
+
+
+def _is_cancel_pending_message(normalized_message):
+    if not normalized_message:
+        return False
+    words = normalized_message.split()
+    if normalized_message in {"cancelar", "parar", "deixa", "deixa pra la", "deixa para la"}:
+        return True
+    if normalized_message.startswith("cancelar "):
+        return True
+    if len(words) <= 2 and normalized_message in {"nao", "não"}:
+        return True
+    return False
+
+
+def _is_emotional_urgent_message(categoria, normalized_message):
+    if categoria and categoria.slug in {"stress", "motivacao_baixa", "cansaco_mental"}:
+        return True
+    if _has_any_keyword(normalized_message, ANXIETY_KEYWORDS):
+        return True
+    return _has_any_keyword(normalized_message, TASK_URGENT_KEYWORDS)
+
+
 def _detect_categoria(message_text, is_english=False):
     if not message_text:
         return None
@@ -635,6 +1318,174 @@ def _pick_micro_intervention(request, categoria, is_english=False):
     return [{"nome": selected.nome, "texto": selected.texto}]
 
 
+def _build_reply_for_categoria(categoria, normalized_message, history, now, last_response_text, is_english=False):
+    if not categoria:
+        fallback_options = ENGLISH_FALLBACK_REPLIES if is_english else FALLBACK_REPLIES
+        return random.choice(fallback_options)
+
+    reply_text = None
+    if categoria.slug == "stress":
+        anxiety_keywords = ENGLISH_ANXIETY_KEYWORDS if is_english else ANXIETY_KEYWORDS
+        exam_keywords = ENGLISH_EXAM_KEYWORDS if is_english else EXAM_KEYWORDS
+        has_anxiety = _has_any_keyword(normalized_message, anxiety_keywords)
+        has_exam = _has_any_keyword(normalized_message, exam_keywords)
+        if has_anxiety and has_exam:
+            key = "stress_anxiety_en" if is_english else "stress_anxiety"
+            reply_text = choose_variant(CONTEXT_MESSAGES[key], last_response_text)
+        elif has_anxiety:
+            key = "stress_anxiety_en" if is_english else "stress_anxiety"
+            reply_text = choose_variant(CONTEXT_MESSAGES[key], last_response_text)
+
+    if not reply_text:
+        reply_text = _pick_contextual_reply(categoria, history, now, last_response_text, is_english=is_english)
+    if not reply_text:
+        reply_text = _pick_category_reply(categoria, last_response_text, is_english=is_english)
+    if not reply_text:
+        fallback_options = ENGLISH_FALLBACK_REPLIES if is_english else FALLBACK_REPLIES
+        reply_text = random.choice(fallback_options)
+    return reply_text
+
+
+def _start_task_concierge(user, raw_message, normalized_message):
+    title_candidate = _extract_clear_title_candidate(raw_message, normalized_message)
+    step = 2 if title_candidate else 1
+    pending, _ = ChatPendingAction.objects.get_or_create(
+        user=user,
+        defaults={"pending_action": TASK_CONCIERGE_ACTION},
+    )
+    pending.pending_action = TASK_CONCIERGE_ACTION
+    pending.step = step
+    pending.draft_title = title_candidate[:200] if title_candidate else ""
+    pending.draft_description = (title_candidate or "").strip()[:2000]
+    pending.draft_due_date = None
+    pending.draft_due_time = None
+    pending.save()
+    return pending, (TASK_CONCIERGE_ASK_DUE if step == 2 else TASK_CONCIERGE_ASK_SCOPE)
+
+
+def _start_event_concierge(user, raw_message, normalized_message):
+    title_candidate = _extract_clear_event_title_candidate(raw_message, normalized_message)
+    step = 2 if title_candidate else 1
+    pending, _ = ChatPendingAction.objects.get_or_create(
+        user=user,
+        defaults={"pending_action": EVENT_CONCIERGE_ACTION},
+    )
+    pending.pending_action = EVENT_CONCIERGE_ACTION
+    pending.step = step
+    pending.draft_title = title_candidate[:200] if title_candidate else ""
+    pending.draft_description = (title_candidate or "").strip()[:2000]
+    pending.draft_due_date = None
+    pending.draft_due_time = None
+    pending.save()
+    return pending, (EVENT_CONCIERGE_ASK_WHEN if step == 2 else EVENT_CONCIERGE_ASK_SCOPE)
+
+
+def _finalize_task_from_pending(user, pending, raw_message, normalized_message):
+    due_date, due_time = _parse_due_date_and_time_from_text(raw_message, normalized_message)
+    if not due_date:
+        pending.save()  # refresh updated_at for ongoing conversation
+        return None, TASK_CONCIERGE_RETRY_DUE
+
+    title = (pending.draft_title or "").strip() or "Tarefa criada pelo chat"
+    duplicate_limit = timezone.now() - timedelta(minutes=2)
+    duplicate_task_exists = Task.objects.filter(
+        user=user,
+        title__iexact=title,
+        created_at__gte=duplicate_limit,
+    ).exists()
+    duplicate_notification_exists = InAppNotification.objects.filter(
+        user=user,
+        title="Tarefa criada",
+        body=title,
+        created_at__gte=duplicate_limit,
+    ).exists()
+    if duplicate_task_exists or duplicate_notification_exists:
+        pending.delete()
+        return None, "Essa tarefa ja foi criada agora ha pouco. Confira sua lista em Tarefas. 🔔"
+
+    description = (pending.draft_description or "").strip()
+    if due_time:
+        suffix = f"Horario sugerido: {due_time.strftime('%H:%M')}"
+        description = f"{description}\n\n{suffix}" if description else suffix
+
+    task = Task.objects.create(
+        user=user,
+        title=title,
+        description=description[:2000],
+        due_date=due_date,
+        stress_level=3,
+        status=TASK_TODO,
+    )
+    target_url = f"{reverse('ui-task-list')}?highlight_task={task.id}"
+    InAppNotification.objects.create(
+        user=user,
+        title="Tarefa criada",
+        body=task.title,
+        target_url=target_url,
+        is_read=False,
+    )
+    pending.delete()
+    return task, TASK_CONCIERGE_CONFIRM.format(title=task.title, due_date=due_date.strftime("%d/%m/%Y"))
+
+
+def _finalize_event_from_pending(user, pending, raw_message, normalized_message):
+    start_date, start_time = _parse_due_date_and_time_from_text(raw_message, normalized_message)
+    explicit_event_type = _resolve_event_type_choice(normalized_message)
+
+    if explicit_event_type and (not start_date or not start_time):
+        _set_pending_event_type(pending, explicit_event_type)
+        pending.step = 2
+        pending.save(update_fields=["draft_description", "step", "updated_at"])
+        return None, EVENT_CONCIERGE_ASK_ONLY_WHEN
+
+    if not start_date or not start_time:
+        pending.save()  # refresh updated_at for ongoing conversation
+        return None, EVENT_CONCIERGE_RETRY_WHEN
+
+    title = (pending.draft_title or "").strip() or "Evento criado pelo chat"
+    duplicate_limit = timezone.now() - timedelta(minutes=2)
+    start_naive = datetime.combine(start_date, start_time)
+    start_at = timezone.make_aware(start_naive, timezone.get_current_timezone())
+    duplicate_event_exists = CalendarEvent.objects.filter(
+        user=user,
+        title__iexact=title,
+        start_at=start_at,
+        created_at__gte=duplicate_limit,
+    ).exists()
+    duplicate_notification_exists = InAppNotification.objects.filter(
+        user=user,
+        title="Evento agendado",
+        body=title,
+        created_at__gte=duplicate_limit,
+    ).exists()
+    if duplicate_event_exists or duplicate_notification_exists:
+        pending.delete()
+        return None, "Esse evento ja foi criado agora ha pouco. Confira sua agenda. 🔔"
+
+    pending_event_type = _extract_pending_event_type(pending)
+    description = _strip_pending_event_type_marker(pending.draft_description)
+    event_type = explicit_event_type or pending_event_type or _resolve_event_type(_normalize_text(f"{title} {description}"))
+    end_at = start_at + timedelta(hours=1)
+    event = CalendarEvent.objects.create(
+        user=user,
+        title=title,
+        event_type=event_type,
+        start_at=start_at,
+        end_at=end_at,
+        notes=description[:2000],
+    )
+    target_url = f"{reverse('ui-agenda-list')}?highlight_event={event.id}"
+    InAppNotification.objects.create(
+        user=user,
+        title="Evento agendado",
+        body=event.title,
+        target_url=target_url,
+        is_read=False,
+    )
+    pending.delete()
+    return event, EVENT_CONCIERGE_CONFIRM.format(title=event.title, when=_format_event_when(start_at))
+
+
 class WidgetChatView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -654,6 +1505,177 @@ class WidgetChatView(APIView):
             .first()
         )
         historico = _load_recent_history(request.user)
+        pending = _load_pending_action(request.user, now)
+        intent_scores = _compute_intent_scores(normalized_message)
+        mode = _decide_mode(
+            intent_scores,
+            has_pending=bool(pending),
+            pending_action=pending.pending_action if pending else None,
+        )
+
+        # Bloco: Cancelamento de fluxo pendente
+        if pending and _is_cancel_pending_message(normalized_message):
+            pending.delete()
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=None,
+                resposta_texto=TASK_CONCIERGE_CANCEL,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": TASK_CONCIERGE_CANCEL,
+                    "category": None,
+                    "emoji": None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        # Bloco: Fluxo concierge pendente em 2 etapas
+        if pending:
+            if mode == "emotional_support":
+                categoria_pending = _detect_categoria(normalized_message, is_english=is_english)
+                emotional_reply = _build_reply_for_categoria(
+                    categoria_pending,
+                    normalized_message,
+                    historico,
+                    now,
+                    last_response_text,
+                    is_english=is_english,
+                )
+                payload_micro = _pick_micro_intervention(request, categoria_pending, is_english=is_english)
+                InteracaoAluno.objects.create(
+                    user=request.user,
+                    mensagem_usuario=mensagem_usuario,
+                    categoria_detectada=categoria_pending,
+                    resposta_texto=emotional_reply,
+                    origem="widget",
+                )
+                return Response(
+                    {
+                        "reply": emotional_reply,
+                        "category": categoria_pending.slug if categoria_pending else None,
+                        "emoji": categoria_pending.emoji if categoria_pending else None,
+                        "micro_interventions": payload_micro,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            if mode == "task" and pending.pending_action == TASK_CONCIERGE_ACTION:
+                if pending.step == 1:
+                    title_candidate = _extract_clear_title_candidate(mensagem_usuario, normalized_message) or _extract_task_title(
+                        normalized_message
+                    )
+                    pending.draft_title = title_candidate[:200]
+                    pending.draft_description = title_candidate[:2000]
+                    pending.step = 2
+                    pending.save()
+                    reply_text = TASK_CONCIERGE_ASK_DUE
+                else:
+                    _task, reply_text = _finalize_task_from_pending(request.user, pending, mensagem_usuario, normalized_message)
+            elif mode == "event" and pending.pending_action == EVENT_CONCIERGE_ACTION:
+                if pending.step == 1:
+                    title_candidate = _extract_clear_event_title_candidate(mensagem_usuario, normalized_message) or _extract_event_title(
+                        normalized_message
+                    )
+                    pending.draft_title = title_candidate[:200]
+                    pending.draft_description = title_candidate[:2000]
+                    pending.step = 2
+                    pending.save()
+                    reply_text = EVENT_CONCIERGE_ASK_WHEN
+                else:
+                    _event, reply_text = _finalize_event_from_pending(request.user, pending, mensagem_usuario, normalized_message)
+            else:
+                pending.delete()
+                fallback_options = ENGLISH_FALLBACK_REPLIES if is_english else FALLBACK_REPLIES
+                reply_text = random.choice(fallback_options)
+
+            categoria_fluxo = _resolve_categoria_by_slug("foco_alto")
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=categoria_fluxo,
+                resposta_texto=reply_text,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": reply_text,
+                    "category": categoria_fluxo.slug if categoria_fluxo else None,
+                    "emoji": categoria_fluxo.emoji if categoria_fluxo else None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        event_start_signal = _has_event_creation_intent(normalized_message) or (
+            _has_date_hint(normalized_message) and _has_time_hint(normalized_message)
+        )
+
+        # Bloco: Inicia fluxo concierge quando modo decidir evento.
+        if mode == "event" and event_start_signal:
+            _pending, reply_text = _start_event_concierge(request.user, mensagem_usuario, normalized_message)
+            categoria_fluxo = _resolve_categoria_by_slug("foco_alto")
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=categoria_fluxo,
+                resposta_texto=reply_text,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": reply_text,
+                    "category": categoria_fluxo.slug if categoria_fluxo else None,
+                    "emoji": categoria_fluxo.emoji if categoria_fluxo else None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        # Bloco: Inicia fluxo concierge quando modo decidir tarefa.
+        if mode == "task" and _has_task_creation_intent(normalized_message):
+            _pending, reply_text = _start_task_concierge(request.user, mensagem_usuario, normalized_message)
+            categoria_fluxo = _resolve_categoria_by_slug("foco_alto")
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=categoria_fluxo,
+                resposta_texto=reply_text,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": reply_text,
+                    "category": categoria_fluxo.slug if categoria_fluxo else None,
+                    "emoji": categoria_fluxo.emoji if categoria_fluxo else None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        # Bloco: social so retorna saudacao quando houver saudacao explicita.
+        if mode == "social":
+            greeting_reply = _pick_greeting_reply(normalized_message)
+            if greeting_reply:
+                InteracaoAluno.objects.create(
+                    user=request.user,
+                    mensagem_usuario=mensagem_usuario,
+                    categoria_detectada=None,
+                    resposta_texto=greeting_reply,
+                    origem="widget",
+                )
+                return Response(
+                    {
+                        "reply": greeting_reply,
+                        "category": None,
+                        "emoji": None,
+                        "micro_interventions": [],
+                    },
+                    status=status.HTTP_200_OK,
+                )
 
         followup_reply = _pick_short_direction_followup_reply(normalized_message, last_response_text)
         if followup_reply:
@@ -713,26 +1735,14 @@ class WidgetChatView(APIView):
                 reply_text = choose_variant(CONTEXT_MESSAGES["stress_short_direction_main"], last_response_text)
             payload_micro_intervencoes = []
         elif categoria:
-            reply_text = None
-            if categoria.slug == "stress":
-                anxiety_keywords = ENGLISH_ANXIETY_KEYWORDS if is_english else ANXIETY_KEYWORDS
-                exam_keywords = ENGLISH_EXAM_KEYWORDS if is_english else EXAM_KEYWORDS
-                has_anxiety = _has_any_keyword(normalized_message, anxiety_keywords)
-                has_exam = _has_any_keyword(normalized_message, exam_keywords)
-                if has_anxiety and has_exam:
-                    key = "stress_anxiety_en" if is_english else "stress_anxiety"
-                    reply_text = choose_variant(CONTEXT_MESSAGES[key], last_response_text)
-                elif has_anxiety:
-                    key = "stress_anxiety_en" if is_english else "stress_anxiety"
-                    reply_text = choose_variant(CONTEXT_MESSAGES[key], last_response_text)
-
-            if not reply_text:
-                reply_text = _pick_contextual_reply(categoria, historico, now, last_response_text, is_english=is_english)
-            if not reply_text:
-                reply_text = _pick_category_reply(categoria, last_response_text, is_english=is_english)
-            if not reply_text:
-                fallback_options = ENGLISH_FALLBACK_REPLIES if is_english else FALLBACK_REPLIES
-                reply_text = random.choice(fallback_options)
+            reply_text = _build_reply_for_categoria(
+                categoria,
+                normalized_message,
+                historico,
+                now,
+                last_response_text,
+                is_english=is_english,
+            )
             payload_micro_intervencoes = _pick_micro_intervention(request, categoria, is_english=is_english)
         else:
             should_activate_blindagem = _should_activate_blindagem(categoria, normalized_message, historico)

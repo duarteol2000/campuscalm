@@ -5,14 +5,14 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">{% trans "Dashboard" %}</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{% trans "Tarefas" %}</li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Tarefas do Dia" %}</li>
   </ol>
 </nav>
 
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div>
-    <h1 class="h4 mb-1">{% trans "Tarefas" %}</h1>
-    <div class="text-muted">{% trans "Organize suas tarefas e prazos." %}</div>
+    <h1 class="h4 mb-1">{% trans "Tarefas do Dia" %}</h1>
+    <div class="text-muted">{% trans "Organize suas tarefas do dia e prazos." %}</div>
   </div>
   <a class="btn btn-primary" href="{% url 'ui-task-create' %}">{% trans "Nova tarefa" %}</a>
 </div>
@@ -59,7 +59,10 @@
           </thead>
           <tbody>
             {% for task in tasks %}
-              <tr>
+              <tr
+                id="task-row-{{ task.id }}"
+                class="{% if highlight_task and task.id == highlight_task %}task-row-highlight{% endif %}"
+              >
                 <td>{{ task.title }}</td>
                 <td>{{ task.due_date|date:"d/m/Y" }}</td>
                 <td><span class="badge text-bg-light">{{ task.get_status_display }}</span></td>
@@ -86,10 +89,12 @@
                   </div>
                   {% endwith %}
                 </td>
-                <td class="text-end">
-                  <a class="btn btn-sm btn-outline-primary" href="{% url 'ui-task-detail' task.pk %}">{% trans "Ver" %}</a>
-                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-task-edit' task.pk %}">{% trans "Editar" %}</a>
-                  <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-task-delete' task.pk %}">{% trans "Excluir" %}</a>
+                <td class="text-end task-actions-cell">
+                  <div class="task-actions">
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'ui-task-detail' task.pk %}">{% trans "Ver" %}</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'ui-task-edit' task.pk %}">{% trans "Editar" %}</a>
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'ui-task-delete' task.pk %}">{% trans "Excluir" %}</a>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
@@ -101,4 +106,22 @@
     {% endif %}
   </div>
 </div>
+
+{% if highlight_task %}
+<script>
+  (function () {
+    var row = document.getElementById("task-row-{{ highlight_task }}");
+    if (!row) {
+      return;
+    }
+    window.requestAnimationFrame(function () {
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      row.classList.add("task-row-highlight-pulse");
+      window.setTimeout(function () {
+        row.classList.remove("task-row-highlight-pulse");
+      }, 1400);
+    });
+  })();
+</script>
+{% endif %}
 {% endblock %}

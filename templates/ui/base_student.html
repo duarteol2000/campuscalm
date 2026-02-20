@@ -94,23 +94,59 @@
           <label class="student-nav-toggle-button" for="student-nav-toggle">{% trans "Menu" %}</label>
           <div>
             <div class="dropdown">
-              <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                {{ request.user.name|default:request.user.email }}
+              {% with display_name=request.user.name|default:request.user.email %}
+              <button class="btn btn-outline-secondary btn-sm dropdown-toggle student-user-menu-button" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.user.profile.avatar %}
+                  <img src="{{ request.user.profile.avatar.url }}" alt="{{ display_name }}" class="student-user-avatar">
+                {% else %}
+                  <span class="student-user-avatar-fallback">{{ display_name|slice:":2"|upper }}</span>
+                {% endif %}
+                <span class="student-user-menu-name">{{ display_name }}</span>
               </button>
 
-              <ul class="dropdown-menu dropdown-menu-end">
+              <ul class="dropdown-menu dropdown-menu-end student-user-menu">
                 <li>
-                  <form method="post" action="{% url 'logout' %}" class="px-3 py-1">
+                  <a class="dropdown-item" href="{% url 'ui-profile' %}">{% trans "Meu Perfil" %}</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form method="post" action="{% url 'ui-logout' %}" class="px-3 py-1">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-danger w-100">{% trans "Sair" %}</button>
                   </form>
                 </li>
               </ul>
+              {% endwith %}
             </div>
             <p class="student-subtitle">{% trans "Ambiente de estudo" %}</p>
           </div>
         </div>
         <div class="student-topbar-actions">
+          <div class="dropdown student-bell-dropdown">
+            <button
+              class="btn btn-outline-secondary btn-sm student-bell-button"
+              type="button"
+              id="studentBellButton"
+              data-bs-toggle="dropdown"
+              data-bs-auto-close="outside"
+              aria-expanded="false"
+              aria-label="{% trans 'Notificacoes' %}"
+            >
+              <span class="student-bell-icon" aria-hidden="true">🔔</span>
+              <span id="studentBellBadge" class="student-bell-badge d-none">0</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end student-bell-menu" aria-labelledby="studentBellButton">
+              <div class="student-bell-menu-header">
+                <span class="fw-semibold">{% trans "Notificacoes" %}</span>
+                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" id="studentBellMarkAll">
+                  {% trans "Marcar todas" %}
+                </button>
+              </div>
+              <div id="studentBellList" class="student-bell-menu-list">
+                <div class="student-bell-empty text-muted">{% trans "Carregando..." %}</div>
+              </div>
+            </div>
+          </div>
           <a class="student-btn student-btn-ghost" href="{% url 'ui-task-create' %}">{% trans "Nova tarefa" %}</a>
           <a class="student-btn student-btn-ghost" href="{% url 'ui-agenda-create' %}">{% trans "Novo evento" %}</a>
           <a class="student-btn student-btn-primary" href="{% url 'ui-reminder-create' %}">{% trans "Novo lembrete" %}</a>
@@ -137,6 +173,7 @@
 
   {% include "ui/partials/campuscalm_widget.html" %}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'ui/js/notifications_bell.js' %}" defer></script>
   <script src="{% static 'ui/js/campuscalm_widget.js' %}" defer></script>
 </body>
 </html>
