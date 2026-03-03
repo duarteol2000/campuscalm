@@ -75,3 +75,35 @@ class ChatPendingAction(models.Model):
 
     def __str__(self):
         return f"{self.user_id} - {self.pending_action} - step {self.step}"
+
+
+class WeeklyCoachingAssessment(models.Model):
+    RISK_STABLE = "STABLE"
+    RISK_LOW = "LOW"
+    RISK_MODERATE = "MODERATE"
+    RISK_HIGH = "HIGH"
+    RISK_LEVEL_CHOICES = [
+        (RISK_STABLE, "Stable"),
+        (RISK_LOW, "Low"),
+        (RISK_MODERATE, "Moderate"),
+        (RISK_HIGH, "High"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="weekly_coaching_assessments")
+    week_reference = models.DateField(help_text="Segunda-feira da semana avaliada")
+    score = models.PositiveSmallIntegerField(default=0)
+    risk_level = models.CharField(max_length=10, choices=RISK_LEVEL_CHOICES, default=RISK_STABLE)
+    email_sent = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "week_reference"],
+                name="uniq_weekly_coaching_user_week",
+            )
+        ]
+        ordering = ("-week_reference", "-created_at")
+
+    def __str__(self):
+        return f"{self.user_id} - {self.week_reference} - {self.risk_level} ({self.score})"

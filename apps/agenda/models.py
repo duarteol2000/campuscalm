@@ -19,6 +19,17 @@ class CalendarEvent(models.Model):
         return self.title
 
 
+class Reminder(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reminders")
+    title = models.CharField(max_length=200)
+    remind_at = models.DateTimeField()
+    is_done = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
 class ReminderRule(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reminder_rules")
     target_type = models.CharField(max_length=10, choices=REMINDER_TARGET_CHOICES)

@@ -1,14 +1,23 @@
 {% extends "ui/auth_base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
 <div class="auth-card shadow-sm">
   <div class="auth-header">
-    <div class="auth-logo">Campus Calm</div>
-    <div class="auth-subtitle">{% trans "Bem-estar e organizacao para universitarios" %}</div>
+    <div class="auth-logo-frame" aria-hidden="true">
+      <img
+        src="{% static 'img/logo-campus-calm.png' %}"
+        alt="CampusCalm"
+        class="auth-logo-img"
+        loading="lazy"
+      >
+    </div>
+    <div class="auth-logo">CampusCalm</div>
+    <div class="auth-subtitle">{% trans "Organizacao emocional e foco para universitarios" %}</div>
   </div>
   <div class="auth-body">
     <h1 class="h5 mb-3">{% trans "Acesso ao painel" %}</h1>
+    <p class="auth-positioning">{% trans "Organize seu semestre com acompanhamento inteligente." %}</p>
     <p class="text-muted small mb-4">{% trans "Entre com seu email institucional ou pessoal para continuar." %}</p>
 
     {% if messages %}
@@ -58,6 +67,10 @@
 
     <div class="auth-footer text-muted small mt-4">
       {% trans "Dica: use o mesmo login do sistema administrativo se ja tiver acesso." %}
+    </div>
+
+    <div class="auth-welcome-note">
+      {% trans "Bem-vindo(a) de volta. Vamos cuidar do seu ritmo esta semana." %}
     </div>
   </div>
 </div>

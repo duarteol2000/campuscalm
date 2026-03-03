@@ -1,0 +1,260 @@
+PLANO DE MELHORIAS DO CAMPUSCALM (PARA DISCUSSAO)
+=================================================
+
+Objetivo deste documento
+------------------------
+Listar, de forma objetiva, os pontos de melhoria para o CampusCalm ganhar corpo
+como produto e operacao, com exemplos praticos e prioridade sugerida.
+
+Resumo de maturidade atual (visao curta)
+----------------------------------------
+- Produto: MVP avancado / pre-beta
+- Engenharia: intermediario para avancado
+- UX: acima da media para MVP
+- Operacao/automacao: ainda em consolidacao
+
+Onde melhorar para o sistema ganhar corpo
+=========================================
+
+1) Operacao automatica (prioridade alta)
+----------------------------------------
+Situacao atual:
+- Algumas rotinas ainda dependem de execucao manual.
+
+O que fazer:
+- Agendar rotinas (cron/systemd timer)
+- Padronizar logs operacionais
+- Separar claramente teste vs producao
+
+Exemplos:
+- run_weekly_coaching automatico 1x por semana com log
+- script de backup diario do banco
+- script de deploy com checklist (migrate, check, restart)
+
+Por que importa:
+- Sem operacao previsivel, o produto nao sustenta uso real.
+
+
+2) Entrega real de email (prioridade alta)
+------------------------------------------
+Situacao atual:
+- Backend de console e bom para teste, mas nao para operacao real.
+
+O que fazer:
+- Configurar SMTP real (SendGrid, Mailgun, Gmail SMTP de teste)
+- Tratar falhas de envio
+- Medir taxa de entrega (minimo via logs)
+
+Exemplos:
+- DEFAULT_FROM_EMAIL + SMTP configurado
+- logar falha de envio por usuario
+- painel simples/admin para "enviados x falharam"
+
+Por que importa:
+- O Pro depende de email. Se o envio falha, o valor percebido cai.
+
+
+3) Observabilidade / monitoramento (prioridade alta)
+----------------------------------------------------
+Situacao atual:
+- O sistema tem boa logica, mas pouca visibilidade operacional.
+
+O que fazer:
+- Log estruturado em fluxos criticos
+- Metricas minimas de uso
+- Alertas basicos (futuro)
+
+Exemplos de metricas:
+- chats por dia
+- tarefas criadas via chat
+- eventos criados via chat
+- lembretes criados via chat
+- emails de coaching enviados
+- erros por endpoint (/api/widget/chat/, etc.)
+
+Por que importa:
+- Sem medir, fica dificil melhorar com base em dados.
+
+
+4) UX de onboarding e ativacao (prioridade alta)
+------------------------------------------------
+Situacao atual:
+- Produto ja tem muita funcionalidade, mas a primeira experiencia ainda pode evoluir.
+
+O que fazer:
+- Guiar melhor os primeiros passos do aluno
+- Melhorar empty states
+- Reduzir friccao no primeiro uso
+
+Exemplos:
+- checklist inicial:
+  1. cadastrar semestre
+  2. cadastrar 1 disciplina
+  3. criar 1 tarefa
+  4. testar chat
+- CTA no dashboard: "Crie sua primeira tarefa"
+- mensagens de vazio com acao clara
+
+Por que importa:
+- Retencao inicial depende da primeira semana de uso.
+
+
+5) Conversao FREE -> PRO (prioridade alta, produto)
+---------------------------------------------------
+Situacao atual:
+- Ja existe base boa (pagina Pro, Ajuda, Sobre, status do plano).
+
+O que fazer:
+- Tornar valor do PRO mais tangivel
+- Mostrar beneficio antes da cobranca
+- Testar copy e CTA
+
+Exemplos:
+- pagina /pro/ com exemplo real de email de acompanhamento
+- banner leve no dashboard para usuarios FREE
+- CTA claro para lista de espera / contato comercial
+
+Por que importa:
+- Comercializacao precisa narrativa + prova de valor.
+
+
+6) Seguranca, privacidade e confianca (prioridade alta para comercial)
+----------------------------------------------------------------------
+Situacao atual:
+- Ja ha base de consentimento, mas ainda precisa amadurecer para escala.
+
+O que fazer:
+- Politica de privacidade clara (sem juridiques excessivo)
+- Controle de consentimento e desativacao de acompanhamento
+- Melhorar trilha de auditoria (quando aplicavel)
+
+Exemplos:
+- pagina de privacidade real (nao placeholder)
+- "desativar acompanhamento inteligente" no perfil
+- documentar uso de dados com linguagem simples
+
+Por que importa:
+- Produto educacional com dados emocionais depende de confianca.
+
+
+7) Robustez de testes (prioridade media-alta)
+---------------------------------------------
+Situacao atual:
+- O projeto ja tem boa quantidade de testes (ponto forte).
+
+O que fazer:
+- Aumentar cobertura de fluxos ponta-a-ponta
+- Reforcar regressao em fluxos criticos
+- Testar comandos/automacao
+
+Exemplos:
+- chat -> cria tarefa -> notifica -> highlight em tarefas
+- fluxo completo de lembrete com parsing de data/hora
+- coaching semanal: score -> assessment -> email -> deduplicacao
+
+Por que importa:
+- Quanto mais features entram, maior o risco de regressao silenciosa.
+
+
+8) Padronizacao de copy e tom (prioridade media)
+------------------------------------------------
+Situacao atual:
+- O sistema esta evoluindo bem, mas algumas copys ainda podem ser unificadas.
+
+O que fazer:
+- Criar guia de voz do produto
+- Padronizar termos entre dashboard/chat/help/pro/email
+- Revisar PT/EN com consistencia
+
+Exemplos:
+- padrao para "Acompanhamento inteligente", "Coach semanal", "CampusCalm Pro"
+- regras de tom: acolhedor, curto, sem promessas absolutas
+
+Por que importa:
+- Melhora percepcao de qualidade e profissionalismo.
+
+
+9) Backoffice / operacao de suporte (prioridade media)
+------------------------------------------------------
+Situacao atual:
+- Administracao manual funciona, mas pode ficar pesada.
+
+O que fazer:
+- Criar utilitarios de suporte (admin actions / scripts)
+- Padronizar scripts operacionais
+
+Exemplos:
+- acao para limpar chat do usuario
+- resetar pending_action
+- ativar coach
+- script unico para criar usuario + ativar + senha temporaria
+
+Por que importa:
+- Economiza tempo e reduz erro operacional.
+
+
+10) Base para escala tecnica (prioridade media)
+-----------------------------------------------
+Situacao atual:
+- Boa arquitetura modular, mas ainda sem camada de operacao de escala.
+
+O que fazer:
+- Preparar settings por ambiente
+- Planejar tarefas assincronas (quando necessario)
+- Garantir backup e restore testado
+
+Exemplos:
+- .env por ambiente
+- DEBUG=False em staging/prod
+- rotina de backup do banco
+- no futuro: fila de jobs (Celery/RQ) se o volume justificar
+
+Por que importa:
+- Crescimento sem disciplina tecnica vira retrabalho.
+
+
+Ordem pratica recomendada (curto prazo)
+=======================================
+1. Email real (SMTP) + logs de envio
+2. Cron/timer estavel para coaching
+3. Metricas minimas de uso + erros
+4. Melhorias de onboarding/empty states
+5. Conversao PRO (copy + CTA + prova de valor)
+6. Privacidade/confianca (pagina + controles)
+7. Testes de integracao dos fluxos principais
+
+
+O que evitar agora (para nao perder tempo)
+==========================================
+- NLP/IA pesada antes de medir uso real
+- App mobile nativo agora
+- Microservicos / arquitetura complexa cedo demais
+- Muitas features novas sem validar adocao das atuais
+
+
+Meta sugerida de 30 dias (piloto comercial mais serio)
+======================================================
+Entrega minima:
+- coaching automatico semanal via cron
+- SMTP real de teste
+- logs confiaveis de envio/execucao
+- pagina Pro + Ajuda refinadas
+- politica de privacidade basica
+- 3 fluxos criticos com testes de regressao (chat -> tarefa/evento/lembrete)
+
+
+Meta sugerida de 60-90 dias (operacao previsivel)
+=================================================
+- painel simples de metricas operacionais
+- fila de jobs (se o volume pedir)
+- melhorias de conversao PRO
+- suporte operacional simplificado
+- documentacao operacional (deploy, backup, incidentes)
+
+
+Observacao final
+================
+O CampusCalm ja esta em um nivel muito bom para piloto/comercializacao inicial.
+O foco agora deve ser consolidar operacao, confianca e conversao sem perder a
+qualidade da experiencia que ja foi construida.
+

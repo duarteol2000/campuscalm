@@ -19,8 +19,12 @@
   var currentLang = String(document.documentElement.getAttribute("lang") || "").toLowerCase();
   var isEnglish = currentLang.indexOf("en") === 0;
   var API_ENDPOINT = "/api/widget/chat/";
+  var CONTEXT_API_ENDPOINT = "/api/widget/chat/context/";
   var MAX_MESSAGE_LENGTH = 300;
+  var MIN_TYPING_INDICATOR_MS = 950;
   var STORAGE_KEY = "campuscalm_widget_history_v1_" + (isEnglish ? "en" : "pt");
+  var FIRST_MESSAGE_DAY_KEY = "cc_widget_first_msg_day_v1";
+  var LAST_ACTIVITY_AT_KEY = "cc_widget_last_activity_at_v1";
   var LEGACY_INITIAL_BOT_MESSAGE = isEnglish
     ? "Hi! Want to organize what's worrying you right now?"
     : "Oi! Quer organizar o que esta te preocupando agora?";
@@ -28,6 +32,9 @@
     ? "Hi! Want to organize what's worrying you right now?\nIf you want, I can help you turn this into 10 minutes of action."
     : "Oi! Quer organizar o que esta te preocupando agora?\nSe voce quiser, eu te ajudo a transformar isso em 10 minutos de acao.";
   var history = loadHistory();
+  var contextLoadedOnce = false;
+  var typingIndicatorShownAt = 0;
+  var typingIndicatorRemoveTimer = null;
 
   if (!history.length) {
     history = [{ role: "bot", text: INITIAL_BOT_MESSAGE }];
@@ -73,10 +80,16 @@
     panel.setAttribute("aria-hidden", "false");
     root.classList.add("is-open");
     trigger.setAttribute("aria-expanded", "true");
-    window.setTimeout(function () {
-      input.focus();
-      scrollMessagesToBottom();
-    }, 20);
+    hydrateContextOnOpen()
+      .then(function (contextInfo) {
+        maybeInjectFirstMessageOfDay(contextInfo || null);
+      })
+      .finally(function () {
+        window.setTimeout(function () {
+          input.focus();
+          scrollMessagesToBottom();
+        }, 20);
+      });
   }
 
   function closeWidget() {
@@ -104,10 +117,71 @@
     var message = { role: role, text: text };
     history.push(message);
     persistHistory();
+    markLocalActivityNow();
 
     var bubble = buildBubble(message);
     messagesContainer.appendChild(bubble);
     scrollMessagesToBottom();
+  }
+
+  function renderTypingIndicator() {
+    if (typingIndicatorRemoveTimer) {
+      window.clearTimeout(typingIndicatorRemoveTimer);
+      typingIndicatorRemoveTimer = null;
+    }
+    if (document.getElementById("chat-typing-indicator")) {
+      typingIndicatorShownAt = Date.now();
+      return;
+    }
+
+    var typing = document.createElement("div");
+    typing.className = "chat-typing-indicator";
+    typing.id = "chat-typing-indicator";
+
+    typing.innerHTML =
+      '<div class="typing-bubble">' +
+      (isEnglish ? "CampusCalm is typing" : "CampusCalm esta digitando") +
+      '<span class="dot"></span>' +
+      '<span class="dot"></span>' +
+      '<span class="dot"></span>' +
+      "</div>";
+
+    messagesContainer.appendChild(typing);
+    typingIndicatorShownAt = Date.now();
+    scrollMessagesToBottom();
+  }
+
+  function removeTypingIndicator(forceImmediate) {
+    if (typingIndicatorRemoveTimer) {
+      window.clearTimeout(typingIndicatorRemoveTimer);
+      typingIndicatorRemoveTimer = null;
+    }
+    var typing = document.getElementById("chat-typing-indicator");
+    if (!typing) {
+      typingIndicatorShownAt = 0;
+      return Promise.resolve();
+    }
+
+    var elapsed = typingIndicatorShownAt ? Date.now() - typingIndicatorShownAt : MIN_TYPING_INDICATOR_MS;
+    var remaining = forceImmediate ? 0 : Math.max(0, MIN_TYPING_INDICATOR_MS - elapsed);
+
+    if (remaining > 0) {
+      return new Promise(function (resolve) {
+        typingIndicatorRemoveTimer = window.setTimeout(function () {
+          var currentTyping = document.getElementById("chat-typing-indicator");
+          if (currentTyping) {
+            currentTyping.remove();
+          }
+          typingIndicatorRemoveTimer = null;
+          typingIndicatorShownAt = 0;
+          resolve();
+        }, remaining);
+      });
+    }
+
+    typing.remove();
+    typingIndicatorShownAt = 0;
+    return Promise.resolve();
   }
 
   function renderHistory(items) {
@@ -132,17 +206,24 @@
   }
 
   function requestBackendReply(text) {
+    removeTypingIndicator();
+    renderTypingIndicator();
+
     fetchBackendReply(text)
       .then(function (result) {
-        appendMessage("bot", result.text);
-        if (result.shouldRefreshTasks) {
-          scheduleTaskRefresh();
-        }
+        return removeTypingIndicator().then(function () {
+          appendMessage("bot", result.text);
+          if (result.shouldRefreshTasks) {
+            scheduleTaskRefresh();
+          }
+        });
       })
       .catch(function () {
-        window.setTimeout(function () {
-          appendMessage("bot", buildMockReply(text));
-        }, 300);
+        removeTypingIndicator().then(function () {
+          window.setTimeout(function () {
+            appendMessage("bot", buildMockReply(text));
+          }, 300);
+        });
       });
   }
 
@@ -171,6 +252,167 @@
       })
       .then(function (payload) {
         return formatBackendReply(payload);
+      });
+  }
+
+  function fetchChatContext() {
+    var headers = {
+      Accept: "application/json",
+    };
+    var csrfToken = getCsrfToken();
+    if (csrfToken) {
+      headers["X-CSRFToken"] = csrfToken;
+    }
+    return window
+      .fetch(CONTEXT_API_ENDPOINT, {
+        method: "GET",
+        credentials: "same-origin",
+        headers: headers,
+      })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Context request failed");
+        }
+        return response.json();
+      });
+  }
+
+  function hasOnlyDefaultGreeting() {
+    if (!history.length) {
+      return true;
+    }
+    if (history.length !== 1) {
+      return false;
+    }
+    var first = history[0];
+    return first && first.role === "bot" && (first.text === INITIAL_BOT_MESSAGE || first.text === LEGACY_INITIAL_BOT_MESSAGE);
+  }
+
+  function isSameLocalDay(aIso, bIso) {
+    if (!aIso || !bIso) {
+      return false;
+    }
+    var a = new Date(aIso);
+    var b = new Date(bIso);
+    if (isNaN(a.getTime()) || isNaN(b.getTime())) {
+      return false;
+    }
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
+
+  function readLocalStorageValue(key) {
+    try {
+      return window.localStorage.getItem(key) || "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function writeLocalStorageValue(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (error) {
+      // Ignore storage issues in restricted environments.
+    }
+  }
+
+  function markLocalActivityNow() {
+    writeLocalStorageValue(LAST_ACTIVITY_AT_KEY, new Date().toISOString());
+  }
+
+  function hasLocalActivityToday() {
+    var lastActivityIso = readLocalStorageValue(LAST_ACTIVITY_AT_KEY);
+    if (!lastActivityIso) {
+      return false;
+    }
+    return isSameLocalDay(lastActivityIso, new Date().toISOString());
+  }
+
+  function hasShownFirstMessageToday() {
+    var firstMessageIso = readLocalStorageValue(FIRST_MESSAGE_DAY_KEY);
+    if (!firstMessageIso) {
+      return false;
+    }
+    return isSameLocalDay(firstMessageIso, new Date().toISOString());
+  }
+
+  function greetingByHour() {
+    var hour = new Date().getHours();
+    if (hour < 12) {
+      return isEnglish ? "Good morning" : "Bom dia";
+    }
+    if (hour < 18) {
+      return isEnglish ? "Good afternoon" : "Boa tarde";
+    }
+    return isEnglish ? "Good evening" : "Boa noite";
+  }
+
+  function buildFirstMessageOfDayText() {
+    if (isEnglish) {
+      return greetingByHour() + "! In one sentence: today do you want more focus, organization, or emotional relief? 🙂";
+    }
+    return (
+      greetingByHour() + "! Em uma frase: hoje voce quer mais foco, organizacao ou alivio emocional? 🙂"
+    );
+  }
+
+  function maybeInjectFirstMessageOfDay(contextInfo) {
+    var info = contextInfo || {};
+    if (info.hasRecentContext) {
+      return;
+    }
+    if (hasShownFirstMessageToday()) {
+      return;
+    }
+    if (hasLocalActivityToday()) {
+      return;
+    }
+    if (!hasOnlyDefaultGreeting()) {
+      return;
+    }
+
+    appendMessage("bot", buildFirstMessageOfDayText());
+    writeLocalStorageValue(FIRST_MESSAGE_DAY_KEY, new Date().toISOString());
+  }
+
+  function hydrateContextOnOpen() {
+    if (contextLoadedOnce) {
+      return Promise.resolve({ cached: true, hasRecentContext: false, rehydrated: false });
+    }
+
+    return fetchChatContext()
+      .then(function (ctx) {
+        contextLoadedOnce = true;
+        if (!ctx || !ctx.has_recent_context) {
+          return { hasRecentContext: false, rehydrated: false };
+        }
+        var result = { hasRecentContext: true, rehydrated: false };
+        if (!ctx.last_bot_reply || typeof ctx.last_bot_reply !== "string") {
+          return result;
+        }
+        if (!hasOnlyDefaultGreeting()) {
+          return result;
+        }
+        var rehydrated = [];
+        if (ctx.last_user_message && typeof ctx.last_user_message === "string" && ctx.last_user_message.trim() !== "") {
+          rehydrated.push({ role: "user", text: ctx.last_user_message });
+        }
+        rehydrated.push({ role: "bot", text: ctx.last_bot_reply });
+        history = rehydrated;
+        persistHistory();
+        renderHistory(history);
+        markLocalActivityNow();
+        result.rehydrated = true;
+        return result;
+      })
+      .catch(function () {
+        contextLoadedOnce = false;
+        // Fallback: keep local greeting/history behavior.
+        return { hasRecentContext: false, rehydrated: false, error: true };
       });
   }
 

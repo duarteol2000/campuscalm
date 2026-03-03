@@ -202,6 +202,33 @@ def profile_view(request):
     )
 
 
+def _build_ui_static_page_context(user):
+    profile = UserProfile.objects.get_or_create(user=user)[0]
+    return {
+        "profile_status": profile,
+        "plan_status": profile.plan,
+        "coach_enabled": profile.coach_enabled,
+    }
+
+
+@login_required(login_url="/login/")
+def pro_page(request):
+    context = _build_ui_static_page_context(request.user)
+    return render(request, "ui/pro.html", context)
+
+
+@login_required(login_url="/login/")
+def help_page(request):
+    context = _build_ui_static_page_context(request.user)
+    return render(request, "ui/help.html", context)
+
+
+@login_required(login_url="/login/")
+def about_page(request):
+    context = _build_ui_static_page_context(request.user)
+    return render(request, "ui/help_about.html", context)
+
+
 @login_required(login_url="/login/")
 def dashboard_view(request):
     user = request.user

@@ -7,6 +7,7 @@ from brain.models import (
     InteracaoAluno,
     MicroIntervencao,
     RespostaEmocional,
+    WeeklyCoachingAssessment,
 )
 
 
@@ -50,3 +51,10 @@ class ChatPendingActionAdmin(admin.ModelAdmin):
     list_display = ("user", "pending_action", "step", "updated_at")
     list_filter = ("pending_action", "step", "updated_at")
     search_fields = ("user__email", "draft_title", "draft_description")
+
+
+@admin.register(WeeklyCoachingAssessment)
+class WeeklyCoachingAssessmentAdmin(admin.ModelAdmin):
+    list_display = ("user", "week_reference", "score", "risk_level", "email_sent", "created_at")
+    list_filter = ("risk_level", "email_sent", "week_reference")
+    search_fields = ("user__email", "user__name")

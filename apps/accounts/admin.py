@@ -29,8 +29,18 @@ class UserAdmin(DjangoUserAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "plan", "gender", "has_avatar", "allow_email", "allow_whatsapp", "allow_sms", "consent_at")
-    list_filter = ("plan", "gender", "allow_email", "allow_whatsapp", "allow_sms")
+    list_display = (
+        "user",
+        "plan",
+        "coach_enabled",
+        "gender",
+        "has_avatar",
+        "allow_email",
+        "allow_whatsapp",
+        "allow_sms",
+        "consent_at",
+    )
+    list_filter = ("plan", "coach_enabled", "gender", "allow_email", "allow_whatsapp", "allow_sms")
 
     @admin.display(boolean=True, description="Avatar")
     def has_avatar(self, obj):

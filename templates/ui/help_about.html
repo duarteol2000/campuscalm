@@ -1,0 +1,67 @@
+{% extends "ui/base_student.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="student-page-header">
+  <div>
+    <h1 class="student-page-title">{% trans "Sobre o Sistema" %}</h1>
+    <p class="student-page-subtitle">{% trans "Como o CampusCalm organiza estudos, emocao e acompanhamento no semestre." %}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="student-btn student-btn-ghost" href="{% url 'ui-help' %}">{% trans "Voltar para Ajuda" %}</a>
+    <a class="student-btn student-btn-primary" href="{% url 'ui-pro' %}">{% trans "CampusCalm Pro" %}</a>
+  </div>
+</div>
+
+<div class="student-grid">
+  <section class="student-card student-span-12 student-card-surface-blue dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "O que e o CampusCalm" %}</h2>
+    </div>
+    <p class="student-card-muted mb-0">
+      {% trans "O CampusCalm e um sistema para ajudar estudantes a reduzir sobrecarga e manter clareza ao longo do semestre. Ele combina organizacao academica com apoio emocional pratico." %}
+    </p>
+  </section>
+
+  <section class="student-card student-span-6 student-card-surface-ice dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "O que o chat faz (reativo)" %}</h2>
+    </div>
+    <ul class="student-list">
+      <li class="student-list-item"><span class="student-list-title">{% trans "Responde quando voce chama" %}</span></li>
+      <li class="student-list-item"><span class="student-list-title">{% trans "Ajuda a organizar tarefas, eventos e lembretes" %}</span></li>
+      <li class="student-list-item"><span class="student-list-title">{% trans "Oferece passos curtos para foco e regulacao emocional" %}</span></li>
+    </ul>
+  </section>
+
+  <section class="student-card student-span-6 student-card-surface-neutral dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "O que o CampusCalm Pro faz (proativo por e-mail)" %}</h2>
+    </div>
+    <ul class="student-list">
+      <li class="student-list-item"><span class="student-list-title">{% trans "Analisa sinais da semana de forma deterministica" %}</span></li>
+      <li class="student-list-item"><span class="student-list-title">{% trans "Detecta niveis de risco de sobrecarga" %}</span></li>
+      <li class="student-list-item"><span class="student-list-title">{% trans "Envia e-mails curtos, empaticos e praticos" %}</span></li>
+    </ul>
+  </section>
+
+  <section id="privacidade" class="student-card student-span-12 student-card-surface-soft dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Como as leituras sao feitas" %}</h2>
+    </div>
+    <p class="student-card-muted mb-0">
+      {% trans "As leituras sao baseadas nos registros do semestre no CampusCalm (tarefas, eventos, lembretes, check-ins e atividades relacionadas). O objetivo e orientar seu proximo passo com mais clareza, nao rotular voce." %}
+    </p>
+  </section>
+
+  <section class="student-card student-span-12 student-card-surface-mint dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "O que o CampusCalm NAO e" %}</h2>
+    </div>
+    <ul class="student-list">
+      <li class="student-list-item"><span class="student-list-title">{% trans "Nao substitui apoio profissional." %}</span></li>
+      <li class="student-list-item"><span class="student-list-title">{% trans "Nao faz diagnostico." %}</span></li>
+    </ul>
+  </section>
+</div>
+{% endblock %}

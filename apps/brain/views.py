@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from agenda.models import CalendarEvent
+from agenda.models import CalendarEvent, Reminder
 from brain.constants import ANXIETY_KEYWORDS, CONTEXT_MESSAGES, EXAM_KEYWORDS
 from brain.models import (
     CategoriaEmocional,
@@ -43,6 +43,14 @@ class WidgetChatRequestSerializer(serializers.Serializer):
     message = serializers.CharField(allow_blank=False, trim_whitespace=True, max_length=300)
 
 
+class WidgetChatContextResponseSerializer(serializers.Serializer):
+    has_recent_context = serializers.BooleanField()
+    last_user_message = serializers.CharField(allow_null=True)
+    last_bot_reply = serializers.CharField(allow_null=True)
+    pending_action = serializers.CharField(allow_null=True)
+    step = serializers.IntegerField(allow_null=True)
+
+
 FALLBACK_REPLIES = [
     "Estou aqui com voce. Quer me contar um pouco mais sobre isso?",
     "Entendi. Me fala um pouco mais para eu poder te ajudar melhor.",
@@ -51,6 +59,27 @@ ENGLISH_FALLBACK_REPLIES = [
     "I'm here with you. Can you tell me a little more about this?",
     "Got it. Tell me a bit more so I can help you better.",
 ]
+EMOTIONAL_ACK_REPLY = "Perfeito. Estou por aqui se precisar."
+POST_ACTION_ACK_REPLIES = (
+    "Que bom que deu tudo certo. Qualquer coisa, estou por aqui se precisar.",
+    "Perfeito. Fico feliz que tenha funcionado. Se precisar, estou por aqui.",
+    "Otimo. Deu certo. Se aparecer algo depois, pode me chamar.",
+)
+EMOTIONAL_ACK_TOKENS = (
+    "ok",
+    "ta",
+    "tá",
+    "certo",
+    "beleza",
+    "entendi",
+    "obrigado",
+    "obrigada",
+    "valeu",
+    "show",
+)
+EMOTIONAL_ACK_EMOJIS = ("👍", "👌", "✅", "🙏")
+EMOTIONAL_ACK_BLOCK_TOKENS = ("mas", "ainda", "porem", "porém", "so que", "só que", "nao", "não")
+EMOTIONAL_CONTEXT_CATEGORY_SLUGS = {"stress", "motivacao_baixa", "cansaco_mental", "duvida"}
 BLINDAGEM_REPLY = (
     "Vamos simplificar.\n"
     "Escolha o que mais se aproxima do que voce precisa agora:\n\n"
@@ -208,24 +237,64 @@ TASK_GREETING_PREFIXES = (
 TASK_CONCIERGE_ACTION = "create_task"
 TASK_CONCIERGE_EXPIRATION_MINUTES = 15
 TASK_CONCIERGE_ASK_SCOPE = "📝 Criando nova tarefa (1/2)\nEntendi, voce quer criar uma tarefa.\nQual a descricao da tarefa?"
-TASK_CONCIERGE_ASK_DUE = "📝 Criando nova tarefa (2/2)\nQual a data e hora de entrega?"
+TASK_CONCIERGE_ASK_DUE = (
+    "📝 Criando nova tarefa (2/2)\n"
+    "Qual a data e hora de entrega?\n"
+    "Ex.: 25/02/2026 as 14:00 | amanha 14h | segunda as 14h"
+)
 TASK_CONCIERGE_CONFIRM = "✅ Tarefa criada: {title}\n🗓 Prazo: {due_date}\n🔔 Veja em Tarefas"
-TASK_CONCIERGE_RETRY_DUE = "Nao consegui entender a data/hora. Ex.: amanha 18h, hoje, 25/02 09:00, 25/02, sexta 14h."
+TASK_CONCIERGE_RETRY_DUE = (
+    "Nao consegui entender a data/hora. "
+    "Use um formato como: 25/02/2026 as 14:00 | amanha 14h | segunda as 14h."
+)
 TASK_CONCIERGE_CANCEL = "Tudo bem, cancelei a criacao da tarefa."
+REMINDER_CONCIERGE_ACTION = "create_reminder"
+REMINDER_CONCIERGE_ASK_CONTENT = (
+    "🔔 Criando novo lembrete (1/2)\n"
+    "Sobre o que e o lembrete? (tarefa, prova, entrega, reuniao, aula, evento, outro)"
+)
+REMINDER_CONCIERGE_ASK_WHEN = (
+    "🔔 Criando novo lembrete (2/2)\n"
+    "Qual a data e hora?\n"
+    "Ex.: 25/02/2026 as 14:00 | amanha 14h | segunda as 14h"
+)
+REMINDER_CONCIERGE_CONFIRM = "🔔 Lembrete criado: {title}\n🗓 Quando: {when}\nVoce sera avisado no horario."
+REMINDER_CONCIERGE_RETRY_WHEN = (
+    "Nao consegui entender a data e hora do lembrete. "
+    "Use um formato como: 25/02/2026 as 14:00 | amanha 14h | segunda as 14h"
+)
+REMINDER_KEYWORDS = (
+    "me lembre",
+    "me lembra",
+    "lembrete",
+)
+REMINDER_GENERIC_REQUEST_PATTERNS = (
+    "quero criar um lembrete",
+    "quero criar lembrete",
+    "quero que crie um lembrete",
+    "quero que crie um novo lembrete",
+    "crie um lembrete",
+    "crie lembrete",
+    "criar lembrete",
+    "novo lembrete",
+)
 EVENT_CONCIERGE_ACTION = "create_event"
 EVENT_CONCIERGE_ASK_SCOPE = "🗓 Criando novo evento (1/2)\nQual o compromisso na agenda?"
 EVENT_CONCIERGE_ASK_WHEN = (
     "🗓 Criando novo evento (2/2)\n"
     "Perfeito. Qual o tipo do evento? (prova, entrega, aula, reuniao, outro)\n"
     "Agora me diga a data e hora.\n"
-    "Ex.: prova amanha 14h | reuniao 25/02 09:00"
+    "Ex.: prova 25/02/2026 as 14:00 | reuniao amanha 14h | aula segunda as 14h"
 )
 EVENT_CONCIERGE_CONFIRM = "✅ Evento criado: {title}\n🗓 Quando: {when}\n🔔 Veja em Agenda"
 EVENT_CONCIERGE_RETRY_WHEN = (
     "Nao consegui entender. Informe tipo + data/hora. "
-    "Ex.: prova amanha 14h, reuniao 25/02 09:00."
+    "Ex.: prova 25/02/2026 as 14:00 | reuniao amanha 14h | aula segunda as 14h."
 )
-EVENT_CONCIERGE_ASK_ONLY_WHEN = "Perfeito, tipo salvo. Agora me diga apenas a data e hora. Ex.: amanha 14h | 25/02 09:00"
+EVENT_CONCIERGE_ASK_ONLY_WHEN = (
+    "Perfeito, tipo salvo. Agora me diga apenas a data e hora. "
+    "Ex.: 25/02/2026 as 14:00 | amanha 14h | segunda as 14h"
+)
 EVENT_CREATION_KEYWORDS = (
     "agenda",
     "agendar",
@@ -275,6 +344,18 @@ GREETING_REPLIES = {
     "bom dia": "Bom dia! Como posso te ajudar hoje?",
     "boa tarde": "Boa tarde! Como posso te ajudar hoje?",
     "boa noite": "Boa noite! Como posso te ajudar hoje?",
+    "oi": "Oi! Como posso te ajudar hoje?",
+    "ola": "Oi! Como posso te ajudar hoje?",
+    "olá": "Oi! Como posso te ajudar hoje?",
+    "opa": "Oi! Como posso te ajudar hoje?",
+    "e ai": "Oi! Como posso te ajudar hoje?",
+    "e aí": "Oi! Como posso te ajudar hoje?",
+    "hello": "Hello! How can I help you today?",
+    "hi": "Hi! How can I help you today?",
+    "hey": "Hi! How can I help you today?",
+    "good morning": "Good morning! How can I help you today?",
+    "good afternoon": "Good afternoon! How can I help you today?",
+    "good evening": "Good evening! How can I help you today?",
 }
 WEEKDAY_MAP = {
     "segunda": 0,
@@ -387,6 +468,56 @@ SHORT_DIRECTION_NEGATIVE_REPLIES_EN = (
     "didnt help",
     "still anxious",
 )
+EMOTIONAL_ACTION_EMOTION_KEYWORDS = (
+    "medo",
+    "ansioso",
+    "ansiosa",
+    "ansiedade",
+    "nervoso",
+    "nervosa",
+    "estresse",
+    "estressado",
+    "estressada",
+    "preocupado",
+    "preocupada",
+    "panico",
+)
+EMOTIONAL_ACTION_DIRECT_PATTERNS = (
+    "o que faco",
+    "oq faco",
+    "o que eu faco",
+    "como faco",
+    "como eu faco",
+    "me ajuda",
+    "me ajude",
+    "me orienta",
+    "o que eu devo fazer",
+    "o que devo fazer",
+    "o que eu devo fazer com",
+    "o que fazer com",
+    "o que fazer com esse",
+    "como lidar com",
+    "como eu lido com",
+    "como controlar",
+    "como eu controlo",
+)
+EMOTIONAL_ACTION_INTERROGATIVES = ("o que", "como", "devo")
+EMOTIONAL_ACTION_VERBS = ("fazer", "lidar", "controlar", "resolver", "parar")
+EMOTIONAL_ACTION_MAIN_REPLIES = (
+    "E normal sentir medo/ansiedade quando algo importante esta perto.\n"
+    "Vamos fazer algo pratico agora:\n"
+    "1) Respire 4s e solte 6s (3x).\n"
+    "2) Pegue 1 assunto e revise por 10 minutos.\n"
+    "3) Anote 3 pontos-chave em bullets.\n"
+    "Qual e a materia e quando e a prova?",
+    "Entendi. Quando a ansiedade sobe, a melhor resposta e acao curta.\n"
+    "Vamos por passos:\n"
+    "1) Respire mais lento por 1 minuto (4s entra, 6s sai).\n"
+    "2) Escolha 1 topico e estude so 10 minutos com timer.\n"
+    "3) Escreva 3 pontos principais e pare 1 minuto.\n"
+    "Qual e a prova e qual conteudo pesa mais agora?",
+)
+EMOTIONAL_ACTION_REPEAT_REPLY = "Quer (A) respiracao guiada 60s ou (B) mini-plano de estudo 10 min?"
 EMOTIONAL_INTENT_KEYWORDS = (
     "ansioso",
     "ansiosa",
@@ -677,6 +808,75 @@ def _pick_short_direction_followup_reply(message_text, last_response_text):
     return None
 
 
+def _has_emotional_action_request(normalized_message: str) -> bool:
+    if not normalized_message:
+        return False
+
+    # Nao rouba o fluxo quando a intencao executiva (task/event/reminder) esta clara.
+    if _has_task_creation_intent(normalized_message) or _has_event_creation_intent(normalized_message) or _has_reminder_intent(
+        normalized_message
+    ):
+        return False
+
+    has_emotion = _has_any_keyword(normalized_message, EMOTIONAL_ACTION_EMOTION_KEYWORDS)
+    if not has_emotion:
+        return False
+
+    direct_match = _has_any_keyword(normalized_message, EMOTIONAL_ACTION_DIRECT_PATTERNS)
+    has_interrogative = _has_any_keyword(normalized_message, EMOTIONAL_ACTION_INTERROGATIVES)
+    has_action_verb = _has_any_keyword(normalized_message, EMOTIONAL_ACTION_VERBS)
+    combined_match = has_interrogative and has_action_verb
+    return direct_match or combined_match
+
+
+def _is_emotional_action_repeat_question(normalized_message, history):
+    if not normalized_message or not history:
+        return False
+
+    last = history[0]
+    if not last.categoria_detectada or last.categoria_detectada.slug != "stress":
+        return False
+    if not _has_emotional_action_request(normalized_message):
+        return False
+
+    last_message = _normalize_text(last.mensagem_usuario or "")
+    if not last_message or last_message != normalized_message:
+        return False
+
+    return (
+        last.resposta_texto in EMOTIONAL_ACTION_MAIN_REPLIES
+        or last.resposta_texto == EMOTIONAL_ACTION_REPEAT_REPLY
+    )
+
+
+def _build_emotional_action_reply(categoria, normalized_message, history, last_response_text):
+    if _is_emotional_action_repeat_question(normalized_message, history):
+        return EMOTIONAL_ACTION_REPEAT_REPLY
+
+    is_exam_context = _has_any_keyword(normalized_message, (*EXAM_KEYWORDS, *ENGLISH_EXAM_KEYWORDS))
+    if is_exam_context:
+        return choose_variant(list(EMOTIONAL_ACTION_MAIN_REPLIES), last_response_text)
+
+    # Variante curta para emocao pratica fora de prova, mantendo foco em 2min + 10min.
+    options = [
+        (
+            "Entendi. Vamos transformar isso em acao curta agora.\n"
+            "1) Respire 4s e solte 6s por 1 minuto.\n"
+            "2) Escolha uma acao de 10 minutos e comece sem tentar resolver tudo.\n"
+            "3) Anote 3 pontos do que esta sob seu controle hoje.\n"
+            "Qual e a proxima acao de 10 minutos que voce consegue fazer agora?"
+        ),
+        (
+            "Esse tipo de medo pesa mesmo, mas da para reduzir agora.\n"
+            "1) Solte o ar mais devagar que entra (3 ciclos).\n"
+            "2) Faça so 10 minutos da parte mais simples.\n"
+            "3) Pare 1 minuto e anote 3 pontos-chave.\n"
+            "Qual parte voce quer destravar primeiro?"
+        ),
+    ]
+    return choose_variant(options, last_response_text)
+
+
 def _is_generic_question(message_text):
     if not message_text:
         return False
@@ -685,6 +885,86 @@ def _is_generic_question(message_text):
     if not is_short:
         return False
     return _has_any_keyword(message_text, GENERIC_QUESTION_PATTERNS)
+
+
+def _is_acknowledgment_message(normalized_message: str, raw_message: str) -> bool:
+    normalized_message = str(normalized_message or "").strip()
+    raw_message = str(raw_message or "").strip()
+    if not normalized_message and not raw_message:
+        return False
+
+    normalized_words = [word for word in normalized_message.split() if word]
+    raw_compact = re.sub(r"\s+", "", raw_message)
+    is_short = len(normalized_words) <= 3 or len(raw_compact) <= 4
+    if not is_short:
+        return False
+
+    if any(emoji in raw_message for emoji in EMOTIONAL_ACK_EMOJIS):
+        return True
+
+    return _has_any_keyword(normalized_message, EMOTIONAL_ACK_TOKENS)
+
+
+def _is_pure_acknowledgment_message(normalized_message: str, raw_message: str) -> bool:
+    normalized_message = str(normalized_message or "").strip()
+    raw_message = str(raw_message or "").strip()
+    if not normalized_message and not raw_message:
+        return False
+
+    if any(emoji in raw_message for emoji in EMOTIONAL_ACK_EMOJIS):
+        stripped = re.sub(r"[\s\.,;:!\?\-\(\)\[\]\{\}]", "", raw_message)
+        emoji_only = stripped
+        for emoji in EMOTIONAL_ACK_EMOJIS:
+            emoji_only = emoji_only.replace(emoji, "")
+        if emoji_only == "":
+            return True
+
+    normalized_compact = normalized_message.strip()
+    return normalized_compact in {_normalize_text(token) for token in EMOTIONAL_ACK_TOKENS}
+
+
+def _is_blocked_acknowledgment_message(normalized_message: str, raw_message: str) -> bool:
+    if not normalized_message and not raw_message:
+        return False
+    has_ack_token = _has_any_keyword(normalized_message, EMOTIONAL_ACK_TOKENS)
+    has_ack_emoji = any(emoji in str(raw_message or "") for emoji in EMOTIONAL_ACK_EMOJIS)
+    if not (has_ack_token or has_ack_emoji):
+        return False
+    has_blocking_connector = _has_any_keyword(normalized_message, EMOTIONAL_ACK_BLOCK_TOKENS)
+    if not has_blocking_connector:
+        return False
+    return _has_any_keyword(normalized_message, (*EMOTIONAL_ACTION_EMOTION_KEYWORDS, *EMOTIONAL_INTENT_KEYWORDS))
+
+
+def _get_recent_emotional_interaction(user, now, history=None):
+    recent_history = history if history is not None else _load_recent_history(user)
+    if not recent_history:
+        return None
+
+    for item in recent_history[:2]:
+        categoria = item.categoria_detectada
+        if categoria and categoria.slug in EMOTIONAL_CONTEXT_CATEGORY_SLUGS:
+            return item
+    return None
+
+
+def _get_recent_action_completion_interaction(history):
+    if not history:
+        return None
+    completion_prefixes = (
+        "✅ Tarefa criada:",
+        "✅ Evento criado:",
+        "🔔 Lembrete criado:",
+    )
+    last = history[0]
+    reply_text = str(last.resposta_texto or "")
+    if any(reply_text.startswith(prefix) for prefix in completion_prefixes):
+        return last
+    return None
+
+
+def _has_recent_emotional_context(user, now) -> bool:
+    return _get_recent_emotional_interaction(user, now) is not None
 
 
 def _was_blindagem_recently_activated(history):
@@ -726,12 +1006,27 @@ def _resolve_blindagem_choice(message_text, history):
 def _pick_greeting_reply(message_text):
     if not message_text:
         return None
+    if message_text in {"oi", "ola", "opa", "e ai"}:
+        current_hour = timezone.localtime().hour
+        if current_hour < 12:
+            return "Bom dia! Como posso te ajudar hoje?"
+        if current_hour < 18:
+            return "Boa tarde! Como posso te ajudar hoje?"
+        return "Boa noite! Como posso te ajudar hoje?"
+    if message_text in {"hi", "hello", "hey"}:
+        current_hour = timezone.localtime().hour
+        if current_hour < 12:
+            return "Good morning! How can I help you today?"
+        if current_hour < 18:
+            return "Good afternoon! How can I help you today?"
+        return "Good evening! How can I help you today?"
     return GREETING_REPLIES.get(message_text)
 
 
 def _compute_intent_scores(message_normalized):
     scores = {
         "emotional": 0,
+        "reminder": 0,
         "task": 0,
         "event": 0,
         "social": 0,
@@ -741,7 +1036,10 @@ def _compute_intent_scores(message_normalized):
         scores["general"] = 1
         return scores
 
-    has_emotional_keywords = _has_any_keyword(message_normalized, EMOTIONAL_INTENT_KEYWORDS)
+    has_emotional_keywords = _has_any_keyword(
+        message_normalized,
+        (*EMOTIONAL_INTENT_KEYWORDS, *EMOTIONAL_ACTION_EMOTION_KEYWORDS),
+    )
     has_emotional_state = _has_any_keyword(message_normalized, ("to", "estou", "me sinto", "i feel"))
     has_exam_context = _has_any_keyword(message_normalized, ("prova", "apresentacao", "exam", "presentation"))
     if has_emotional_keywords:
@@ -750,9 +1048,20 @@ def _compute_intent_scores(message_normalized):
         scores["emotional"] += 2
     if has_exam_context and (has_emotional_keywords or has_emotional_state):
         scores["emotional"] += 2
+    if _has_emotional_action_request(message_normalized):
+        scores["emotional"] += 2
 
     has_date = _has_date_hint(message_normalized)
     has_time = _has_time_hint(message_normalized)
+    has_datetime = has_date and has_time
+    has_reminder_keyword = _has_any_keyword(message_normalized, REMINDER_KEYWORDS)
+
+    if has_reminder_keyword:
+        scores["reminder"] += 3
+    if has_datetime:
+        scores["reminder"] += 3
+    if has_reminder_keyword and has_datetime:
+        scores["reminder"] += 2
 
     if _has_any_keyword(message_normalized, TASK_INTENT_KEYWORDS):
         scores["task"] += 3
@@ -765,7 +1074,7 @@ def _compute_intent_scores(message_normalized):
         scores["event"] += 3
     if has_time:
         scores["event"] += 3
-    if has_date and has_time:
+    if has_datetime:
         scores["event"] += 2
 
     if _has_any_keyword(message_normalized, SOCIAL_INTENT_KEYWORDS):
@@ -784,6 +1093,8 @@ def _decide_mode(scores, has_pending, pending_action=None):
     if has_pending:
         if emotional_score >= 4:
             return "emotional_support"
+        if pending_action == REMINDER_CONCIERGE_ACTION:
+            return "reminder"
         if pending_action == EVENT_CONCIERGE_ACTION:
             return "event"
         if pending_action == TASK_CONCIERGE_ACTION:
@@ -793,7 +1104,7 @@ def _decide_mode(scores, has_pending, pending_action=None):
     if emotional_score >= 4:
         return "emotional_support"
 
-    priority = ("event", "task", "social", "general")
+    priority = ("reminder", "event", "task", "social", "general")
     best_score = max(int(scores.get(mode, 0)) for mode in priority)
     if best_score <= 0:
         return "general"
@@ -1027,6 +1338,45 @@ def _extract_clear_title_candidate(raw_message, normalized_message):
     return ""
 
 
+def _has_reminder_intent(normalized_message):
+    return _has_any_keyword(normalized_message, REMINDER_KEYWORDS)
+
+
+def _extract_reminder_title(raw_message, normalized_message):
+    cleaned = _strip_greeting_prefix(normalized_message)
+    for prefix in ("me lembre de", "me lembre", "me lembra de", "me lembra", "lembrete de", "lembrete"):
+        if cleaned.startswith(prefix):
+            cleaned = cleaned[len(prefix) :].strip()
+            break
+
+    cleaned = re.sub(r"\b(hoje|amanha)\b.*$", "", cleaned).strip()
+    cleaned = re.sub(r"\b(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b.*$", "", cleaned).strip()
+    cleaned = re.sub(r"\b([01]?\d|2[0-3])\s*(?::|h)\s*[0-5]?\d?\b.*$", "", cleaned).strip()
+    cleaned = re.sub(r"\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)\b.*$", "", cleaned).strip()
+    cleaned = cleaned.strip(" \"'")
+
+    if not cleaned or cleaned in {"de", "para", "pra"}:
+        return ""
+    return cleaned[:200]
+
+
+def _extract_clear_reminder_title_candidate(raw_message, normalized_message):
+    if _has_any_keyword(normalized_message, REMINDER_GENERIC_REQUEST_PATTERNS):
+        return ""
+
+    quote_match = re.search(r'"([^"]{3,200})"', raw_message)
+    if quote_match:
+        return quote_match.group(1).strip()
+
+    if ":" in raw_message:
+        prefix, suffix = raw_message.split(":", 1)
+        if _has_reminder_intent(_normalize_text(prefix)) and suffix.strip():
+            candidate = suffix.strip().strip(" \"'")
+            if candidate:
+                return candidate[:200]
+    return _extract_reminder_title(raw_message, normalized_message)
+
+
 def _extract_clear_event_title_candidate(raw_message, normalized_message):
     if _has_any_keyword(normalized_message, EVENT_GENERIC_REQUEST_PATTERNS) and not _has_any_keyword(
         normalized_message, EVENT_COMMITMENT_KEYWORDS
@@ -1125,11 +1475,16 @@ def _format_event_when(start_at):
     return local_value.strftime("%d/%m/%Y %H:%M")
 
 
+def _format_reminder_when(remind_at):
+    local_value = timezone.localtime(remind_at)
+    return local_value.strftime("%d/%m/%Y %H:%M")
+
+
 def _load_pending_action(user, now):
     pending = ChatPendingAction.objects.filter(user=user).first()
     if not pending:
         return None
-    if pending.pending_action not in {TASK_CONCIERGE_ACTION, EVENT_CONCIERGE_ACTION}:
+    if pending.pending_action not in {TASK_CONCIERGE_ACTION, EVENT_CONCIERGE_ACTION, REMINDER_CONCIERGE_ACTION}:
         pending.delete()
         return None
     expiration_limit = now - timedelta(minutes=TASK_CONCIERGE_EXPIRATION_MINUTES)
@@ -1363,6 +1718,31 @@ def _start_task_concierge(user, raw_message, normalized_message):
     return pending, (TASK_CONCIERGE_ASK_DUE if step == 2 else TASK_CONCIERGE_ASK_SCOPE)
 
 
+def _start_reminder_concierge(user, raw_message, normalized_message):
+    title_candidate = _extract_clear_reminder_title_candidate(raw_message, normalized_message)
+    due_date, due_time = _parse_due_date_and_time_from_text(raw_message, normalized_message)
+
+    pending, _ = ChatPendingAction.objects.get_or_create(
+        user=user,
+        defaults={"pending_action": REMINDER_CONCIERGE_ACTION},
+    )
+    pending.pending_action = REMINDER_CONCIERGE_ACTION
+    pending.draft_title = title_candidate[:200] if title_candidate else ""
+    pending.draft_description = (title_candidate or "").strip()[:2000]
+    pending.draft_due_date = due_date
+    pending.draft_due_time = due_time
+
+    if not pending.draft_title:
+        pending.step = 1
+        reply_text = REMINDER_CONCIERGE_ASK_CONTENT
+    else:
+        pending.step = 2
+        reply_text = REMINDER_CONCIERGE_ASK_WHEN
+
+    pending.save()
+    return pending, reply_text
+
+
 def _start_event_concierge(user, raw_message, normalized_message):
     title_candidate = _extract_clear_event_title_candidate(raw_message, normalized_message)
     step = 2 if title_candidate else 1
@@ -1426,6 +1806,44 @@ def _finalize_task_from_pending(user, pending, raw_message, normalized_message):
     )
     pending.delete()
     return task, TASK_CONCIERGE_CONFIRM.format(title=task.title, due_date=due_date.strftime("%d/%m/%Y"))
+
+
+def _finalize_reminder_from_pending(user, pending, raw_message, normalized_message):
+    due_date, due_time = _parse_due_date_and_time_from_text(raw_message, normalized_message)
+    due_date = due_date or pending.draft_due_date
+    due_time = due_time or pending.draft_due_time
+    if not due_date or not due_time:
+        pending.save()
+        return None, REMINDER_CONCIERGE_RETRY_WHEN
+
+    title = (pending.draft_title or "").strip() or "Lembrete criado pelo chat"
+    remind_at = timezone.make_aware(datetime.combine(due_date, due_time), timezone.get_current_timezone())
+
+    duplicate_limit = timezone.now() - timedelta(minutes=2)
+    if Reminder.objects.filter(
+        user=user,
+        title__iexact=title,
+        remind_at=remind_at,
+        created_at__gte=duplicate_limit,
+    ).exists():
+        pending.delete()
+        return None, "Esse lembrete ja foi criado agora ha pouco. Confira sua lista de lembretes. 🔔"
+
+    reminder = Reminder.objects.create(
+        user=user,
+        title=title,
+        remind_at=remind_at,
+        is_done=False,
+    )
+    InAppNotification.objects.create(
+        user=user,
+        title="Lembrete criado",
+        body=reminder.title,
+        target_url=f"{reverse('ui-reminder-list')}?highlight_reminder={reminder.id}",
+        is_read=False,
+    )
+    pending.delete()
+    return reminder, REMINDER_CONCIERGE_CONFIRM.format(title=reminder.title, when=_format_reminder_when(remind_at))
 
 
 def _finalize_event_from_pending(user, pending, raw_message, normalized_message):
@@ -1537,14 +1955,23 @@ class WidgetChatView(APIView):
         if pending:
             if mode == "emotional_support":
                 categoria_pending = _detect_categoria(normalized_message, is_english=is_english)
-                emotional_reply = _build_reply_for_categoria(
-                    categoria_pending,
-                    normalized_message,
-                    historico,
-                    now,
-                    last_response_text,
-                    is_english=is_english,
-                )
+                if not is_english and _has_emotional_action_request(normalized_message):
+                    categoria_pending = _resolve_categoria_by_slug("stress") or categoria_pending
+                    emotional_reply = _build_emotional_action_reply(
+                        categoria_pending,
+                        normalized_message,
+                        historico,
+                        last_response_text,
+                    )
+                else:
+                    emotional_reply = _build_reply_for_categoria(
+                        categoria_pending,
+                        normalized_message,
+                        historico,
+                        now,
+                        last_response_text,
+                        is_english=is_english,
+                    )
                 payload_micro = _pick_micro_intervention(request, categoria_pending, is_english=is_english)
                 InteracaoAluno.objects.create(
                     user=request.user,
@@ -1575,6 +2002,26 @@ class WidgetChatView(APIView):
                     reply_text = TASK_CONCIERGE_ASK_DUE
                 else:
                     _task, reply_text = _finalize_task_from_pending(request.user, pending, mensagem_usuario, normalized_message)
+            elif mode == "reminder" and pending.pending_action == REMINDER_CONCIERGE_ACTION:
+                if pending.step == 1:
+                    title_candidate = _extract_clear_reminder_title_candidate(mensagem_usuario, normalized_message)
+                    if title_candidate:
+                        pending.draft_title = title_candidate[:200]
+                        pending.draft_description = title_candidate[:2000]
+                        if pending.draft_due_date and pending.draft_due_time:
+                            _reminder, reply_text = _finalize_reminder_from_pending(
+                                request.user, pending, mensagem_usuario, normalized_message
+                            )
+                        else:
+                            pending.step = 2
+                            pending.save()
+                            reply_text = REMINDER_CONCIERGE_ASK_WHEN
+                    else:
+                        reply_text = REMINDER_CONCIERGE_ASK_CONTENT
+                else:
+                    _reminder, reply_text = _finalize_reminder_from_pending(
+                        request.user, pending, mensagem_usuario, normalized_message
+                    )
             elif mode == "event" and pending.pending_action == EVENT_CONCIERGE_ACTION:
                 if pending.step == 1:
                     title_candidate = _extract_clear_event_title_candidate(mensagem_usuario, normalized_message) or _extract_event_title(
@@ -1613,6 +2060,49 @@ class WidgetChatView(APIView):
         event_start_signal = _has_event_creation_intent(normalized_message) or (
             _has_date_hint(normalized_message) and _has_time_hint(normalized_message)
         )
+        reminder_intent = _has_reminder_intent(normalized_message)
+
+        # Bloco: lembrete (cria imediatamente se titulo + data/hora estiverem completos)
+        if mode == "reminder" and reminder_intent:
+            title_candidate = _extract_clear_reminder_title_candidate(mensagem_usuario, normalized_message)
+            due_date, due_time = _parse_due_date_and_time_from_text(mensagem_usuario, normalized_message)
+
+            if title_candidate and due_date and due_time:
+                remind_at = timezone.make_aware(datetime.combine(due_date, due_time), timezone.get_current_timezone())
+                reminder = Reminder.objects.create(
+                    user=request.user,
+                    title=title_candidate,
+                    remind_at=remind_at,
+                    is_done=False,
+                )
+                InAppNotification.objects.create(
+                    user=request.user,
+                    title="Lembrete criado",
+                    body=reminder.title,
+                    target_url=f"{reverse('ui-reminder-list')}?highlight_reminder={reminder.id}",
+                    is_read=False,
+                )
+                reply_text = REMINDER_CONCIERGE_CONFIRM.format(title=reminder.title, when=_format_reminder_when(remind_at))
+            else:
+                _pending, reply_text = _start_reminder_concierge(request.user, mensagem_usuario, normalized_message)
+
+            categoria_fluxo = _resolve_categoria_by_slug("foco_alto")
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=categoria_fluxo,
+                resposta_texto=reply_text,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": reply_text,
+                    "category": categoria_fluxo.slug if categoria_fluxo else None,
+                    "emoji": categoria_fluxo.emoji if categoria_fluxo else None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
 
         # Bloco: Inicia fluxo concierge quando modo decidir evento.
         if mode == "event" and event_start_signal:
@@ -1697,6 +2187,98 @@ class WidgetChatView(APIView):
                 status=status.HTTP_200_OK,
             )
 
+        # Bloco: Encerramento emocional contextual (ack curto apos resposta emocional).
+        recent_emotional_interaction = None
+        blocked_acknowledgment = _is_blocked_acknowledgment_message(normalized_message, mensagem_usuario)
+        if (
+            _is_acknowledgment_message(normalized_message, mensagem_usuario)
+            and not blocked_acknowledgment
+        ):
+            recent_emotional_interaction = _get_recent_emotional_interaction(
+                request.user,
+                now,
+                history=historico,
+            )
+        if recent_emotional_interaction:
+            categoria_ack = recent_emotional_interaction.categoria_detectada
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=categoria_ack,
+                resposta_texto=EMOTIONAL_ACK_REPLY,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": EMOTIONAL_ACK_REPLY,
+                    "category": categoria_ack.slug if categoria_ack else None,
+                    "emoji": categoria_ack.emoji if categoria_ack else None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        # Bloco: Encerramento contextual apos conclusao de tarefa/evento/lembrete.
+        recent_action_completion = None
+        if _is_pure_acknowledgment_message(normalized_message, mensagem_usuario):
+            recent_action_completion = _get_recent_action_completion_interaction(historico)
+        if recent_action_completion:
+            post_action_ack_reply = choose_variant(list(POST_ACTION_ACK_REPLIES), last_response_text)
+            InteracaoAluno.objects.create(
+                user=request.user,
+                mensagem_usuario=mensagem_usuario,
+                categoria_detectada=None,
+                resposta_texto=post_action_ack_reply,
+                origem="widget",
+            )
+            return Response(
+                {
+                    "reply": post_action_ack_reply,
+                    "category": None,
+                    "emoji": None,
+                    "micro_interventions": [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        if blocked_acknowledgment:
+            recent_emotional_interaction = _get_recent_emotional_interaction(
+                request.user,
+                now,
+                history=historico,
+            )
+            if recent_emotional_interaction and recent_emotional_interaction.categoria_detectada:
+                categoria_contextual = recent_emotional_interaction.categoria_detectada
+                reply_text = _build_reply_for_categoria(
+                    categoria_contextual,
+                    normalized_message,
+                    historico,
+                    now,
+                    last_response_text,
+                    is_english=is_english,
+                )
+                payload_micro_intervencoes = _pick_micro_intervention(
+                    request,
+                    categoria_contextual,
+                    is_english=is_english,
+                )
+                InteracaoAluno.objects.create(
+                    user=request.user,
+                    mensagem_usuario=mensagem_usuario,
+                    categoria_detectada=categoria_contextual,
+                    resposta_texto=reply_text,
+                    origem="widget",
+                )
+                return Response(
+                    {
+                        "reply": reply_text,
+                        "category": categoria_contextual.slug,
+                        "emoji": categoria_contextual.emoji,
+                        "micro_interventions": payload_micro_intervencoes,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
         blindagem_choice_slug = _resolve_blindagem_choice(normalized_message, historico)
         if blindagem_choice_slug:
             categoria = _resolve_categoria_by_slug(blindagem_choice_slug)
@@ -1734,6 +2316,15 @@ class WidgetChatView(APIView):
             else:
                 reply_text = choose_variant(CONTEXT_MESSAGES["stress_short_direction_main"], last_response_text)
             payload_micro_intervencoes = []
+        elif mode == "emotional_support" and not is_english and _has_emotional_action_request(normalized_message):
+            categoria = _resolve_categoria_by_slug("stress") or categoria
+            reply_text = _build_emotional_action_reply(
+                categoria,
+                normalized_message,
+                historico,
+                last_response_text,
+            )
+            payload_micro_intervencoes = _pick_micro_intervention(request, categoria, is_english=is_english)
         elif categoria:
             reply_text = _build_reply_for_categoria(
                 categoria,
@@ -1773,3 +2364,34 @@ class WidgetChatView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class WidgetChatContextView(APIView):
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        now = timezone.now()
+        pending = _load_pending_action(request.user, now)
+        historico = _load_recent_history(request.user)
+        last_interaction = historico[0] if historico else None
+
+        if last_interaction:
+            category = last_interaction.categoria_detectada
+            emoji_prefix = f"{category.emoji} " if category and category.emoji else ""
+            last_bot_reply = f"{emoji_prefix}{last_interaction.resposta_texto}".strip()
+            last_user_message = last_interaction.mensagem_usuario
+        else:
+            last_bot_reply = None
+            last_user_message = None
+
+        has_recent_context = bool(last_interaction or pending)
+        payload = {
+            "has_recent_context": has_recent_context,
+            "last_user_message": last_user_message,
+            "last_bot_reply": last_bot_reply,
+            "pending_action": pending.pending_action if pending else None,
+            "step": pending.step if pending else None,
+        }
+        serializer = WidgetChatContextResponseSerializer(payload)
+        return Response(serializer.data, status=status.HTTP_200_OK)

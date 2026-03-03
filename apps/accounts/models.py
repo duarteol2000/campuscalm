@@ -46,10 +46,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 # Bloco: Perfil e consentimentos do usuario
 class UserProfile(models.Model):
     PLAN_FREE = "FREE"
-    PLAN_PAID = "PAGO"
+    PLAN_PRO = "PRO"
+    PLAN_PAID = "PAGO"  # legado
     PLAN_CHOICES = [
         (PLAN_FREE, "Free"),
-        (PLAN_PAID, "Pago"),
+        (PLAN_PRO, "Pro"),
+        (PLAN_PAID, "Pago (legado)"),
     ]
     GENDER_MALE = "M"
     GENDER_FEMALE = "F"
@@ -63,6 +65,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     phone = models.CharField(max_length=30, blank=True)
     plan = models.CharField(max_length=10, choices=PLAN_CHOICES, default=PLAN_FREE)
+    coach_enabled = models.BooleanField(default=False)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, default="")
     allow_whatsapp = models.BooleanField(default=True)

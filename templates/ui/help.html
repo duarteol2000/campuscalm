@@ -1,0 +1,49 @@
+{% extends "ui/base_student.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="student-page-header">
+  <div>
+    <h1 class="student-page-title">{% trans "Ajuda" %}</h1>
+    <p class="student-page-subtitle">{% trans "Pontos rapidos para entender e usar melhor o CampusCalm." %}</p>
+  </div>
+</div>
+
+<div class="student-grid">
+  <section class="student-card student-span-12 student-card-surface-blue dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Centro de ajuda" %}</h2>
+      <span class="student-card-muted">{% trans "Acesso rapido" %}</span>
+    </div>
+    <p class="student-card-muted mb-0">
+      {% trans "Escolha um tema para entender como o sistema funciona, como interpretar os dados e como ativar recursos de acompanhamento." %}
+    </p>
+  </section>
+
+  <section class="student-card student-span-4 student-card-surface-ice dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Sobre o Sistema" %}</h2>
+    </div>
+    <p class="student-card-muted">{% trans "Visao geral do CampusCalm, chat reativo e acompanhamento proativo." %}</p>
+    <a class="student-btn student-btn-primary" href="{% url 'ui-help-about' %}">{% trans "Abrir" %}</a>
+  </section>
+
+  <section class="student-card student-span-4 student-card-surface-neutral dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "CampusCalm Pro" %}</h2>
+    </div>
+    <p class="student-card-muted">{% trans "Entenda o modo de acompanhamento inteligente por e-mail e a diferenca entre FREE e PRO." %}</p>
+    <a class="student-btn student-btn-primary" href="{% url 'ui-pro' %}">{% trans "Ver pagina Pro" %}</a>
+  </section>
+
+  <section class="student-card student-span-4 student-card-surface-mint dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Privacidade" %}</h2>
+    </div>
+    <p class="student-card-muted">
+      {% trans "Seus dados ficam no CampusCalm e sao usados apenas para te ajudar com organizacao e foco." %}
+    </p>
+    <a class="student-btn student-btn-ghost" href="{% url 'ui-help-about' %}#privacidade">{% trans "Entender melhor" %}</a>
+  </section>
+</div>
+{% endblock %}

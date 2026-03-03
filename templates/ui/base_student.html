@@ -37,6 +37,21 @@
           {% blocktrans with name=request.user.name|default:request.user.email %}Olá, {{ name }}{% endblocktrans %}
         </div>
 
+        <div class="student-user-status">
+          <div class="student-user-status-line">
+            <span class="student-card-muted">{% trans "Plano:" %}</span>
+            <span class="student-badge {% if request.user.profile.plan == 'PRO' %}ok{% else %}pending{% endif %}">
+              {{ request.user.profile.plan|default:"FREE" }}
+            </span>
+          </div>
+          <div class="student-user-status-line">
+            <span class="student-card-muted">{% trans "Coach:" %}</span>
+            <span class="student-badge {% if request.user.profile.coach_enabled %}ok{% else %}pending{% endif %}">
+              {% if request.user.profile.coach_enabled %}{% trans "Ativo" %}{% else %}{% trans "Inativo" %}{% endif %}
+            </span>
+          </div>
+        </div>
+
         <form class="student-language" method="post" action="{% url 'set_language' %}">
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -65,6 +80,9 @@
         {% url 'ui-reminder-list' as reminders_url %}
         {% url 'ui-message-list' as messages_url %}
         {% url 'ui-messages' as messages_alt_url %}
+        {% url 'ui-pro' as pro_url %}
+        {% url 'ui-help' as help_url %}
+        {% url 'ui-help-about' as help_about_url %}
 
         <nav class="student-nav">
           <a class="{% if request.path == dashboard_url %}is-active{% endif %}" href="{{ dashboard_url }}">{% trans "Dashboard" %}</a>
@@ -74,6 +92,10 @@
           <a class="{% if request.path|slice:":7" == agenda_url|slice:":7" %}is-active{% endif %}" href="{{ agenda_url }}">{% trans "Agenda" %}</a>
           <a class="{% if request.path|slice:":11" == reminders_url|slice:":11" %}is-active{% endif %}" href="{{ reminders_url }}">{% trans "Lembretes" %}</a>
           <a class="{% if request.path|slice:":10" == messages_url|slice:":10" or request.path|slice:":10" == messages_alt_url|slice:":10" %}is-active{% endif %}" href="{{ messages_url }}">{% trans "Mensagens" %}</a>
+          <div class="student-nav-section-title">{% trans "Inteligencia" %}</div>
+          <a class="{% if request.path|slice:":5" == pro_url|slice:":5" %}is-active{% endif %}" href="{{ pro_url }}">{% trans "CampusCalm Pro" %}</a>
+          <div class="student-nav-section-title">{% trans "Suporte" %}</div>
+          <a class="{% if request.path|slice:":6" == help_url|slice:":6" or request.path|slice:":11" == help_about_url|slice:":11" %}is-active{% endif %}" href="{{ help_url }}">{% trans "Ajuda" %}</a>
         </nav>
 
         <div class="student-logout">
@@ -105,6 +127,24 @@
               </button>
 
               <ul class="dropdown-menu dropdown-menu-end student-user-menu">
+                <li class="px-3 py-2">
+                  <div class="small text-muted mb-2">{% trans "Status da conta" %}</div>
+                  <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="small text-muted">{% trans "Plano:" %}</span>
+                      <span class="student-badge {% if request.user.profile.plan == 'PRO' %}ok{% else %}pending{% endif %}">
+                        {{ request.user.profile.plan|default:"FREE" }}
+                      </span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="small text-muted">{% trans "Coach:" %}</span>
+                      <span class="student-badge {% if request.user.profile.coach_enabled %}ok{% else %}pending{% endif %}">
+                        {% if request.user.profile.coach_enabled %}{% trans "Ativo" %}{% else %}{% trans "Inativo" %}{% endif %}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
                 <li>
                   <a class="dropdown-item" href="{% url 'ui-profile' %}">{% trans "Meu Perfil" %}</a>
                 </li>

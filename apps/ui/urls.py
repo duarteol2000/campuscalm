@@ -4,12 +4,15 @@ from django.urls import path
 from ui.forms import EmailAuthenticationForm
 from ui.views import (
     activate_account_view,
+    about_page,
     dashboard_view,
     first_access_view,
     home_view,
+    help_page,
     insights_detail_view,
     onboarding_view,
     profile_view,
+    pro_page,
     semesters_view,
     tasks_view,
 )
@@ -86,6 +89,9 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     path("", dashboard_view, name="ui-dashboard"),
+    path("pro/", pro_page, name="ui-pro"),
+    path("help/", help_page, name="ui-help"),
+    path("help/about/", about_page, name="ui-help-about"),
     path("insights/detail/", insights_detail_view, name="insights_detail"),
     path("onboarding/", onboarding_view, name="ui-onboarding"),
     path("semesters/", semesters_view, name="ui-semesters"),

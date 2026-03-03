@@ -1,11 +1,27 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from semester.models import Assessment, Course, Semester
 
 
 class SemesterForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        current_year = timezone.localdate().year
+        first_term = f"{current_year}.1"
+        second_term = f"{current_year}.2"
+        self.fields["name"].label = _("Nome do semestre (%(term1)s ou %(term2)s)") % {
+            "term1": first_term,
+            "term2": second_term,
+        }
+        self.fields["name"].help_text = _("Ex.: %(term1)s ou %(term2)s") % {
+            "term1": first_term,
+            "term2": second_term,
+        }
+        self.fields["name"].widget.attrs.setdefault("placeholder", first_term)
+
     class Meta:
         model = Semester
         fields = ["name", "start_date", "end_date", "status"]

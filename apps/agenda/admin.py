@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from agenda.models import CalendarEvent, ReminderRule
+from agenda.models import CalendarEvent, Reminder, ReminderRule
 
 
 @admin.register(CalendarEvent)
@@ -14,3 +14,10 @@ class CalendarEventAdmin(admin.ModelAdmin):
 class ReminderRuleAdmin(admin.ModelAdmin):
     list_display = ("user", "target_type", "remind_before_minutes", "is_active")
     list_filter = ("target_type", "is_active")
+
+
+@admin.register(Reminder)
+class ReminderAdmin(admin.ModelAdmin):
+    list_display = ("title", "user", "remind_at", "is_done", "created_at")
+    list_filter = ("is_done",)
+    search_fields = ("title", "user__email")

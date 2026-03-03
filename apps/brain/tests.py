@@ -7,7 +7,7 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from agenda.models import CalendarEvent
+from agenda.models import CalendarEvent, Reminder
 from brain.constants import CONTEXT_MESSAGES
 from brain.models import (
     CategoriaEmocional,
@@ -17,7 +17,7 @@ from brain.models import (
     MicroIntervencao,
     RespostaEmocional,
 )
-from brain.views import BLINDAGEM_NEUTRAL_REPLY, BLINDAGEM_REPLY
+from brain.views import BLINDAGEM_NEUTRAL_REPLY, BLINDAGEM_REPLY, EMOTIONAL_ACK_REPLY, POST_ACTION_ACK_REPLIES
 from notifications.models import InAppNotification
 from planner.models import Task
 from utils.constants import EVENT_PROVA
@@ -101,6 +101,51 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(response.data["emoji"], None)
         self.assertEqual(response.data["micro_interventions"], [])
 
+    def test_short_oi_message_returns_greeting_reply(self):
+        response = self.client.post("/api/widget/chat/", {"message": "OI!!!"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            response.data["reply"],
+            {
+                "Bom dia! Como posso te ajudar hoje?",
+                "Boa tarde! Como posso te ajudar hoje?",
+                "Boa noite! Como posso te ajudar hoje?",
+            },
+        )
+        self.assertEqual(response.data["category"], None)
+        self.assertEqual(response.data["emoji"], None)
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_ola_message_returns_time_based_greeting_reply(self):
+        response = self.client.post("/api/widget/chat/", {"message": "Olá"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            response.data["reply"],
+            {
+                "Bom dia! Como posso te ajudar hoje?",
+                "Boa tarde! Como posso te ajudar hoje?",
+                "Boa noite! Como posso te ajudar hoje?",
+            },
+        )
+        self.assertEqual(response.data["category"], None)
+        self.assertEqual(response.data["emoji"], None)
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_short_hi_message_returns_time_based_english_greeting_reply(self):
+        response = self.client.post("/api/widget/chat/", {"message": "hi"}, format="json", HTTP_COOKIE="lang=en")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            response.data["reply"],
+            {
+                "Good morning! How can I help you today?",
+                "Good afternoon! How can I help you today?",
+                "Good evening! How can I help you today?",
+            },
+        )
+        self.assertEqual(response.data["category"], None)
+        self.assertEqual(response.data["emoji"], None)
+        self.assertEqual(response.data["micro_interventions"], [])
+
     def test_social_message_obrigado_returns_empty_micro_interventions(self):
         response = self.client.post("/api/widget/chat/", {"message": "obrigado"}, format="json")
         self.assertEqual(response.status_code, 200)
@@ -159,7 +204,10 @@ class WidgetChatTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["category"], "stress")
-        self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_anxiety"])
+        self.assertIn("1)", response.data["reply"])
+        self.assertIn("2)", response.data["reply"])
+        self.assertIn("3)", response.data["reply"])
+        self.assertNotIn("Entendi. Me fala um pouco mais", response.data["reply"])
         self.assertLessEqual(len(response.data["micro_interventions"]), 1)
 
     def test_detects_stress_anxiety_with_common_typo(self):
@@ -172,6 +220,110 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(response.data["category"], "stress")
         self.assertIn(response.data["reply"], CONTEXT_MESSAGES["stress_anxiety"])
         self.assertLessEqual(len(response.data["micro_interventions"]), 1)
+
+    def test_emotional_action_reply_returns_practical_steps_after_fear_context(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Tenho uma prova muito importante e estou com medo"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.data["category"], "stress")
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "O que eu faco para nao ficar com medo?"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.data["category"], "stress")
+        self.assertIn("1)", second.data["reply"])
+        self.assertIn("2)", second.data["reply"])
+        self.assertIn("3)", second.data["reply"])
+        self.assertNotIn("Entendi. Me fala um pouco mais", second.data["reply"])
+        self.assertEqual(Task.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 0)
+
+    def test_emotional_action_detects_long_practical_question_with_medo(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "O que eu devo fazer com esse medo que eu tenho?"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn("1)", response.data["reply"])
+        self.assertIn("2)", response.data["reply"])
+        self.assertIn("3)", response.data["reply"])
+        self.assertNotIn("Entendi. Me fala um pouco mais", response.data["reply"])
+
+    def test_emotional_action_does_not_create_task_event_or_reminder(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou com ansiedade e medo, como lidar com isso agora?"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertIn("1)", response.data["reply"])
+        self.assertEqual(Task.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 0)
+
+    def test_emotional_acknowledgment_closes_context_without_fallback(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Tenho prova e estou com medo"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.data["category"], "stress")
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "ok"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.data["category"], "stress")
+        self.assertEqual(second.data["reply"], EMOTIONAL_ACK_REPLY)
+        self.assertNotIn("Entendi. Me fala um pouco mais", second.data["reply"])
+        self.assertEqual(second.data["micro_interventions"], [])
+        self.assertEqual(Task.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 0)
+
+    def test_emotional_acknowledgment_does_not_close_when_new_emotional_request_exists(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Tenho prova e estou com medo"},
+            format="json",
+        )
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "ok, mas ainda estou com medo"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertNotEqual(response.data["reply"], EMOTIONAL_ACK_REPLY)
+
+    def test_emotional_acknowledgment_emoji_closes_with_recent_emotional_context(self):
+        self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou com muito medo da prova"},
+            format="json",
+        )
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "👍"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertEqual(response.data["reply"], EMOTIONAL_ACK_REPLY)
+        self.assertEqual(response.data["micro_interventions"], [])
 
     def test_weak_positive_with_negative_context_falls_back_to_stress(self):
         response = self.client.post(
@@ -887,6 +1039,104 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(pending_after.step, 1)
         self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
 
+    def test_reminder_complete_sentence_creates_reminder_and_notification(self):
+        tomorrow = timezone.localdate() + timedelta(days=1)
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Me lembre de revisar calculo amanha 14h"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("🔔 Lembrete criado:", response.data["reply"])
+        self.assertIn("avisado no horario", response.data["reply"].lower())
+        self.assertEqual(response.data["category"], "foco_alto")
+
+        reminder = Reminder.objects.filter(user=self.user).order_by("-id").first()
+        self.assertIsNotNone(reminder)
+        self.assertEqual(timezone.localtime(reminder.remind_at).date(), tomorrow)
+        self.assertEqual(timezone.localtime(reminder.remind_at).time().hour, 14)
+
+        notification = InAppNotification.objects.filter(user=self.user, title="Lembrete criado").order_by("-id").first()
+        self.assertIsNotNone(notification)
+        self.assertIn(f"highlight_reminder={reminder.id}", notification.target_url)
+
+    def test_reminder_partial_without_date_starts_concierge(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "me lembre de pagar boleto"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("data e hora", response.data["reply"])
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 0)
+
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.pending_action, "create_reminder")
+        self.assertEqual(pending.step, 2)
+
+    def test_reminder_generic_request_asks_content_first(self):
+        first = self.client.post(
+            "/api/widget/chat/",
+            {"message": "quero que crie um novo lembrete"},
+            format="json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertIn("Sobre o que e o lembrete?", first.data["reply"])
+        self.assertIn("tarefa, prova, entrega, reuniao, aula, evento, outro", first.data["reply"])
+
+        pending = ChatPendingAction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.pending_action, "create_reminder")
+        self.assertEqual(pending.step, 1)
+        self.assertEqual((pending.draft_title or "").strip(), "")
+
+        second = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Prova de matematica"},
+            format="json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("Qual a data e hora", second.data["reply"])
+
+    def test_acknowledgment_after_reminder_completion_closes_without_evolucao(self):
+        self.client.post("/api/widget/chat/", {"message": "crie um lembrete"}, format="json")
+        self.client.post("/api/widget/chat/", {"message": "reuniao com professor"}, format="json")
+        completed = self.client.post("/api/widget/chat/", {"message": "25/02/2026 as 16:00h"}, format="json")
+
+        self.assertEqual(completed.status_code, 200)
+        self.assertIn("Lembrete criado", completed.data["reply"])
+
+        response = self.client.post("/api/widget/chat/", {"message": "show"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.data["reply"], POST_ACTION_ACK_REPLIES)
+        self.assertEqual(response.data["category"], None)
+        self.assertEqual(response.data["emoji"], None)
+        self.assertEqual(response.data["micro_interventions"], [])
+
+    def test_emotional_and_reminder_conflict_emotional_dominates(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "Estou ansioso e preciso de ajuda, me lembre da prova amanha 9h"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["category"], "stress")
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+
+    def test_reminder_beats_event_when_message_is_explicit_reminder(self):
+        response = self.client.post(
+            "/api/widget/chat/",
+            {"message": "me lembre da prova amanha 9h"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Lembrete criado", response.data["reply"])
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 1)
+        self.assertEqual(CalendarEvent.objects.filter(user=self.user).count(), 0)
+
     def test_intent_scoring_conflict_emotional_and_event_prioritizes_emotional_support(self):
         response = self.client.post(
             "/api/widget/chat/",
@@ -1066,3 +1316,68 @@ class WidgetChatTests(APITestCase):
         self.assertEqual(response.data["micro_interventions"], [])
         self.assertEqual(response.data["reply"], "Entendi. Me fala um pouco mais para eu poder te ajudar melhor.")
         random_choice_mock.assert_called()
+
+    def test_chat_context_returns_recent_interaction(self):
+        categoria = CategoriaEmocional.objects.get(slug="stress")
+        interaction = InteracaoAluno.objects.create(
+            user=self.user,
+            mensagem_usuario="estou ansioso para a prova",
+            categoria_detectada=categoria,
+            resposta_texto="Respira um pouco. O que esta te pressionando mais hoje?",
+            origem="widget",
+        )
+        InteracaoAluno.objects.filter(pk=interaction.pk).update(created_at=timezone.now() - timedelta(hours=2))
+
+        response = self.client.get("/api/widget/chat/context/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["has_recent_context"], True)
+        self.assertEqual(response.data["last_user_message"], "estou ansioso para a prova")
+        self.assertIn("Respira um pouco", response.data["last_bot_reply"])
+        self.assertEqual(response.data["pending_action"], None)
+        self.assertEqual(response.data["step"], None)
+
+    def test_chat_context_does_not_return_after_48h(self):
+        categoria = CategoriaEmocional.objects.get(slug="stress")
+        interaction = InteracaoAluno.objects.create(
+            user=self.user,
+            mensagem_usuario="mensagem antiga",
+            categoria_detectada=categoria,
+            resposta_texto="resposta antiga",
+            origem="widget",
+        )
+        InteracaoAluno.objects.filter(pk=interaction.pk).update(created_at=timezone.now() - timedelta(hours=60))
+
+        response = self.client.get("/api/widget/chat/context/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["has_recent_context"], False)
+        self.assertEqual(response.data["last_user_message"], None)
+        self.assertEqual(response.data["last_bot_reply"], None)
+        self.assertEqual(response.data["pending_action"], None)
+        self.assertEqual(response.data["step"], None)
+
+    def test_chat_context_preserves_pending_action(self):
+        categoria = CategoriaEmocional.objects.get(slug="foco_alto")
+        interaction = InteracaoAluno.objects.create(
+            user=self.user,
+            mensagem_usuario="crie uma tarefa",
+            categoria_detectada=categoria,
+            resposta_texto="📝 Criando nova tarefa (1/2)\nEntendi, voce quer criar uma tarefa.\nQual a descricao da tarefa?",
+            origem="widget",
+        )
+        InteracaoAluno.objects.filter(pk=interaction.pk).update(created_at=timezone.now() - timedelta(minutes=5))
+        ChatPendingAction.objects.update_or_create(
+            user=self.user,
+            defaults={
+                "pending_action": "create_task",
+                "step": 1,
+                "draft_title": "",
+                "draft_description": "",
+            },
+        )
+
+        response = self.client.get("/api/widget/chat/context/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["has_recent_context"], True)
+        self.assertEqual(response.data["pending_action"], "create_task")
+        self.assertEqual(response.data["step"], 1)
+        self.assertIn("Criando nova tarefa", response.data["last_bot_reply"])

@@ -1,0 +1,198 @@
+{% extends "ui/base_student.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="student-page-header">
+  <div>
+    <h1 class="student-page-title">{% trans "CampusCalm Pro — Modo Acompanhamento Inteligente" %}</h1>
+    <p class="student-page-subtitle">{% trans "Camada proativa de acompanhamento semanal por e-mail." %}</p>
+    <div class="d-flex flex-column gap-2 mt-3">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="student-card-muted">{% trans "Seu plano atual:" %}</span>
+        <span class="student-badge {% if plan_status == 'PRO' %}ok{% else %}pending{% endif %}">
+          {{ plan_status|default:"FREE" }}
+        </span>
+      </div>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="student-card-muted">{% trans "Acompanhamento inteligente:" %}</span>
+        <span class="student-badge {% if coach_enabled %}ok{% else %}pending{% endif %}">
+          {% if coach_enabled %}{% trans "Ativo" %}{% else %}{% trans "Inativo" %}{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="student-hero header-welcome dashboard-card dashboard-section">
+  <div class="student-hero-content">
+    <h2 class="student-hero-title">{% trans "Enquanto outros apps esperam voce falhar, o CampusCalm percebe antes." %}</h2>
+    <p class="student-hero-subtitle">
+      {% trans "O modo Pro acompanha sinais do seu semestre, identifica sobrecarga com antecedencia e envia orientacoes curtas, praticas e empaticas por e-mail." %}
+    </p>
+  </div>
+</section>
+
+<div class="student-grid">
+  <section class="student-card student-span-12 student-card-surface-blue dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Status atual" %}</h2>
+      <span class="student-card-muted">{% trans "Somente leitura" %}</span>
+    </div>
+    <p class="student-card-muted mb-3">
+      {% trans "Visao rapida do seu status atual e de como o acompanhamento inteligente funciona hoje no CampusCalm." %}
+    </p>
+    <div class="student-insights">
+      <div class="student-insight insight-card">
+        <div class="student-insight-value insight-number">{{ plan_status|default:"FREE" }}</div>
+        <div class="student-insight-label insight-label">{% trans "Plano" %}</div>
+        <div class="student-card-muted small insight-sub">{% trans "FREE / PRO / legado" %}</div>
+      </div>
+      <div class="student-insight insight-card">
+        <div class="student-insight-value insight-number">{% if coach_enabled %}{% trans "Ativo" %}{% else %}{% trans "Inativo" %}{% endif %}</div>
+        <div class="student-insight-label insight-label">{% trans "Coach semanal" %}</div>
+        <div class="student-card-muted small insight-sub">{% trans "Acompanhamento por e-mail" %}</div>
+      </div>
+      <div class="student-insight insight-card">
+        <div class="student-insight-value insight-number">{% trans "Emails" %}</div>
+        <div class="student-insight-label insight-label">{% trans "Envio inteligente" %}</div>
+        <div class="student-card-muted small insight-sub">{% trans "Enviados apenas quando risco detectado" %}</div>
+      </div>
+      <div class="student-insight insight-card">
+        <div class="student-insight-value insight-number">3</div>
+        <div class="student-insight-label insight-label">{% trans "Passos" %}</div>
+        <div class="student-card-muted small insight-sub">{% trans "Analise, risco, intervencao" %}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="student-card student-span-6 student-card-surface-ice dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Como funciona" %}</h2>
+    </div>
+    <ol class="student-list">
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "1) Analise do semestre" %}</div>
+          <div class="student-list-meta">{% trans "Leituras a partir de tarefas, eventos, check-ins e atividade recente." %}</div>
+        </div>
+      </li>
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "2) Deteccao de risco" %}</div>
+          <div class="student-list-meta">{% trans "Score semanal simples identifica sinais de estabilidade, baixa, moderada ou alta sobrecarga." %}</div>
+        </div>
+      </li>
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "3) Intervencao por e-mail" %}</div>
+          <div class="student-list-meta">{% trans "Mensagem curta, empatica e pratica para ajustar a semana sem pressionar." %}</div>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="student-card student-span-6 student-card-surface-neutral dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "FREE x PRO" %}</h2>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>{% trans "Recurso" %}</th>
+            <th class="text-center">FREE</th>
+            <th class="text-center">PRO</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{% trans "Chat reativo" %}</td>
+            <td class="text-center">✓</td>
+            <td class="text-center">✓</td>
+          </tr>
+          <tr>
+            <td>{% trans "Dashboard e insights" %}</td>
+            <td class="text-center">✓</td>
+            <td class="text-center">✓</td>
+          </tr>
+          <tr>
+            <td>{% trans "Acompanhamento semanal por e-mail" %}</td>
+            <td class="text-center">—</td>
+            <td class="text-center">✓</td>
+          </tr>
+          <tr>
+            <td>{% trans "Deteccao proativa de sobrecarga" %}</td>
+            <td class="text-center">—</td>
+            <td class="text-center">✓</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="student-card student-span-12 student-card-surface-soft dashboard-card dashboard-section">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+      <div>
+        <h2 class="student-card-title mb-1">{% trans "Ativacao do acompanhamento inteligente" %}</h2>
+        <p class="student-card-muted mb-0">
+          {% trans "Nesta fase, o recurso esta em preparacao de experiencia. Voce pode revisar detalhes de funcionamento e suporte na Ajuda." %}
+        </p>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="student-btn student-btn-ghost" href="{% url 'ui-help' %}">{% trans "Ver Ajuda" %}</a>
+        <a class="student-btn student-btn-primary" href="#como-ativar">{% trans "Quero ativar o Pro" %}</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-ativar" class="student-card student-span-6 student-card-surface-mint dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Como ativar" %}</h2>
+      <span class="student-card-muted">{% trans "Em breve" %}</span>
+    </div>
+    <p class="student-card-muted">
+      {% trans "A ativacao comercial ainda esta em preparacao. Enquanto isso, use este canal para manifestar interesse e receber orientacoes quando a ativacao estiver disponivel." %}
+    </p>
+    <ul class="student-list">
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "Contato" %}</div>
+          <div class="student-list-meta">suporte@campuscalm.local</div>
+        </div>
+      </li>
+      <li class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "WhatsApp (placeholder)" %}</div>
+          <div class="student-list-meta">{% trans "Em breve" %}</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="student-card student-span-6 student-card-surface-neutral dashboard-card dashboard-section">
+    <div class="student-card-header">
+      <h2 class="student-card-title">{% trans "Mini FAQ" %}</h2>
+    </div>
+    <div class="student-list">
+      <div class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "Qual a frequencia dos e-mails?" %}</div>
+          <div class="student-list-meta">{% trans "No maximo 1 por semana, e somente quando o sistema detectar risco." %}</div>
+        </div>
+      </div>
+      <div class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "Isso substitui terapia ou apoio profissional?" %}</div>
+          <div class="student-list-meta">{% trans "Nao. O CampusCalm Pro organiza sinais e envia orientacoes praticas, sem linguagem clinica." %}</div>
+        </div>
+      </div>
+      <div class="student-list-item">
+        <div>
+          <div class="student-list-title">{% trans "Quais dados sao usados?" %}</div>
+          <div class="student-list-meta">{% trans "Registros do semestre no CampusCalm, como tarefas, eventos, check-ins e atividade recente." %}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

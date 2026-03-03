@@ -4,6 +4,7 @@
 {% block content %}
 {% trans "Sem dados" as label_no_data %}
 {% url 'ui-dashboard' as dashboard_url %}
+{% now "H" as current_hour %}
 
 <!-- Cabeçalho da página -->
 <div class="student-page-header">
@@ -27,39 +28,94 @@
   </div>
 {% endif %}
 
+<section class="student-hero header-welcome dashboard-card dashboard-section">
+  <div class="student-hero-content">
+    <h2 class="student-hero-title">
+      {% if current_hour < "12" %}
+        Bom dia
+      {% elif current_hour < "18" %}
+        Boa tarde
+      {% else %}
+        Boa noite
+      {% endif %}, {{ request.user.name|default:request.user.email }} 👋
+    </h2>
+    <p class="student-hero-subtitle">
+      {% if dashboard_data.upcoming_count >= 4 %}
+        {% trans "Sua semana esta com varios prazos. Vale priorizar um passo pequeno primeiro." %}
+      {% elif dashboard_data.upcoming_tasks and dashboard_data.upcoming_events %}
+        {% trans "Voce tem tarefas e compromissos proximos. Organize o foco do dia antes de comecar." %}
+      {% elif dashboard_data.upcoming_tasks %}
+        {% trans "Ha tarefas proximas no radar. Escolha a mais urgente e avance um pouco hoje." %}
+      {% elif dashboard_data.upcoming_events %}
+        {% trans "Sua agenda tem compromissos chegando. Revise horarios e se prepare com antecedencia." %}
+      {% else %}
+        {% trans "Painel pronto para um dia mais leve. Use os insights para definir seu proximo passo." %}
+      {% endif %}
+    </p>
+  </div>
+</section>
+
 <div class="student-grid">
-  <!-- Progresso do onboarding -->
-  <section class="student-card student-span-7">
+  <!-- Insights -->
+  <section class="student-card student-span-12 student-card-surface-blue dashboard-card dashboard-section">
     <div class="student-card-header">
-      <h2 class="student-card-title">{% trans "Progresso do onboarding" %}</h2>
-      <span class="student-card-muted">{{ onboarding_status.completed_steps }}/{{ onboarding_status.total_steps }}</span>
+      <h2 class="student-card-title student-card-title-with-icon">
+        <span class="student-title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19h16"></path>
+            <path d="M7 15v-4"></path>
+            <path d="M12 15V9"></path>
+            <path d="M17 15V6"></path>
+          </svg>
+        </span>
+        <span>{% trans "Insights" %}</span>
+      </h2>
+      <span class="student-card-muted">{% trans "Visao geral da semana" %}</span>
     </div>
-    <div class="student-progress">
-      <div class="student-progress-bar" style="width: {{ onboarding_status.progress_percent }}%;"></div>
-    </div>
-    <ul class="student-checklist">
-      {% for step in onboarding_status.steps %}
-        <li class="student-checklist-item">
-          <span>{{ step.label }}</span>
-          {% if step.missing %}
-            <span class="student-badge pending">{% trans "Pendente" %}</span>
-          {% else %}
-            <span class="student-badge ok">{% trans "Ok" %}</span>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-    {% if not onboarding_status.is_complete %}
-      <div class="mt-3">
-        <a class="student-btn student-btn-primary" href="{% url 'ui-onboarding' %}">{% trans "Continuar configuracao" %}</a>
+    <p class="student-card-muted mb-3">{{ dashboard_data.message_andamento|default:label_no_data }}</p>
+    <div class="student-insights">
+      <div class="student-insight insight-card dashboard-card insight-clickable" data-insight-type="mood" role="button" tabindex="0" aria-label="{% trans "Detalhes de humor" %}">
+        <div class="student-insight-value insight-number">{{ dashboard_data.mood_most_common|default:label_no_data }}</div>
+        <div class="student-insight-label insight-label">{% trans "Humor mais comum" %}</div>
+        <div class="student-card-muted small insight-sub">{% blocktrans with total=dashboard_data.mood_weekly_total %}{{ total }} registros{% endblocktrans %}</div>
       </div>
-    {% endif %}
+      <div class="student-insight insight-card dashboard-card insight-clickable" data-insight-type="focus" role="button" tabindex="0" aria-label="{% trans "Detalhes de foco" %}">
+        <div class="student-insight-value insight-number">{{ dashboard_data.focus_minutes_week }}</div>
+        <div class="student-insight-label insight-label">{% trans "Minutos de foco" %}</div>
+        <div class="student-card-muted small insight-sub">{% trans "Ultimos 7 dias" %}</div>
+      </div>
+      <div class="student-insight insight-card dashboard-card insight-clickable" data-insight-type="stress" role="button" tabindex="0" aria-label="{% trans "Detalhes de estresse" %}">
+        <div class="student-insight-value insight-number">{{ dashboard_data.stress_avg_week|default:label_no_data }}</div>
+        <div class="student-insight-label insight-label">{% trans "Estresse medio" %}</div>
+        <div class="student-card-muted small insight-sub">{% trans "Media dos check-ins" %}</div>
+      </div>
+      <div class="student-insight insight-card dashboard-card insight-clickable" data-insight-type="upcoming" role="button" tabindex="0" aria-label="{% trans "Detalhes de prazos" %}">
+        <div class="student-insight-value insight-number">{{ dashboard_data.upcoming_count }}</div>
+        <div class="student-insight-label insight-label">{% trans "Proximos prazos" %}</div>
+        <div class="student-card-muted small insight-sub">{% trans "Tarefas e eventos" %}</div>
+      </div>
+    </div>
   </section>
 
   <!-- Card Hoje -->
-  <section class="student-card student-span-5">
+  <section class="student-card student-span-5 student-card-surface-ice dashboard-card dashboard-section">
     <div class="student-card-header">
-      <h2 class="student-card-title">{% trans "Hoje" %}</h2>
+      <h2 class="student-card-title student-card-title-with-icon">
+        <span class="student-title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="M4.93 4.93l1.41 1.41"></path>
+            <path d="M17.66 17.66l1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="M4.93 19.07l1.41-1.41"></path>
+            <path d="M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </span>
+        <span>{% trans "Hoje" %}</span>
+      </h2>
       <span class="student-card-muted">{% trans "Visao rapida" %}</span>
     </div>
     <ul class="student-list">
@@ -100,9 +156,17 @@
   </section>
 
   <!-- Próximas tarefas -->
-  <section class="student-card student-span-7">
+  <section class="student-card student-span-7 student-card-surface-neutral dashboard-card dashboard-section">
     <div class="student-card-header">
-      <h2 class="student-card-title">{% trans "Proximas tarefas" %}</h2>
+      <h2 class="student-card-title student-card-title-with-icon">
+        <span class="student-title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l2 2 4-4"></path>
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+          </svg>
+        </span>
+        <span>{% trans "Proximas tarefas" %}</span>
+      </h2>
       <a class="student-card-muted" href="{% url 'ui-task-list' %}">{% trans "Ver todas" %}</a>
     </div>
     {% if dashboard_data.upcoming_tasks %}
@@ -120,9 +184,19 @@
   </section>
 
   <!-- Próximo evento -->
-  <section class="student-card student-span-5">
+  <section class="student-card student-span-5 student-card-surface-mint dashboard-card dashboard-section">
     <div class="student-card-header">
-      <h2 class="student-card-title">{% trans "Agenda" %}</h2>
+      <h2 class="student-card-title student-card-title-with-icon">
+        <span class="student-title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+            <path d="M8 3v4"></path>
+            <path d="M16 3v4"></path>
+            <path d="M3 10h18"></path>
+          </svg>
+        </span>
+        <span>{% trans "Agenda" %}</span>
+      </h2>
       <a class="student-card-muted" href="{% url 'ui-agenda-list' %}">{% trans "Ver agenda" %}</a>
     </div>
     {% if dashboard_data.upcoming_events %}
@@ -140,9 +214,17 @@
   </section>
 
   <!-- Progresso por disciplina -->
-  <section class="student-card student-span-12">
+  <section class="student-card student-span-12 student-card-surface-warm dashboard-card dashboard-section">
     <div class="student-card-header">
-      <h2 class="student-card-title">{% trans "Progresso por disciplina" %}</h2>
+      <h2 class="student-card-title student-card-title-with-icon">
+        <span class="student-title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6.5L12 3l8 3.5-8 3.5-8-3.5z"></path>
+            <path d="M7 9.8V14c0 1.6 2.2 3 5 3s5-1.4 5-3V9.8"></path>
+          </svg>
+        </span>
+        <span>{% trans "Progresso por disciplina" %}</span>
+      </h2>
       <span class="student-card-muted">{% trans "Acompanhe seu desempenho" %}</span>
     </div>
     {% if dashboard_data.course_progress %}
@@ -165,35 +247,41 @@
     {% endif %}
   </section>
 
-  <!-- Insights -->
-  <section class="student-card student-span-12">
+  <!-- Progresso do onboarding -->
+  <section class="student-card student-span-12 student-card-surface-soft dashboard-card dashboard-section">
     <div class="student-card-header">
-      <h2 class="student-card-title">{% trans "Insights" %}</h2>
-      <span class="student-card-muted">{% trans "Visao geral da semana" %}</span>
+      <h2 class="student-card-title student-card-title-with-icon">
+        <span class="student-title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19h14"></path>
+            <path d="M12 19V6"></path>
+            <path d="M8 10l4-4 4 4"></path>
+          </svg>
+        </span>
+        <span>{% trans "Progresso do onboarding" %}</span>
+      </h2>
+      <span class="student-card-muted">{{ onboarding_status.completed_steps }}/{{ onboarding_status.total_steps }}</span>
     </div>
-    <p class="student-card-muted mb-3">{{ dashboard_data.message_andamento|default:label_no_data }}</p>
-    <div class="student-insights">
-      <div class="student-insight insight-clickable" data-insight-type="mood" role="button" tabindex="0" aria-label="{% trans "Detalhes de humor" %}">
-        <div class="student-insight-label">{% trans "Humor mais comum" %}</div>
-        <div class="student-insight-value">{{ dashboard_data.mood_most_common|default:label_no_data }}</div>
-        <div class="student-card-muted small">{% blocktrans with total=dashboard_data.mood_weekly_total %}{{ total }} registros{% endblocktrans %}</div>
-      </div>
-      <div class="student-insight insight-clickable" data-insight-type="focus" role="button" tabindex="0" aria-label="{% trans "Detalhes de foco" %}">
-        <div class="student-insight-label">{% trans "Minutos de foco" %}</div>
-        <div class="student-insight-value">{{ dashboard_data.focus_minutes_week }}</div>
-        <div class="student-card-muted small">{% trans "Ultimos 7 dias" %}</div>
-      </div>
-      <div class="student-insight insight-clickable" data-insight-type="stress" role="button" tabindex="0" aria-label="{% trans "Detalhes de estresse" %}">
-        <div class="student-insight-label">{% trans "Estresse medio" %}</div>
-        <div class="student-insight-value">{{ dashboard_data.stress_avg_week|default:label_no_data }}</div>
-        <div class="student-card-muted small">{% trans "Media dos check-ins" %}</div>
-      </div>
-      <div class="student-insight insight-clickable" data-insight-type="upcoming" role="button" tabindex="0" aria-label="{% trans "Detalhes de prazos" %}">
-        <div class="student-insight-label">{% trans "Proximos prazos" %}</div>
-        <div class="student-insight-value">{{ dashboard_data.upcoming_count }}</div>
-        <div class="student-card-muted small">{% trans "Tarefas e eventos" %}</div>
-      </div>
+    <div class="student-progress">
+      <div class="student-progress-bar" style="width: {{ onboarding_status.progress_percent }}%;"></div>
     </div>
+    <ul class="student-checklist">
+      {% for step in onboarding_status.steps %}
+        <li class="student-checklist-item">
+          <span>{{ step.label }}</span>
+          {% if step.missing %}
+            <span class="student-badge pending">{% trans "Pendente" %}</span>
+          {% else %}
+            <span class="student-badge ok">{% trans "Ok" %}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    {% if not onboarding_status.is_complete %}
+      <div class="mt-3">
+        <a class="student-btn student-btn-primary" href="{% url 'ui-onboarding' %}">{% trans "Continuar configuracao" %}</a>
+      </div>
+    {% endif %}
   </section>
 </div>
 
