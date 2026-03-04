@@ -15,13 +15,15 @@ sys.path.insert(0, str(BASE_DIR / "apps"))
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
-_allowed_hosts_env = [host for host in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if host]
-if _allowed_hosts_env:
-    ALLOWED_HOSTS = _allowed_hosts_env
-elif DEBUG:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", ".ngrok-free.app", ".ngrok-free.dev", ".ngrok.io"]
-else:
-    ALLOWED_HOSTS = []
+_allowed_hosts_raw = os.environ.get("ALLOWED_HOSTS", os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost"))
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts_raw.split(",") if host.strip()]
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -85,7 +87,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
         "NAME": os.environ.get("DB_NAME", "campuscalm_db"),
         "USER": os.environ.get("DB_USER", "campuscalm_user"),
         "PASSWORD": os.environ.get("DB_PASSWORD", ""),
@@ -112,7 +114,8 @@ LANGUAGES = [
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
@@ -137,7 +140,16 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend" if os.getenv("EMAIL_HOST") else "django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@campuscalm.local")
 
 LOGIN_URL = "/login/"
@@ -148,7 +160,8 @@ LOGOUT_REDIRECT_URL = "/login/"
 WHATSAPP_CLOUD_TOKEN = os.getenv("WHATSAPP_CLOUD_TOKEN", "")
 WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
 WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "")
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "")
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", os.getenv("SITE_URL", ""))
+SECURE_SSL_REDIRECT = _env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
 
 # Brain contextual memory settings (MVP 1.4)
 BRAIN_MEMORY_HOURS = 48
@@ -157,9 +170,8 @@ BRAIN_STRESS_REPEAT_THRESHOLD = 3
 BRAIN_EVOLUCAO_REPEAT_THRESHOLD = 2
 BRAIN_STRESS_TO_EVOLUCAO_WINDOW_HOURS = 24
 
-if DEBUG:
-    CSRF_TRUSTED_ORIGINS = [
-        "https://*.ngrok-free.app",
-        "https://*.ngrok-free.dev",
-        "https://*.ngrok.io",
-    ]
+_csrf_trusted_origins_raw = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS",
+    os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", ""),
+)
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_trusted_origins_raw.split(",") if origin.strip()]
