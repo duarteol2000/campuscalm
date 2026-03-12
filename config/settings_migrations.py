@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "accounts",
+    "learning",
+    "study_assistant",
     "billing.apps.BillingConfig",
     "mood",
     "pomodoro",

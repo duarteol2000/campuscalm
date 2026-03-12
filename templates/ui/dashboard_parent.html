@@ -1,0 +1,32 @@
+{% extends "ui/base_student.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="student-page-header">
+  <div>
+    <h1 class="student-page-title">{% trans "Dashboard familiar" %}</h1>
+    <p class="student-page-subtitle">{% trans "Acompanhamento de consistência e disciplina acadêmica" %}</p>
+  </div>
+</div>
+
+<section
+  class="student-card student-card-surface-blue dashboard-card dashboard-section"
+  data-learning-dashboard-root
+  data-dashboard-kind="parent"
+  data-api-url="{{ parent_dashboard_api_url }}"
+>
+  <div class="student-card-header">
+    <h2 class="student-card-title">{% trans "Filhos vinculados" %}</h2>
+    <span class="student-card-muted">{% trans "Dados comportamentais sem notas oficiais" %}</span>
+  </div>
+  <div class="learning-parent-grid" data-parent-children>
+    <article class="learning-api-stat">
+      <div class="student-card-muted">{% trans "Carregando..." %}</div>
+    </article>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'ui/js/learning_dashboard.js' %}" defer></script>
+{% endblock %}

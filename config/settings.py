@@ -2,6 +2,7 @@
 Django settings for campus_calm project.
 """
 
+import importlib.util
 import os
 import sys
 from pathlib import Path
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     "accounts",
+    "learning",
+    "study_assistant",
     "billing.apps.BillingConfig",
     "mood",
     "pomodoro",
@@ -52,11 +55,14 @@ INSTALLED_APPS = [
     "analytics",
     "ui.apps.UiConfig",
 ]
+if importlib.util.find_spec("whitenoise") is not None:
+    _staticfiles_backend = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
+    _staticfiles_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -65,6 +71,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+if importlib.util.find_spec("whitenoise") is not None:
+    MIDDLEWARE.insert(2, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 ROOT_URLCONF = "config.urls"
 
@@ -111,7 +119,7 @@ USE_TZ = True
 LANGUAGES = [
     ("en", _("English")),
     ("pt-br", _("Português (Brasil)")),
-    ("pt-pt", _("Português (Portugal)")),
+    ("es", _("Español")),
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
@@ -120,7 +128,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": _staticfiles_backend,
     },
 }
 

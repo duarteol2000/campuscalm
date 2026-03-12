@@ -284,6 +284,44 @@
   font-size: 0.9rem;
 }
 
+.learning-api-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.learning-api-stat {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--student-border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.learning-api-label {
+  font-size: 0.82rem;
+  color: var(--student-muted);
+  margin-bottom: 8px;
+}
+
+.learning-api-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--student-primary-dark);
+}
+
+.learning-api-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.learning-parent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
 .student-bell-item {
   width: 100%;
   text-align: left;

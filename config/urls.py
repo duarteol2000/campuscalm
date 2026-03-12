@@ -26,6 +26,8 @@ urlpatterns = [
     path("api/access/", include("access_requests.urls")),
     path("api/onboarding/", include("onboarding.urls")),
     path("api/analytics/", include("analytics.urls")),
+    path("api/learning/", include("learning.urls")),
+    path("api/study-assistant/", include("study_assistant.urls")),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,2425 @@
+openapi: 3.0.3
+info:
+  title: Campus Calm API
+  version: 0.1.0
+  description: API do MVP Campus Calm
+paths:
+  /api/access/requests/:
+    get:
+      operationId: access_requests_retrieve
+      tags:
+      - access
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: access_requests_create
+      tags:
+      - access
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/access/requests/{id}/:
+    get:
+      operationId: access_requests_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - access
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/access/requests/{id}/approve/:
+    post:
+      operationId: access_requests_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - access
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/access/requests/{id}/reject/:
+    post:
+      operationId: access_requests_reject_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - access
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/access/triage/{id}/log/:
+    get:
+      operationId: access_triage_log_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - access
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/agenda/events/:
+    get:
+      operationId: agenda_events_list
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalendarEvent'
+          description: ''
+    post:
+      operationId: agenda_events_create
+      tags:
+      - agenda
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CalendarEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CalendarEvent'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarEvent'
+          description: ''
+  /api/agenda/events/{id}/:
+    get:
+      operationId: agenda_events_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarEvent'
+          description: ''
+    put:
+      operationId: agenda_events_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CalendarEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CalendarEvent'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarEvent'
+          description: ''
+    patch:
+      operationId: agenda_events_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCalendarEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCalendarEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCalendarEvent'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarEvent'
+          description: ''
+    delete:
+      operationId: agenda_events_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/agenda/generate-reminders/:
+    post:
+      operationId: agenda_generate_reminders_create
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/agenda/reminder-rules/:
+    get:
+      operationId: agenda_reminder_rules_list
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderRule'
+          description: ''
+    post:
+      operationId: agenda_reminder_rules_create
+      tags:
+      - agenda
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReminderRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReminderRule'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRule'
+          description: ''
+  /api/agenda/reminder-rules/{id}/:
+    get:
+      operationId: agenda_reminder_rules_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRule'
+          description: ''
+    put:
+      operationId: agenda_reminder_rules_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReminderRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReminderRule'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRule'
+          description: ''
+    patch:
+      operationId: agenda_reminder_rules_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReminderRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReminderRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReminderRule'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRule'
+          description: ''
+    delete:
+      operationId: agenda_reminder_rules_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/agenda/week/:
+    get:
+      operationId: agenda_week_retrieve
+      tags:
+      - agenda
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/dashboard/:
+    get:
+      operationId: analytics_dashboard_retrieve
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/semester/{semester_id}/:
+    get:
+      operationId: analytics_semester_retrieve
+      parameters:
+      - in: path
+        name: semester_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/billing/plan/:
+    get:
+      operationId: billing_plan_retrieve
+      tags:
+      - billing
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/billing/set-plan/:
+    post:
+      operationId: billing_set_plan_create
+      tags:
+      - billing
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/content/guided/:
+    get:
+      operationId: content_guided_retrieve
+      tags:
+      - content
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/content/guided/{id}/:
+    get:
+      operationId: content_guided_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - content
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/learning/dashboard/institution/:
+    get:
+      operationId: learning_institution_dashboard
+      description: 'Retorna a visão consolidada da instituição. Permissão: `coordinator`
+        ou `institution_admin` no escopo da própria instituição.'
+      parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+      - in: query
+        name: institution_id
+        schema:
+          type: integer
+      - in: query
+        name: page
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 10
+      - in: query
+        name: search
+        schema:
+          type: string
+      tags:
+      - Learning Dashboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstitutionDashboard'
+          description: ''
+  /api/learning/dashboard/parent/:
+    get:
+      operationId: learning_parent_dashboard
+      description: 'Retorna o dashboard do responsável com os filhos vinculados. Permissão:
+        `parent` com assinatura institucional válida.'
+      tags:
+      - Learning Dashboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParentDashboard'
+          description: ''
+  /api/learning/dashboard/student/:
+    get:
+      operationId: learning_student_dashboard
+      description: 'Retorna o dashboard comportamental do aluno autenticado. Permissão:
+        `student` com assinatura institucional válida.'
+      tags:
+      - Learning Dashboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDashboard'
+              examples:
+                StudentDashboard:
+                  value:
+                    score_current:
+                      score_value: 720
+                      classification: disciplinado
+                      calculated_at: '2026-03-12T10:00:00Z'
+                    score_evolution:
+                    - score_value: 680
+                      classification: organizado
+                      calculated_at: '2026-03-05T10:00:00Z'
+                    tasks_pending:
+                    - id: 1
+                      title: Lista 1
+                      due_date: '2026-03-15'
+                    tasks_completed: []
+                    study_consistency:
+                      sessions_last_7_days: 4
+                      study_days_last_30_days: 12
+                      current_streak_days: 3
+                    achievements: []
+                    friendly_alerts:
+                    - Sua consistência de estudo está baixa nesta semana.
+                    recommendations:
+                    - Comece com sessões de 25 minutos e pausas curtas de 5 minutos
+                      para reconstruir o hábito.
+                  summary: Student dashboard
+          description: ''
+  /api/learning/dashboard/teacher/:
+    get:
+      operationId: learning_teacher_dashboard
+      description: 'Retorna o dashboard pedagógico da turma. Permissão: `teacher`,
+        `coordinator` ou `institution_admin` no escopo da própria instituição.'
+      parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+      - in: query
+        name: institution_id
+        schema:
+          type: integer
+      - in: query
+        name: page
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 10
+      - in: query
+        name: search
+        schema:
+          type: string
+      tags:
+      - Learning Dashboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherDashboard'
+              examples:
+                TeacherDashboard:
+                  value:
+                    class_average: 652.5
+                    students_at_risk: []
+                    students_low_consistency: []
+                    students_good_discipline:
+                    - student_id: 10
+                      student_name: Ana
+                      class_group: A
+                      score_value: 780
+                      classification: disciplinado
+                      weekly_sessions: 5
+                      overdue_tasks: 0
+                      high_stress_events: 0
+                    pedagogical_insights:
+                    - Há alunos com baixa consistência de estudo nesta turma.
+                    ranking: []
+                    ranking_pagination:
+                      page: 1
+                      page_size: 10
+                      total_items: 1
+                      total_pages: 1
+                      has_next: false
+                      has_previous: false
+                    ranking_filters:
+                      class_group: A
+                      search: ''
+                    distribution:
+                    - classification: disciplinado
+                      total: 3
+                  summary: Teacher dashboard
+          description: ''
+  /api/mood/entries/:
+    get:
+      operationId: mood_entries_list
+      tags:
+      - mood
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MoodEntry'
+          description: ''
+    post:
+      operationId: mood_entries_create
+      tags:
+      - mood
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoodEntry'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MoodEntry'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MoodEntry'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoodEntry'
+          description: ''
+  /api/mood/summary/weekly/:
+    get:
+      operationId: mood_summary_weekly_retrieve
+      tags:
+      - mood
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/in-app/{id}/mark-read/:
+    post:
+      operationId: notifications_in_app_mark_read_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/in-app/latest/:
+    get:
+      operationId: notifications_in_app_latest_retrieve
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/in-app/mark-all-read/:
+    post:
+      operationId: notifications_in_app_mark_all_read_create
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/in-app/unread-count/:
+    get:
+      operationId: notifications_in_app_unread_count_retrieve
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/pending/:
+    get:
+      operationId: notifications_pending_retrieve
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/test-email/:
+    post:
+      operationId: notifications_test_email_create
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/onboarding/status/:
+    get:
+      operationId: onboarding_status_retrieve
+      tags:
+      - onboarding
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/planner/tasks/:
+    get:
+      operationId: planner_tasks_list
+      tags:
+      - planner
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+          description: ''
+    post:
+      operationId: planner_tasks_create
+      tags:
+      - planner
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/planner/tasks/{id}/:
+    get:
+      operationId: planner_tasks_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - planner
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    put:
+      operationId: planner_tasks_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - planner
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    patch:
+      operationId: planner_tasks_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - planner
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    delete:
+      operationId: planner_tasks_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - planner
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/pomodoro/start/:
+    post:
+      operationId: pomodoro_start_create
+      tags:
+      - pomodoro
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/pomodoro/stop/{id}/:
+    post:
+      operationId: pomodoro_stop_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - pomodoro
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/pomodoro/summary/weekly/:
+    get:
+      operationId: pomodoro_summary_weekly_retrieve
+      tags:
+      - pomodoro
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - es
+          - pt-br
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/semester/assessments/:
+    get:
+      operationId: semester_assessments_list
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assessment'
+          description: ''
+    post:
+      operationId: semester_assessments_create
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assessment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assessment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assessment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assessment'
+          description: ''
+  /api/semester/assessments/{id}/:
+    get:
+      operationId: semester_assessments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assessment'
+          description: ''
+    put:
+      operationId: semester_assessments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assessment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assessment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assessment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assessment'
+          description: ''
+    patch:
+      operationId: semester_assessments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAssessment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAssessment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAssessment'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assessment'
+          description: ''
+    delete:
+      operationId: semester_assessments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/semester/courses/:
+    get:
+      operationId: semester_courses_list
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+          description: ''
+    post:
+      operationId: semester_courses_create
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Course'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Course'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+  /api/semester/courses/{id}/:
+    get:
+      operationId: semester_courses_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+    put:
+      operationId: semester_courses_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Course'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Course'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+    patch:
+      operationId: semester_courses_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourse'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourse'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourse'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+    delete:
+      operationId: semester_courses_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/semester/courses/{id}/progress/:
+    get:
+      operationId: semester_courses_progress_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/semester/finish/{semester_id}/:
+    post:
+      operationId: semester_finish_create
+      parameters:
+      - in: path
+        name: semester_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/semester/semesters/:
+    get:
+      operationId: semester_semesters_list
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Semester'
+          description: ''
+    post:
+      operationId: semester_semesters_create
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Semester'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Semester'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Semester'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+          description: ''
+  /api/semester/semesters/{id}/:
+    get:
+      operationId: semester_semesters_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+          description: ''
+    put:
+      operationId: semester_semesters_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Semester'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Semester'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Semester'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+          description: ''
+    patch:
+      operationId: semester_semesters_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSemester'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSemester'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSemester'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+          description: ''
+    delete:
+      operationId: semester_semesters_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - semester
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/study-assistant/ask/:
+    post:
+      operationId: study_assistant_ask
+      description: 'Recebe uma pergunta do aluno sobre como estudar melhor. Permissão:
+        `student` com assinatura institucional válida e restrição ao escopo da própria
+        instituição.'
+      tags:
+      - Study Assistant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudyAssistantAsk'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudyAssistantAsk'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudyAssistantAsk'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyAssistantResponse'
+              examples:
+                StudyAssistantAnswer:
+                  value:
+                    intent: study_guidance
+                    subject: quimica
+                    language: pt-BR
+                    message: 'Para aprender Química melhor, foque em uma rotina simples
+                      e consistente: ...'
+                  summary: Study assistant answer
+          description: ''
+  /api/widget/chat/:
+    post:
+      operationId: widget_chat_create
+      tags:
+      - widget
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/widget/chat/context/:
+    get:
+      operationId: widget_chat_context_retrieve
+      tags:
+      - widget
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    Achievement:
+      type: object
+      properties:
+        achievement_type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        unlocked_at:
+          type: string
+          format: date-time
+      required:
+      - achievement_type
+      - description
+      - title
+      - unlocked_at
+    Assessment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        max_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - created_at
+      - id
+      - score
+      - title
+    CalendarEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        event_type:
+          $ref: '#/components/schemas/EventTypeEnum'
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+          nullable: true
+        related_task:
+          type: integer
+          nullable: true
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - event_type
+      - id
+      - start_at
+      - title
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        semester:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        teacher:
+          type: string
+          maxLength: 200
+        credits:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        passing_grade:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CourseStatusEnum'
+          readOnly: true
+        final_grade:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        notes:
+          type: string
+        current_average:
+          type: string
+          readOnly: true
+        progress_percent:
+          type: string
+          readOnly: true
+        needed_to_pass:
+          type: string
+          readOnly: true
+      required:
+      - current_average
+      - final_grade
+      - id
+      - needed_to_pass
+      - progress_percent
+      - semester
+      - status
+      - title
+    CourseStatusEnum:
+      enum:
+      - IN_PROGRESS
+      - PASSED
+      - FAILED
+      type: string
+      description: |-
+        * `IN_PROGRESS` - In progress
+        * `PASSED` - Passed
+        * `FAILED` - Failed
+    DisciplineDistributionEntry:
+      type: object
+      properties:
+        classification:
+          type: string
+        total:
+          type: integer
+      required:
+      - classification
+      - total
+    EventTypeEnum:
+      enum:
+      - PROVA
+      - ENTREGA
+      - APRESENTACAO
+      - AULA_IMPORTANTE
+      - REUNIAO_GRUPO
+      - REUNIAO_PROFESSORES
+      - ESTUDAR_FACULDADE
+      - OUTRO
+      type: string
+      description: |-
+        * `PROVA` - Prova
+        * `ENTREGA` - Entrega
+        * `APRESENTACAO` - Apresentacao
+        * `AULA_IMPORTANTE` - Aula importante
+        * `REUNIAO_GRUPO` - Reuniao em grupo
+        * `REUNIAO_PROFESSORES` - Reuniao com professores
+        * `ESTUDAR_FACULDADE` - Estudar na faculdade
+        * `OUTRO` - Outro
+    InstitutionClassRanking:
+      type: object
+      properties:
+        class_group:
+          type: string
+        average_score:
+          type: number
+          format: double
+        students_total:
+          type: integer
+      required:
+      - average_score
+      - class_group
+      - students_total
+    InstitutionDashboard:
+      type: object
+      properties:
+        institution_average:
+          type: number
+          format: double
+        average_by_class:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstitutionClassRanking'
+        students_at_risk:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstitutionStudentRow'
+        class_ranking:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstitutionClassRanking'
+        discipline_distribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisciplineDistributionEntry'
+        top_students:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstitutionStudentRow'
+        pedagogical_insights:
+          type: array
+          items:
+            type: string
+      required:
+      - average_by_class
+      - class_ranking
+      - discipline_distribution
+      - institution_average
+      - pedagogical_insights
+      - students_at_risk
+      - top_students
+    InstitutionStudentRow:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        student_name:
+          type: string
+        class_group:
+          type: string
+        score_value:
+          type: integer
+        classification:
+          type: string
+      required:
+      - class_group
+      - classification
+      - score_value
+      - student_id
+      - student_name
+    MoodEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        mood:
+          $ref: '#/components/schemas/MoodEnum'
+        notes:
+          type: string
+        tags: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - mood
+    MoodEnum:
+      enum:
+      - VERY_BAD
+      - BAD
+      - OK
+      - GOOD
+      - VERY_GOOD
+      type: string
+      description: |-
+        * `VERY_BAD` - Very bad
+        * `BAD` - Bad
+        * `OK` - Ok
+        * `GOOD` - Good
+        * `VERY_GOOD` - Very good
+    ParentChildDashboard:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        student_name:
+          type: string
+        relationship_type:
+          type: string
+        score_current:
+          $ref: '#/components/schemas/ScoreSnapshot'
+        study_consistency:
+          $ref: '#/components/schemas/StudyConsistency'
+        tasks_completed:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudyTaskCompleted'
+        friendly_alerts:
+          type: array
+          items:
+            type: string
+      required:
+      - friendly_alerts
+      - relationship_type
+      - score_current
+      - student_id
+      - student_name
+      - study_consistency
+      - tasks_completed
+    ParentDashboard:
+      type: object
+      properties:
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParentChildDashboard'
+      required:
+      - children
+    PatchedAssessment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        max_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedCalendarEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        event_type:
+          $ref: '#/components/schemas/EventTypeEnum'
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+          nullable: true
+        related_task:
+          type: integer
+          nullable: true
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedCourse:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        semester:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        teacher:
+          type: string
+          maxLength: 200
+        credits:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        passing_grade:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CourseStatusEnum'
+          readOnly: true
+        final_grade:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        notes:
+          type: string
+        current_average:
+          type: string
+          readOnly: true
+        progress_percent:
+          type: string
+          readOnly: true
+        needed_to_pass:
+          type: string
+          readOnly: true
+    PatchedReminderRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        target_type:
+          $ref: '#/components/schemas/TargetTypeEnum'
+        remind_before_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        channels: {}
+        is_active:
+          type: boolean
+    PatchedSemester:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/SemesterStatusEnum'
+    PatchedTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        due_date:
+          type: string
+          format: date
+        stress_level:
+          type: integer
+          maximum: 5
+          minimum: 1
+        status:
+          $ref: '#/components/schemas/TaskStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    ReminderRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        target_type:
+          $ref: '#/components/schemas/TargetTypeEnum'
+        remind_before_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        channels: {}
+        is_active:
+          type: boolean
+      required:
+      - id
+      - remind_before_minutes
+      - target_type
+    ScoreEvolutionEntry:
+      type: object
+      properties:
+        score_value:
+          type: integer
+        classification:
+          type: string
+        calculated_at:
+          type: string
+          format: date-time
+      required:
+      - calculated_at
+      - classification
+      - score_value
+    ScoreSnapshot:
+      type: object
+      properties:
+        score_value:
+          type: integer
+        classification:
+          type: string
+        calculated_at:
+          type: string
+          format: date-time
+      required:
+      - calculated_at
+      - classification
+      - score_value
+    Semester:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/SemesterStatusEnum'
+      required:
+      - end_date
+      - id
+      - name
+      - start_date
+    SemesterStatusEnum:
+      enum:
+      - ACTIVE
+      - FINISHED
+      type: string
+      description: |-
+        * `ACTIVE` - Ativo
+        * `FINISHED` - Finalizado
+    StudentDashboard:
+      type: object
+      properties:
+        score_current:
+          $ref: '#/components/schemas/ScoreSnapshot'
+        score_evolution:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoreEvolutionEntry'
+        tasks_pending:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudyTaskPending'
+        tasks_completed:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudyTaskCompleted'
+        study_consistency:
+          $ref: '#/components/schemas/StudyConsistency'
+        achievements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Achievement'
+        friendly_alerts:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+      required:
+      - achievements
+      - friendly_alerts
+      - recommendations
+      - score_current
+      - score_evolution
+      - study_consistency
+      - tasks_completed
+      - tasks_pending
+    StudyAssistantAsk:
+      type: object
+      properties:
+        message:
+          type: string
+        institution_id:
+          type: integer
+      required:
+      - message
+    StudyAssistantResponse:
+      type: object
+      properties:
+        intent:
+          type: string
+        subject:
+          type: string
+          nullable: true
+        language:
+          type: string
+        message:
+          type: string
+      required:
+      - intent
+      - language
+      - message
+      - subject
+    StudyConsistency:
+      type: object
+      properties:
+        sessions_last_7_days:
+          type: integer
+        study_days_last_30_days:
+          type: integer
+        current_streak_days:
+          type: integer
+      required:
+      - current_streak_days
+      - sessions_last_7_days
+      - study_days_last_30_days
+    StudyTaskCompleted:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        completed_at:
+          type: string
+          format: date-time
+      required:
+      - completed_at
+      - id
+      - title
+    StudyTaskPending:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        due_date:
+          type: string
+          format: date
+      required:
+      - due_date
+      - id
+      - title
+    TargetTypeEnum:
+      enum:
+      - TASK
+      - EVENT
+      type: string
+      description: |-
+        * `TASK` - Tarefa
+        * `EVENT` - Evento
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        due_date:
+          type: string
+          format: date
+        stress_level:
+          type: integer
+          maximum: 5
+          minimum: 1
+        status:
+          $ref: '#/components/schemas/TaskStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - due_date
+      - id
+      - stress_level
+      - title
+    TaskStatusEnum:
+      enum:
+      - TODO
+      - DOING
+      - DONE
+      type: string
+      description: |-
+        * `TODO` - A fazer
+        * `DOING` - Em andamento
+        * `DONE` - Concluída
+    TeacherDashboard:
+      type: object
+      properties:
+        class_average:
+          type: number
+          format: double
+        students_at_risk:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherStudentRow'
+        students_low_consistency:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherStudentRow'
+        students_good_discipline:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherStudentRow'
+        pedagogical_insights:
+          type: array
+          items:
+            type: string
+        ranking:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherStudentRow'
+        ranking_pagination:
+          $ref: '#/components/schemas/TeacherRankingPagination'
+        ranking_filters:
+          $ref: '#/components/schemas/TeacherRankingFilters'
+        distribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisciplineDistributionEntry'
+      required:
+      - class_average
+      - distribution
+      - pedagogical_insights
+      - ranking
+      - ranking_filters
+      - ranking_pagination
+      - students_at_risk
+      - students_good_discipline
+      - students_low_consistency
+    TeacherRankingFilters:
+      type: object
+      properties:
+        class_group:
+          type: string
+        search:
+          type: string
+      required:
+      - class_group
+      - search
+    TeacherRankingPagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_items:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+      required:
+      - has_next
+      - has_previous
+      - page
+      - page_size
+      - total_items
+      - total_pages
+    TeacherStudentRow:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        student_name:
+          type: string
+        class_group:
+          type: string
+        score_value:
+          type: integer
+        classification:
+          type: string
+        weekly_sessions:
+          type: integer
+        overdue_tasks:
+          type: integer
+        high_stress_events:
+          type: integer
+      required:
+      - class_group
+      - classification
+      - high_stress_events
+      - overdue_tasks
+      - score_value
+      - student_id
+      - student_name
+      - weekly_sessions
+    TokenObtainPair:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - email
+      - password
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

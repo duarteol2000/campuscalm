@@ -290,14 +290,58 @@ def dashboard_view(request):
         dashboard_url = request.build_absolute_uri(reverse("ui-dashboard"))
         maybe_send_absence_email(user=user, dashboard_url=dashboard_url)
 
+    show_learning_dashboard = False
+    show_parent_dashboard = False
+    show_teacher_dashboard = False
+    show_institution_dashboard = False
+    student_dashboard_api_url = ""
+    parent_dashboard_api_url = ""
+    teacher_dashboard_api_url = ""
+    institution_dashboard_api_url = ""
+    teacher_class_group = request.GET.get("class_group", "").strip()
+    teacher_search = request.GET.get("search", "").strip()
+    teacher_page_size = request.GET.get("page_size", "10").strip() or "10"
+    if user.role == user.ROLE_STUDENT:
+        student_dashboard_api_url = reverse("learning-dashboard-student")
+        show_learning_dashboard = True
+    elif user.role == user.ROLE_PARENT:
+        parent_dashboard_api_url = reverse("learning-dashboard-parent")
+        show_parent_dashboard = True
+    elif user.role in {user.ROLE_TEACHER, user.ROLE_COORDINATOR, user.ROLE_INSTITUTION_ADMIN}:
+        teacher_dashboard_api_url = reverse("learning-dashboard-teacher")
+        show_teacher_dashboard = True
+        if user.role in {user.ROLE_COORDINATOR, user.ROLE_INSTITUTION_ADMIN}:
+            institution_dashboard_api_url = reverse("learning-dashboard-institution")
+            show_institution_dashboard = True
+
+    context = {
+        "onboarding_status": onboarding_status,
+        "dashboard_data": dashboard_data,
+        "search_query": search_query,
+        "show_learning_dashboard": show_learning_dashboard,
+        "show_parent_dashboard": show_parent_dashboard,
+        "show_teacher_dashboard": show_teacher_dashboard,
+        "show_institution_dashboard": show_institution_dashboard,
+        "student_dashboard_api_url": student_dashboard_api_url,
+        "parent_dashboard_api_url": parent_dashboard_api_url,
+        "teacher_dashboard_api_url": teacher_dashboard_api_url,
+        "institution_dashboard_api_url": institution_dashboard_api_url,
+        "teacher_class_group": teacher_class_group,
+        "teacher_search": teacher_search,
+        "teacher_page_size": teacher_page_size,
+        "study_assistant_api_url": reverse("study-assistant-ask"),
+        "study_assistant_enabled": user.role == user.ROLE_STUDENT,
+    }
+
+    if show_teacher_dashboard:
+        return render(request, "ui/dashboard_teacher.html", context)
+    if show_parent_dashboard:
+        return render(request, "ui/dashboard_parent.html", context)
+
     return render(
         request,
         "ui/dashboard.html",
-        {
-            "onboarding_status": onboarding_status,
-            "dashboard_data": dashboard_data,
-            "search_query": search_query,
-        },
+        context,
     )
 
 

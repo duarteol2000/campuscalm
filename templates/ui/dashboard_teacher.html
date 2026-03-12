@@ -1,0 +1,156 @@
+{% extends "ui/base_student.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="student-page-header">
+  <div>
+    <h1 class="student-page-title">{% trans "Dashboard pedagógico" %}</h1>
+    <p class="student-page-subtitle">{% trans "Visão institucional orientada por disciplina acadêmica" %}</p>
+  </div>
+</div>
+
+<section
+  class="student-card student-card-surface-blue dashboard-card dashboard-section"
+  data-learning-dashboard-root
+  data-dashboard-kind="teacher"
+  data-api-url="{{ teacher_dashboard_api_url }}"
+>
+  <div class="student-card-header">
+    <h2 class="student-card-title">{% trans "Turma e risco pedagógico" %}</h2>
+    <span class="student-card-muted">{% trans "Dados carregados da API institucional" %}</span>
+  </div>
+
+  <form class="row g-2 mb-4" method="get">
+    <div class="col-md-3">
+      <label class="form-label small text-muted" for="teacher-class-group">{% trans "Turma" %}</label>
+      <input id="teacher-class-group" class="form-control form-control-sm" type="text" name="class_group" value="{{ teacher_class_group }}" placeholder="{% trans "Ex.: A" %}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small text-muted" for="teacher-search">{% trans "Buscar aluno" %}</label>
+      <input id="teacher-search" class="form-control form-control-sm" type="text" name="search" value="{{ teacher_search }}" placeholder="{% trans "Nome do aluno" %}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small text-muted" for="teacher-page-size">{% trans "Itens por página" %}</label>
+      <select id="teacher-page-size" class="form-select form-select-sm" name="page_size">
+        <option value="5"{% if teacher_page_size == "5" %} selected{% endif %}>5</option>
+        <option value="10"{% if teacher_page_size == "10" %} selected{% endif %}>10</option>
+        <option value="20"{% if teacher_page_size == "20" %} selected{% endif %}>20</option>
+      </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end gap-2">
+      <button class="btn btn-sm btn-outline-secondary" type="submit">{% trans "Aplicar" %}</button>
+      <a class="btn btn-sm btn-link" href="{% url 'ui-dashboard' %}">{% trans "Limpar" %}</a>
+    </div>
+  </form>
+
+  <div class="learning-api-grid">
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Média da turma" %}</div>
+      <div class="learning-api-value" data-teacher-class-average>--</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Alunos em risco" %}</div>
+      <div class="learning-api-value" data-teacher-at-risk>--</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Baixa consistência" %}</div>
+      <div class="learning-api-value" data-teacher-low-consistency>--</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Boa disciplina" %}</div>
+      <div class="learning-api-value" data-teacher-good-discipline>--</div>
+    </article>
+  </div>
+
+  <div class="learning-api-columns">
+    <div>
+      <h3 class="student-list-title">{% trans "Insights pedagógicos" %}</h3>
+      <ul class="student-list" data-teacher-insights>
+        <li class="student-list-item"><span class="student-list-meta">{% trans "Carregando..." %}</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="student-list-title">{% trans "Distribuição por faixa" %}</h3>
+      <ul class="student-list" data-teacher-distribution>
+        <li class="student-list-item"><span class="student-list-meta">{% trans "Carregando..." %}</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="student-card-header mt-4">
+    <h3 class="student-card-title">{% trans "Ranking pedagógico" %}</h3>
+    <span class="student-card-muted">{% trans "Uso interno para professor, coordenação e admin institucional" %}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>{% trans "Aluno" %}</th>
+          <th>{% trans "Turma" %}</th>
+          <th>{% trans "Score" %}</th>
+          <th>{% trans "Classificação" %}</th>
+          <th>{% trans "Sessões semana" %}</th>
+          <th>{% trans "Tarefas atrasadas" %}</th>
+        </tr>
+      </thead>
+      <tbody data-teacher-ranking>
+        <tr>
+          <td colspan="6" class="text-muted">{% trans "Carregando..." %}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="student-card-muted" data-teacher-pagination-summary>{% trans "Carregando paginação..." %}</div>
+    <div class="d-flex gap-2" data-teacher-pagination-links></div>
+  </div>
+</section>
+
+{% if show_institution_dashboard %}
+<section
+  class="student-card student-card-surface-neutral dashboard-card dashboard-section mt-4"
+  data-learning-dashboard-root
+  data-dashboard-kind="institution"
+  data-api-url="{{ institution_dashboard_api_url }}"
+>
+  <div class="student-card-header">
+    <h2 class="student-card-title">{% trans "Visão consolidada da instituição" %}</h2>
+    <span class="student-card-muted">{% trans "Médias, distribuição e alunos em risco" %}</span>
+  </div>
+
+  <div class="learning-api-grid">
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Média institucional" %}</div>
+      <div class="learning-api-value" data-institution-average>--</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Alunos em risco" %}</div>
+      <div class="learning-api-value" data-institution-at-risk>--</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Turmas monitoradas" %}</div>
+      <div class="learning-api-value" data-institution-class-count>--</div>
+    </article>
+  </div>
+
+  <div class="learning-api-columns">
+    <div>
+      <h3 class="student-list-title">{% trans "Ranking de turmas" %}</h3>
+      <ul class="student-list" data-institution-class-ranking>
+        <li class="student-list-item"><span class="student-list-meta">{% trans "Carregando..." %}</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="student-list-title">{% trans "Insights pedagógicos" %}</h3>
+      <ul class="student-list" data-institution-insights>
+        <li class="student-list-item"><span class="student-list-meta">{% trans "Carregando..." %}</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'ui/js/learning_dashboard.js' %}" defer></script>
+{% endblock %}

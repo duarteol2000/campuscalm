@@ -6,7 +6,17 @@ from billing.models import Plan, UserSubscription
 class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
-        fields = ("code", "name", "description", "features")
+        fields = (
+            "code",
+            "name",
+            "description",
+            "price",
+            "max_students",
+            "is_active",
+            "features",
+            "created_at",
+            "updated_at",
+        )
 
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):

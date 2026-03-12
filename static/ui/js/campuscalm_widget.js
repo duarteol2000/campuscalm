@@ -18,19 +18,29 @@
 
   var currentLang = String(document.documentElement.getAttribute("lang") || "").toLowerCase();
   var isEnglish = currentLang.indexOf("en") === 0;
-  var API_ENDPOINT = "/api/widget/chat/";
-  var CONTEXT_API_ENDPOINT = "/api/widget/chat/context/";
+  var studyAssistantEnabled = root.getAttribute("data-study-assistant-enabled") === "true";
+  var API_ENDPOINT = root.getAttribute("data-api-endpoint") || "/api/widget/chat/";
+  var CONTEXT_API_ENDPOINT = root.getAttribute("data-context-api-endpoint") || "/api/widget/chat/context/";
   var MAX_MESSAGE_LENGTH = 300;
   var MIN_TYPING_INDICATOR_MS = 950;
-  var STORAGE_KEY = "campuscalm_widget_history_v1_" + (isEnglish ? "en" : "pt");
+  var STORAGE_KEY =
+    "campuscalm_widget_history_v1_" + (studyAssistantEnabled ? "study_" : "coach_") + (isEnglish ? "en" : "pt");
   var FIRST_MESSAGE_DAY_KEY = "cc_widget_first_msg_day_v1";
   var LAST_ACTIVITY_AT_KEY = "cc_widget_last_activity_at_v1";
   var LEGACY_INITIAL_BOT_MESSAGE = isEnglish
-    ? "Hi! Want to organize what's worrying you right now?"
-    : "Oi! Quer organizar o que esta te preocupando agora?";
+    ? (studyAssistantEnabled ? "Hi! Tell me the subject and difficulty." : "Hi! Want to organize what's worrying you right now?")
+    : (studyAssistantEnabled ? "Oi! Me diga a disciplina e a dificuldade." : "Oi! Quer organizar o que esta te preocupando agora?");
   var INITIAL_BOT_MESSAGE = isEnglish
-    ? "Hi! Want to organize what's worrying you right now?\nIf you want, I can help you turn this into 10 minutes of action."
-    : "Oi! Quer organizar o que esta te preocupando agora?\nSe voce quiser, eu te ajudo a transformar isso em 10 minutos de acao.";
+    ? (
+        studyAssistantEnabled
+          ? "Hi! Tell me the subject and difficulty. I will guide your study method without solving the exercise for you."
+          : "Hi! Want to organize what's worrying you right now?\nIf you want, I can help you turn this into 10 minutes of action."
+      )
+    : (
+        studyAssistantEnabled
+          ? "Oi! Me diga a disciplina e a dificuldade. Eu vou te orientar no metodo de estudo sem resolver o exercicio por voce."
+          : "Oi! Quer organizar o que esta te preocupando agora?\nSe voce quiser, eu te ajudo a transformar isso em 10 minutos de acao."
+      );
   var history = loadHistory();
   var contextLoadedOnce = false;
   var typingIndicatorShownAt = 0;
@@ -80,6 +90,13 @@
     panel.setAttribute("aria-hidden", "false");
     root.classList.add("is-open");
     trigger.setAttribute("aria-expanded", "true");
+    if (studyAssistantEnabled) {
+      window.setTimeout(function () {
+        input.focus();
+        scrollMessagesToBottom();
+      }, 20);
+      return;
+    }
     hydrateContextOnOpen()
       .then(function (contextInfo) {
         maybeInjectFirstMessageOfDay(contextInfo || null);
@@ -417,6 +434,15 @@
   }
 
   function formatBackendReply(payload) {
+    if (studyAssistantEnabled) {
+      if (!payload || typeof payload.message !== "string" || payload.message.trim() === "") {
+        throw new Error("Invalid study assistant payload");
+      }
+      return {
+        text: payload.message.trim(),
+        shouldRefreshTasks: false,
+      };
+    }
     if (!payload || typeof payload.reply !== "string" || payload.reply.trim() === "") {
       throw new Error("Invalid payload");
     }

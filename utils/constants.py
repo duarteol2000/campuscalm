@@ -2,9 +2,17 @@ from django.utils.translation import gettext_lazy as _
 
 PLAN_LITE = "LITE"
 PLAN_PRO = "PRO"
+PLAN_PILOT = "PILOT"
+PLAN_STARTER = "STARTER"
+PLAN_SCHOOL = "SCHOOL"
+PLAN_ENTERPRISE = "ENTERPRISE"
 PLAN_CHOICES = [
     (PLAN_LITE, "Lite"),
     (PLAN_PRO, "Pro"),
+    (PLAN_PILOT, "Piloto"),
+    (PLAN_STARTER, "Starter"),
+    (PLAN_SCHOOL, "School"),
+    (PLAN_ENTERPRISE, "Enterprise"),
 ]
 
 MOOD_VERY_BAD = "VERY_BAD"

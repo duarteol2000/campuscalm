@@ -1,18 +1,31 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from accounts.models import User, UserProfile
+from accounts.models import ParentProfile, StudentProfile, User, UserProfile
 
 
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     model = User
     ordering = ("email",)
-    list_display = ("email", "name", "is_staff", "is_active", "created_at")
+    list_display = (
+        "email",
+        "name",
+        "role",
+        "institution",
+        "preferred_language",
+        "is_staff",
+        "is_active",
+        "created_at",
+    )
+    list_filter = ("role", "is_active", "preferred_language", "institution")
     search_fields = ("email", "name")
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("name", "phone_number")}),
+        (
+            "Informações pessoais e contexto institucional",
+            {"fields": ("name", "phone_number", "institution", "role", "preferred_language")},
+        ),
         ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         ("Important dates", {"fields": ("last_login",)}),
     )
@@ -21,7 +34,7 @@ class UserAdmin(DjangoUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "name", "password1", "password2", "is_staff", "is_superuser"),
+                "fields": ("email", "name", "password1", "password2", "institution", "role", "preferred_language", "is_staff", "is_superuser"),
             },
         ),
     )
@@ -45,3 +58,27 @@ class UserProfileAdmin(admin.ModelAdmin):
     @admin.display(boolean=True, description="Avatar")
     def has_avatar(self, obj):
         return bool(obj.avatar)
+
+
+@admin.register(StudentProfile)
+class StudentProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "institution",
+        "status",
+        "account_type",
+        "enrollment_number",
+        "grade_level",
+        "class_group",
+        "is_active_for_institution",
+        "graduated_at",
+    )
+    list_filter = ("status", "account_type", "institution")
+    search_fields = ("user__email", "user__name", "enrollment_number")
+
+
+@admin.register(ParentProfile)
+class ParentProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "student", "relationship_type", "institution", "created_at")
+    list_filter = ("relationship_type", "institution")
+    search_fields = ("user__email", "student__user__email", "student__user__name")

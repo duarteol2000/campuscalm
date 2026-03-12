@@ -1,5 +1,5 @@
 {% extends "ui/base_student.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
 {% trans "Sem dados" as label_no_data %}
@@ -365,4 +365,56 @@
     initInsightModal();
   })();
 </script>
+{% if show_learning_dashboard %}
+<section
+  class="student-card student-span-12 student-card-surface-blue dashboard-card dashboard-section"
+  data-learning-dashboard-root
+  data-dashboard-kind="student"
+  data-api-url="{{ student_dashboard_api_url }}"
+>
+  <div class="student-card-header">
+    <h2 class="student-card-title">{% trans "Disciplina acadêmica" %}</h2>
+    <span class="student-card-muted">{% trans "Dados comportamentais do CampusCalm" %}</span>
+  </div>
+  <div class="learning-api-grid">
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Score atual" %}</div>
+      <div class="learning-api-value" data-student-score-value>--</div>
+      <div class="student-card-muted" data-student-score-classification>{% trans "Carregando..." %}</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Sessões nos últimos 7 dias" %}</div>
+      <div class="learning-api-value" data-student-sessions>--</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Dias de estudo nos últimos 30 dias" %}</div>
+      <div class="learning-api-value" data-student-study-days>--</div>
+    </article>
+    <article class="learning-api-stat">
+      <div class="learning-api-label">{% trans "Sequência atual" %}</div>
+      <div class="learning-api-value" data-student-streak>--</div>
+    </article>
+  </div>
+  <div class="learning-api-columns">
+    <div>
+      <h3 class="student-list-title">{% trans "Alertas amigáveis" %}</h3>
+      <ul class="student-list" data-student-alerts>
+        <li class="student-list-item"><span class="student-list-meta">{% trans "Carregando..." %}</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="student-list-title">{% trans "Recomendações" %}</h3>
+      <ul class="student-list" data-student-recommendations>
+        <li class="student-list-item"><span class="student-list-meta">{% trans "Carregando..." %}</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+  {% if show_learning_dashboard %}
+    <script src="{% static 'ui/js/learning_dashboard.js' %}" defer></script>
+  {% endif %}
 {% endblock %}
