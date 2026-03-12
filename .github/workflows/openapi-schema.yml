@@ -1,0 +1,36 @@
+name: OpenAPI Schema
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  spectacular:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Bloco: Checkout do repositório
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Bloco: Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Bloco: Instalação de dependências
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Bloco: Validação do schema OpenAPI
+      - name: Validate OpenAPI schema
+        env:
+          DB_ENGINE: django.db.backends.sqlite3
+          DB_NAME: /tmp/campuscalm_ci.sqlite3
+        run: |
+          python manage.py spectacular --file docs/openapi-campuscalm.yaml --fail-on-warn

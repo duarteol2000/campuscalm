@@ -8,6 +8,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import permissions, serializers, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
@@ -49,6 +50,18 @@ class WidgetChatContextResponseSerializer(serializers.Serializer):
     last_bot_reply = serializers.CharField(allow_null=True)
     pending_action = serializers.CharField(allow_null=True)
     step = serializers.IntegerField(allow_null=True)
+
+
+class WidgetChatMicroInterventionSerializer(serializers.Serializer):
+    nome = serializers.CharField()
+    texto = serializers.CharField()
+
+
+class WidgetChatResponseSerializer(serializers.Serializer):
+    reply = serializers.CharField()
+    category = serializers.CharField(allow_null=True)
+    emoji = serializers.CharField(allow_null=True)
+    micro_interventions = WidgetChatMicroInterventionSerializer(many=True)
 
 
 FALLBACK_REPLIES = [
@@ -1908,6 +1921,12 @@ class WidgetChatView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Brain"],
+        operation_id="brain_widget_chat",
+        request=WidgetChatRequestSerializer,
+        responses={200: WidgetChatResponseSerializer},
+    )
     def post(self, request):
         serializer = WidgetChatRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -2370,6 +2389,11 @@ class WidgetChatContextView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Brain"],
+        operation_id="brain_widget_chat_context",
+        responses={200: WidgetChatContextResponseSerializer},
+    )
     def get(self, request):
         now = timezone.now()
         pending = _load_pending_action(request.user, now)

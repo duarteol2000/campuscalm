@@ -6,27 +6,49 @@ info:
 paths:
   /api/access/requests/:
     get:
-      operationId: access_requests_retrieve
+      operationId: access_requests_list
       tags:
-      - access
+      - Access Requests
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccessRequest'
+          description: ''
     post:
       operationId: access_requests_create
       tags:
-      - access
+      - Access Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessRequestCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccessRequestCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccessRequestCreate'
+        required: true
       security:
       - jwtAuth: []
       - {}
       responses:
-        '200':
-          description: No response body
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequestCreate'
+          description: ''
   /api/access/requests/{id}/:
     get:
-      operationId: access_requests_retrieve_2
+      operationId: access_requests_detail
       parameters:
       - in: path
         name: id
@@ -34,15 +56,19 @@ paths:
           type: integer
         required: true
       tags:
-      - access
+      - Access Requests
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequest'
+          description: ''
   /api/access/requests/{id}/approve/:
     post:
-      operationId: access_requests_approve_create
+      operationId: access_requests_approve
       parameters:
       - in: path
         name: id
@@ -50,15 +76,30 @@ paths:
           type: integer
         required: true
       tags:
-      - access
+      - Access Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessDecision'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccessDecision'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccessDecision'
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequest'
+          description: ''
   /api/access/requests/{id}/reject/:
     post:
-      operationId: access_requests_reject_create
+      operationId: access_requests_reject
       parameters:
       - in: path
         name: id
@@ -66,15 +107,19 @@ paths:
           type: integer
         required: true
       tags:
-      - access
+      - Access Requests
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequest'
+          description: ''
   /api/access/triage/{id}/log/:
     get:
-      operationId: access_triage_log_retrieve
+      operationId: access_requests_triage_log
       parameters:
       - in: path
         name: id
@@ -82,17 +127,23 @@ paths:
           type: integer
         required: true
       tags:
-      - access
+      - Access Requests
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AITriageLog'
+          description: ''
+        '404':
+          description: Triage log not found.
   /api/agenda/events/:
     get:
       operationId: agenda_events_list
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
@@ -107,7 +158,7 @@ paths:
     post:
       operationId: agenda_events_create
       tags:
-      - agenda
+      - Agenda
       requestBody:
         content:
           application/json:
@@ -136,10 +187,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
@@ -155,10 +206,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       requestBody:
         content:
           application/json:
@@ -186,10 +237,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       requestBody:
         content:
           application/json:
@@ -216,10 +267,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
@@ -227,19 +278,30 @@ paths:
           description: No response body
   /api/agenda/generate-reminders/:
     post:
-      operationId: agenda_generate_reminders_create
+      operationId: agenda_generate_reminders
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderGeneration'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/agenda/reminder-rules/:
     get:
       operationId: agenda_reminder_rules_list
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
@@ -254,7 +316,7 @@ paths:
     post:
       operationId: agenda_reminder_rules_create
       tags:
-      - agenda
+      - Agenda
       requestBody:
         content:
           application/json:
@@ -283,10 +345,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
@@ -302,10 +364,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       requestBody:
         content:
           application/json:
@@ -333,10 +395,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       requestBody:
         content:
           application/json:
@@ -363,10 +425,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
@@ -374,27 +436,37 @@ paths:
           description: No response body
   /api/agenda/week/:
     get:
-      operationId: agenda_week_retrieve
+      operationId: agenda_week
       tags:
-      - agenda
+      - Agenda
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalendarEvent'
+          description: ''
   /api/analytics/dashboard/:
     get:
-      operationId: analytics_dashboard_retrieve
+      operationId: analytics_dashboard
       tags:
-      - analytics
+      - Analytics
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardAnalytics'
+          description: ''
   /api/analytics/semester/{semester_id}/:
     get:
-      operationId: analytics_semester_retrieve
+      operationId: analytics_semester_detail
       parameters:
       - in: path
         name: semester_id
@@ -402,12 +474,18 @@ paths:
           type: integer
         required: true
       tags:
-      - analytics
+      - Analytics
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemesterAnalytics'
+          description: ''
+        '403':
+          description: Plano sem analytics avançado.
   /api/auth/login/:
     post:
       operationId: auth_login_create
@@ -437,14 +515,18 @@ paths:
           description: ''
   /api/auth/me/:
     get:
-      operationId: auth_me_retrieve
+      operationId: accounts_me
       tags:
-      - auth
+      - Accounts
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
   /api/auth/refresh/:
     post:
       operationId: auth_refresh_create
@@ -474,48 +556,111 @@ paths:
           description: ''
   /api/auth/register/:
     post:
-      operationId: auth_register_create
+      operationId: accounts_register
       tags:
-      - auth
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
       security:
       - jwtAuth: []
       - {}
       responses:
-        '200':
-          description: No response body
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+              examples:
+                RegisterResponse:
+                  value:
+                    user:
+                      id: 1
+                      email: test@example.com
+                      name: Teste
+                      phone_number: ''
+                      institution: null
+                      role: student
+                      preferred_language: pt-BR
+                      is_active: true
+                      created_at: '2026-03-12T10:00:00Z'
+                      updated_at: '2026-03-12T10:00:00Z'
+                    refresh: jwt-refresh-token
+                    access: jwt-access-token
+                  summary: Register response
+          description: ''
   /api/billing/plan/:
     get:
-      operationId: billing_plan_retrieve
+      operationId: billing_current_plan
       tags:
-      - billing
+      - Billing
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentPlanResponse'
+          description: ''
+        '404':
+          description: Plano padrão não configurado.
   /api/billing/set-plan/:
     post:
-      operationId: billing_set_plan_create
+      operationId: billing_set_plan
       tags:
-      - billing
+      - Billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPlan'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetPlan'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SetPlan'
+        required: true
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSubscription'
+          description: ''
   /api/content/guided/:
     get:
-      operationId: content_guided_retrieve
+      operationId: content_guided_list
       tags:
-      - content
+      - Content
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GuidedContent'
+          description: ''
+        '403':
+          description: Plano sem acesso a conteúdos.
   /api/content/guided/{id}/:
     get:
-      operationId: content_guided_retrieve_2
+      operationId: content_guided_detail
       parameters:
       - in: path
         name: id
@@ -523,12 +668,18 @@ paths:
           type: integer
         required: true
       tags:
-      - content
+      - Content
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidedContent'
+          description: ''
+        '403':
+          description: Conteúdo premium indisponível.
   /api/learning/dashboard/institution/:
     get:
       operationId: learning_institution_dashboard
@@ -747,17 +898,21 @@ paths:
           description: ''
   /api/mood/summary/weekly/:
     get:
-      operationId: mood_summary_weekly_retrieve
+      operationId: mood_weekly_summary
       tags:
-      - mood
+      - Mood
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoodWeeklySummary'
+          description: ''
   /api/notifications/in-app/{id}/mark-read/:
     post:
-      operationId: notifications_in_app_mark_read_create
+      operationId: notifications_in_app_mark_read
       parameters:
       - in: path
         name: id
@@ -765,81 +920,125 @@ paths:
           type: integer
         required: true
       tags:
-      - notifications
+      - Notifications
       security:
       - cookieAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationStatus'
+          description: ''
   /api/notifications/in-app/latest/:
     get:
-      operationId: notifications_in_app_latest_retrieve
+      operationId: notifications_in_app_latest
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Máximo de notificações entre 1 e 20.
       tags:
-      - notifications
+      - Notifications
       security:
       - cookieAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InAppNotification'
+          description: ''
   /api/notifications/in-app/mark-all-read/:
     post:
-      operationId: notifications_in_app_mark_all_read_create
+      operationId: notifications_in_app_mark_all_read
       tags:
-      - notifications
+      - Notifications
       security:
       - cookieAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationStatus'
+          description: ''
   /api/notifications/in-app/unread-count/:
     get:
-      operationId: notifications_in_app_unread_count_retrieve
+      operationId: notifications_in_app_unread_count
       tags:
-      - notifications
+      - Notifications
       security:
       - cookieAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCount'
+          description: ''
   /api/notifications/pending/:
     get:
-      operationId: notifications_pending_retrieve
+      operationId: notifications_pending
       tags:
-      - notifications
+      - Notifications
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationQueue'
+          description: ''
   /api/notifications/test-email/:
     post:
-      operationId: notifications_test_email_create
+      operationId: notifications_test_email
       tags:
-      - notifications
+      - Notifications
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailMessage'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailMessage'
+          description: ''
   /api/onboarding/status/:
     get:
-      operationId: onboarding_status_retrieve
+      operationId: onboarding_status
       tags:
-      - onboarding
+      - Onboarding
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatus'
+          description: ''
   /api/planner/tasks/:
     get:
       operationId: planner_tasks_list
       tags:
-      - planner
+      - Planner
       security:
       - jwtAuth: []
       responses:
@@ -854,7 +1053,7 @@ paths:
     post:
       operationId: planner_tasks_create
       tags:
-      - planner
+      - Planner
       requestBody:
         content:
           application/json:
@@ -883,10 +1082,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - planner
+      - Planner
       security:
       - jwtAuth: []
       responses:
@@ -902,10 +1101,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - planner
+      - Planner
       requestBody:
         content:
           application/json:
@@ -933,10 +1132,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - planner
+      - Planner
       requestBody:
         content:
           application/json:
@@ -963,10 +1162,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - planner
+      - Planner
       security:
       - jwtAuth: []
       responses:
@@ -974,17 +1173,32 @@ paths:
           description: No response body
   /api/pomodoro/start/:
     post:
-      operationId: pomodoro_start_create
+      operationId: pomodoro_start
       tags:
-      - pomodoro
+      - Pomodoro
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PomodoroStart'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PomodoroStart'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PomodoroStart'
       security:
       - jwtAuth: []
       responses:
-        '200':
-          description: No response body
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PomodoroSession'
+          description: ''
   /api/pomodoro/stop/{id}/:
     post:
-      operationId: pomodoro_stop_create
+      operationId: pomodoro_stop
       parameters:
       - in: path
         name: id
@@ -992,22 +1206,41 @@ paths:
           type: integer
         required: true
       tags:
-      - pomodoro
+      - Pomodoro
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PomodoroStop'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PomodoroStop'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PomodoroStop'
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PomodoroSession'
+          description: ''
   /api/pomodoro/summary/weekly/:
     get:
-      operationId: pomodoro_summary_weekly_retrieve
+      operationId: pomodoro_weekly_summary
       tags:
-      - pomodoro
+      - Pomodoro
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PomodoroWeeklySummary'
+          description: ''
   /api/schema/:
     get:
       operationId: schema_retrieve
@@ -1061,7 +1294,7 @@ paths:
     get:
       operationId: semester_assessments_list
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1076,7 +1309,7 @@ paths:
     post:
       operationId: semester_assessments_create
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1105,10 +1338,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1124,10 +1357,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1155,10 +1388,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1185,10 +1418,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1198,7 +1431,7 @@ paths:
     get:
       operationId: semester_courses_list
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1213,7 +1446,7 @@ paths:
     post:
       operationId: semester_courses_create
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1242,10 +1475,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1261,10 +1494,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1292,10 +1525,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1322,10 +1555,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1333,7 +1566,7 @@ paths:
           description: No response body
   /api/semester/courses/{id}/progress/:
     get:
-      operationId: semester_courses_progress_retrieve
+      operationId: semester_course_progress
       parameters:
       - in: path
         name: id
@@ -1341,15 +1574,21 @@ paths:
           type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseProgress'
+          description: ''
+        '403':
+          description: Progress blocked by plan/gate.
   /api/semester/finish/{semester_id}/:
     post:
-      operationId: semester_finish_create
+      operationId: semester_finish
       parameters:
       - in: path
         name: semester_id
@@ -1357,17 +1596,23 @@ paths:
           type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemesterFinishResponse'
+          description: ''
+        '403':
+          description: Semester cannot be finished yet.
   /api/semester/semesters/:
     get:
       operationId: semester_semesters_list
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1382,7 +1627,7 @@ paths:
     post:
       operationId: semester_semesters_create
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1411,10 +1656,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1430,10 +1675,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1461,10 +1706,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       requestBody:
         content:
           application/json:
@@ -1491,10 +1736,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
-      - semester
+      - Semester
       security:
       - jwtAuth: []
       responses:
@@ -1540,28 +1785,186 @@ paths:
           description: ''
   /api/widget/chat/:
     post:
-      operationId: widget_chat_create
+      operationId: brain_widget_chat
       tags:
-      - widget
+      - Brain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetChatRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WidgetChatRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WidgetChatRequest'
+        required: true
       security:
       - cookieAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetChatResponse'
+          description: ''
   /api/widget/chat/context/:
     get:
-      operationId: widget_chat_context_retrieve
+      operationId: brain_widget_chat_context
       tags:
-      - widget
+      - Brain
       security:
       - cookieAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetChatContextResponse'
+          description: ''
 components:
   schemas:
+    AITriageLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        model_name:
+          type: string
+          readOnly: true
+        input_payload:
+          readOnly: true
+        output_payload:
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - input_payload
+      - model_name
+      - output_payload
+    AccessDecision:
+      type: object
+      properties:
+        decided_plan:
+          type: string
+    AccessRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        requester_email:
+          type: string
+          format: email
+          maxLength: 254
+        requester_name:
+          type: string
+          maxLength: 255
+        requester_type:
+          $ref: '#/components/schemas/RequesterTypeEnum'
+        institution_name:
+          type: string
+          maxLength: 255
+        estimated_users:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        wants_features: {}
+        message:
+          type: string
+        status:
+          $ref: '#/components/schemas/AccessRequestStatusEnum'
+        recommended_plan:
+          oneOf:
+          - $ref: '#/components/schemas/PlanCodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        decided_plan:
+          oneOf:
+          - $ref: '#/components/schemas/PlanCodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_user:
+          type: integer
+          nullable: true
+      required:
+      - created_at
+      - id
+      - requester_email
+      - requester_type
+      - updated_at
+    AccessRequestCreate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        requester_email:
+          type: string
+          format: email
+          maxLength: 254
+        requester_name:
+          type: string
+          maxLength: 255
+        requester_type:
+          $ref: '#/components/schemas/RequesterTypeEnum'
+        institution_name:
+          type: string
+          maxLength: 255
+        estimated_users:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        wants_features: {}
+        message:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/AccessRequestStatusEnum'
+          readOnly: true
+        recommended_plan:
+          allOf:
+          - $ref: '#/components/schemas/PlanCodeEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - recommended_plan
+      - requester_email
+      - requester_type
+      - status
+    AccessRequestStatusEnum:
+      enum:
+      - PENDING
+      - APPROVED
+      - REJECTED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `APPROVED` - Approved
+        * `REJECTED` - Rejected
     Achievement:
       type: object
       properties:
@@ -1616,6 +2019,9 @@ components:
       - id
       - score
       - title
+    BlankEnum:
+      enum:
+      - ''
     CalendarEvent:
       type: object
       properties:
@@ -1649,6 +2055,28 @@ components:
       - id
       - start_at
       - title
+    CategoryEnum:
+      enum:
+      - PRE_PROVA
+      - ANTI_PROCRASTINACAO
+      - FOCO
+      type: string
+      description: |-
+        * `PRE_PROVA` - Pre-prova
+        * `ANTI_PROCRASTINACAO` - Anti-procrastinacao
+        * `FOCO` - Foco
+    ChannelEnum:
+      enum:
+      - IN_APP
+      - EMAIL
+      - WHATSAPP
+      - SMS
+      type: string
+      description: |-
+        * `IN_APP` - In app
+        * `EMAIL` - Email
+        * `WHATSAPP` - WhatsApp
+        * `SMS` - SMS
     Course:
       type: object
       properties:
@@ -1686,13 +2114,13 @@ components:
         notes:
           type: string
         current_average:
-          type: string
+          type: number
           readOnly: true
         progress_percent:
-          type: string
+          type: number
           readOnly: true
         needed_to_pass:
-          type: string
+          type: number
           readOnly: true
       required:
       - current_average
@@ -1703,6 +2131,27 @@ components:
       - semester
       - status
       - title
+    CourseProgress:
+      type: object
+      properties:
+        course_id:
+          type: integer
+        current_average:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        progress_percent:
+          type: number
+          format: double
+        needed_to_pass:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+      required:
+      - course_id
+      - current_average
+      - needed_to_pass
+      - progress_percent
     CourseStatusEnum:
       enum:
       - IN_PROGRESS
@@ -1713,6 +2162,58 @@ components:
         * `IN_PROGRESS` - In progress
         * `PASSED` - Passed
         * `FAILED` - Failed
+    CurrentPlanResponse:
+      type: object
+      properties:
+        plan:
+          $ref: '#/components/schemas/Plan'
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_active:
+          type: boolean
+      required:
+      - is_active
+      - plan
+      - started_at
+    DashboardAnalytics:
+      type: object
+      properties:
+        tasks:
+          $ref: '#/components/schemas/DashboardTaskCounters'
+        upcoming_events:
+          type: integer
+        mood_entries:
+          type: integer
+        active_semester:
+          type: string
+          nullable: true
+      required:
+      - active_semester
+      - mood_entries
+      - tasks
+      - upcoming_events
+    DashboardTaskCounters:
+      type: object
+      properties:
+        todo:
+          type: integer
+        doing:
+          type: integer
+        done:
+          type: integer
+      required:
+      - doing
+      - done
+      - todo
+    DetailMessage:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
     DisciplineDistributionEntry:
       type: object
       properties:
@@ -1743,6 +2244,62 @@ components:
         * `REUNIAO_PROFESSORES` - Reuniao com professores
         * `ESTUDAR_FACULDADE` - Estudar na faculdade
         * `OUTRO` - Outro
+    GuidedContent:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        duration_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        body_text:
+          type: string
+        is_premium:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - body_text
+      - category
+      - created_at
+      - duration_minutes
+      - id
+      - title
+    InAppNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+        target_url:
+          type: string
+          maxLength: 500
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - target_url
+      - title
     InstitutionClassRanking:
       type: object
       properties:
@@ -1847,6 +2404,79 @@ components:
         * `OK` - Ok
         * `GOOD` - Good
         * `VERY_GOOD` - Very good
+    MoodWeeklySummary:
+      type: object
+      properties:
+        summary:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+      - summary
+    NotificationQueue:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        scheduled_for:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/NotificationStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - channel
+      - created_at
+      - id
+      - message
+      - scheduled_for
+      - title
+    NotificationStatusEnum:
+      enum:
+      - PENDING
+      - SENT
+      - FAILED
+      type: string
+      description: |-
+        * `PENDING` - Pendente
+        * `SENT` - Enviado
+        * `FAILED` - Erro
+    OnboardingStatus:
+      type: object
+      properties:
+        current_step:
+          type: string
+          nullable: true
+        missing_steps:
+          type: array
+          items:
+            type: string
+        required_actions:
+          type: array
+          items:
+            type: string
+      required:
+      - current_step
+      - missing_steps
+      - required_actions
+    OperationStatus:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required:
+      - ok
     ParentChildDashboard:
       type: object
       properties:
@@ -1980,13 +2610,13 @@ components:
         notes:
           type: string
         current_average:
-          type: string
+          type: number
           readOnly: true
         progress_percent:
-          type: string
+          type: number
           readOnly: true
         needed_to_pass:
-          type: string
+          type: number
           readOnly: true
     PatchedReminderRule:
       type: object
@@ -2045,6 +2675,179 @@ components:
           type: string
           format: date-time
           readOnly: true
+    Plan:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/PlanCodeEnum'
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        max_students:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_active:
+          type: boolean
+        features: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - name
+      - updated_at
+    PlanCodeEnum:
+      enum:
+      - LITE
+      - PRO
+      - PILOT
+      - STARTER
+      - SCHOOL
+      - ENTERPRISE
+      type: string
+      description: |-
+        * `LITE` - Lite
+        * `PRO` - Pro
+        * `PILOT` - Piloto
+        * `STARTER` - Starter
+        * `SCHOOL` - School
+        * `ENTERPRISE` - Enterprise
+    PomodoroSession:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        focus_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        break_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        ended_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PomodoroStatusEnum'
+          readOnly: true
+      required:
+      - ended_at
+      - id
+      - started_at
+      - status
+    PomodoroStart:
+      type: object
+      properties:
+        focus_minutes:
+          type: integer
+          minimum: 1
+          default: 25
+        break_minutes:
+          type: integer
+          minimum: 1
+          default: 5
+    PomodoroStatusEnum:
+      enum:
+      - COMPLETED
+      - STOPPED
+      type: string
+      description: |-
+        * `COMPLETED` - Completed
+        * `STOPPED` - Stopped
+    PomodoroStop:
+      type: object
+      properties:
+        completed:
+          type: boolean
+          default: false
+    PomodoroWeeklySummary:
+      type: object
+      properties:
+        total_sessions:
+          type: integer
+        total_focus_minutes:
+          type: integer
+      required:
+      - total_focus_minutes
+      - total_sessions
+    PreferredLanguageEnum:
+      enum:
+      - pt-BR
+      - en
+      - es
+      type: string
+      description: |-
+        * `pt-BR` - Português (Brasil)
+        * `en` - English
+        * `es` - Español
+    Register:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        name:
+          type: string
+          maxLength: 255
+        phone_number:
+          type: string
+          maxLength: 30
+        preferred_language:
+          $ref: '#/components/schemas/PreferredLanguageEnum'
+        password:
+          type: string
+          writeOnly: true
+          minLength: 6
+      required:
+      - email
+      - name
+      - password
+    RegisterResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        refresh:
+          type: string
+        access:
+          type: string
+      required:
+      - access
+      - refresh
+      - user
+    ReminderGeneration:
+      type: object
+      properties:
+        created:
+          type: integer
+      required:
+      - created
     ReminderRule:
       type: object
       properties:
@@ -2065,6 +2868,28 @@ components:
       - id
       - remind_before_minutes
       - target_type
+    RequesterTypeEnum:
+      enum:
+      - INDIVIDUAL
+      - INSTITUTION
+      type: string
+      description: |-
+        * `INDIVIDUAL` - Individual
+        * `INSTITUTION` - Institution
+    RoleEnum:
+      enum:
+      - student
+      - teacher
+      - coordinator
+      - parent
+      - institution_admin
+      type: string
+      description: |-
+        * `student` - Aluno
+        * `teacher` - Professor
+        * `coordinator` - Coordenador
+        * `parent` - Responsável
+        * `institution_admin` - Admin Institucional
     ScoreEvolutionEntry:
       type: object
       properties:
@@ -2115,6 +2940,41 @@ components:
       - id
       - name
       - start_date
+    SemesterAnalytics:
+      type: object
+      properties:
+        semester:
+          type: string
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemesterAnalyticsCourse'
+      required:
+      - courses
+      - semester
+    SemesterAnalyticsCourse:
+      type: object
+      properties:
+        title:
+          type: string
+        status:
+          type: string
+        final_grade:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+      required:
+      - final_grade
+      - status
+      - title
+    SemesterFinishResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
     SemesterStatusEnum:
       enum:
       - ACTIVE
@@ -2123,6 +2983,16 @@ components:
       description: |-
         * `ACTIVE` - Ativo
         * `FINISHED` - Finalizado
+    SetPlan:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        plan_code:
+          type: string
+      required:
+      - plan_code
+      - user_id
     StudentDashboard:
       type: object
       properties:
@@ -2414,6 +3284,127 @@ components:
       required:
       - access
       - refresh
+    UnreadCount:
+      type: object
+      properties:
+        unread_count:
+          type: integer
+      required:
+      - unread_count
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        name:
+          type: string
+          maxLength: 255
+        phone_number:
+          type: string
+          maxLength: 30
+        institution:
+          type: integer
+          nullable: true
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        preferred_language:
+          $ref: '#/components/schemas/PreferredLanguageEnum'
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - id
+      - name
+      - updated_at
+    UserSubscription:
+      type: object
+      properties:
+        plan:
+          $ref: '#/components/schemas/Plan'
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_active:
+          type: boolean
+      required:
+      - plan
+      - started_at
+    WidgetChatContextResponse:
+      type: object
+      properties:
+        has_recent_context:
+          type: boolean
+        last_user_message:
+          type: string
+          nullable: true
+        last_bot_reply:
+          type: string
+          nullable: true
+        pending_action:
+          type: string
+          nullable: true
+        step:
+          type: integer
+          nullable: true
+      required:
+      - has_recent_context
+      - last_bot_reply
+      - last_user_message
+      - pending_action
+      - step
+    WidgetChatMicroIntervention:
+      type: object
+      properties:
+        nome:
+          type: string
+        texto:
+          type: string
+      required:
+      - nome
+      - texto
+    WidgetChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          maxLength: 300
+      required:
+      - message
+    WidgetChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+        category:
+          type: string
+          nullable: true
+        emoji:
+          type: string
+          nullable: true
+        micro_interventions:
+          type: array
+          items:
+            $ref: '#/components/schemas/WidgetChatMicroIntervention'
+      required:
+      - category
+      - emoji
+      - micro_interventions
+      - reply
   securitySchemes:
     cookieAuth:
       type: apiKey

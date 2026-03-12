@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,6 +10,7 @@ from access_requests.serializers import (
     AccessRequestCreateSerializer,
     AccessRequestSerializer,
     AITriageLogSerializer,
+    EmptySerializer,
 )
 from utils.constants import ACCESS_APPROVED, ACCESS_REJECTED
 from utils.triage import TRIAGE_MODEL_NAME, run_triage
@@ -20,10 +22,21 @@ class AccessRequestListCreateView(APIView):
             return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]
 
+    @extend_schema(
+        tags=["Access Requests"],
+        operation_id="access_requests_list",
+        responses={200: AccessRequestSerializer(many=True)},
+    )
     def get(self, request):
         requests = AccessRequest.objects.all().order_by("-created_at")
         return Response(AccessRequestSerializer(requests, many=True).data)
 
+    @extend_schema(
+        tags=["Access Requests"],
+        operation_id="access_requests_create",
+        request=AccessRequestCreateSerializer,
+        responses={201: AccessRequestCreateSerializer},
+    )
     def post(self, request):
         serializer = AccessRequestCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -46,6 +59,11 @@ class AccessRequestListCreateView(APIView):
 class AccessRequestDetailView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
+    @extend_schema(
+        tags=["Access Requests"],
+        operation_id="access_requests_detail",
+        responses={200: AccessRequestSerializer},
+    )
     def get(self, request, pk):
         access_request = get_object_or_404(AccessRequest, pk=pk)
         return Response(AccessRequestSerializer(access_request).data)
@@ -54,6 +72,12 @@ class AccessRequestDetailView(APIView):
 class AccessApproveView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
+    @extend_schema(
+        tags=["Access Requests"],
+        operation_id="access_requests_approve",
+        request=AccessDecisionSerializer,
+        responses={200: AccessRequestSerializer},
+    )
     def post(self, request, pk):
         access_request = get_object_or_404(AccessRequest, pk=pk)
         serializer = AccessDecisionSerializer(data=request.data)
@@ -66,7 +90,14 @@ class AccessApproveView(APIView):
 
 class AccessRejectView(APIView):
     permission_classes = [permissions.IsAdminUser]
+    serializer_class = EmptySerializer
 
+    @extend_schema(
+        tags=["Access Requests"],
+        operation_id="access_requests_reject",
+        request=None,
+        responses={200: AccessRequestSerializer},
+    )
     def post(self, request, pk):
         access_request = get_object_or_404(AccessRequest, pk=pk)
         access_request.status = ACCESS_REJECTED
@@ -77,6 +108,11 @@ class AccessRejectView(APIView):
 class AccessTriageLogView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
+    @extend_schema(
+        tags=["Access Requests"],
+        operation_id="access_requests_triage_log",
+        responses={200: AITriageLogSerializer, 404: OpenApiResponse(description="Triage log not found.")},
+    )
     def get(self, request, pk):
         access_request = get_object_or_404(AccessRequest, pk=pk)
         log = access_request.triage_logs.order_by("-created_at").first()

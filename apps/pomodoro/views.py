@@ -1,19 +1,32 @@
 from datetime import timedelta
 
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from pomodoro.models import PomodoroSession
-from pomodoro.serializers import PomodoroSessionSerializer
+from pomodoro.serializers import (
+    PomodoroSessionSerializer,
+    PomodoroStartSerializer,
+    PomodoroStopSerializer,
+    PomodoroWeeklySummarySerializer,
+)
 from utils.constants import FEATURE_POMODORO_BASIC, POMODORO_COMPLETED, POMODORO_STOPPED
 from utils.features import require_feature
 
 
 class PomodoroStartView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PomodoroStartSerializer
 
+    @extend_schema(
+        tags=["Pomodoro"],
+        operation_id="pomodoro_start",
+        request=PomodoroStartSerializer,
+        responses={201: PomodoroSessionSerializer},
+    )
     def post(self, request):
         require_feature(request.user, FEATURE_POMODORO_BASIC)
         focus_minutes = int(request.data.get("focus_minutes", 25))
@@ -28,7 +41,14 @@ class PomodoroStartView(APIView):
 
 class PomodoroStopView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PomodoroStopSerializer
 
+    @extend_schema(
+        tags=["Pomodoro"],
+        operation_id="pomodoro_stop",
+        request=PomodoroStopSerializer,
+        responses={200: PomodoroSessionSerializer},
+    )
     def post(self, request, pk):
         require_feature(request.user, FEATURE_POMODORO_BASIC)
         session = PomodoroSession.objects.get(pk=pk, user=request.user)
@@ -43,6 +63,11 @@ class PomodoroStopView(APIView):
 class PomodoroWeeklySummaryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Pomodoro"],
+        operation_id="pomodoro_weekly_summary",
+        responses={200: PomodoroWeeklySummarySerializer},
+    )
     def get(self, request):
         require_feature(request.user, FEATURE_POMODORO_BASIC)
         week_ago = timezone.now() - timedelta(days=7)

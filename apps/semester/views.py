@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import permissions, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -9,7 +10,14 @@ from rest_framework.views import APIView
 
 from coach_ai.models import CoachLog
 from semester.models import Assessment, Course, Semester
-from semester.serializers import AssessmentSerializer, CourseSerializer, SemesterSerializer
+from semester.serializers import (
+    AssessmentSerializer,
+    CourseProgressSerializer,
+    CourseSerializer,
+    EmptySerializer,
+    SemesterFinishResponseSerializer,
+    SemesterSerializer,
+)
 from utils.academic_progress import (
     calculate_course_average,
     calculate_needed_to_pass,
@@ -34,6 +42,30 @@ from utils.messages import (
 )
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_semesters_retrieve",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    update=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_semesters_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    partial_update=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_semesters_partial_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    destroy=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_semesters_destroy",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    list=extend_schema(tags=["Semester"], operation_id="semester_semesters_list"),
+    create=extend_schema(tags=["Semester"], operation_id="semester_semesters_create"),
+)
 class SemesterViewSet(viewsets.ModelViewSet):
     serializer_class = SemesterSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -45,6 +77,30 @@ class SemesterViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_courses_retrieve",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    update=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_courses_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    partial_update=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_courses_partial_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    destroy=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_courses_destroy",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    list=extend_schema(tags=["Semester"], operation_id="semester_courses_list"),
+    create=extend_schema(tags=["Semester"], operation_id="semester_courses_create"),
+)
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -59,6 +115,30 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_assessments_retrieve",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    update=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_assessments_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    partial_update=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_assessments_partial_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    destroy=extend_schema(
+        tags=["Semester"],
+        operation_id="semester_assessments_destroy",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    list=extend_schema(tags=["Semester"], operation_id="semester_assessments_list"),
+    create=extend_schema(tags=["Semester"], operation_id="semester_assessments_create"),
+)
 class AssessmentViewSet(viewsets.ModelViewSet):
     serializer_class = AssessmentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -131,6 +211,11 @@ class AssessmentViewSet(viewsets.ModelViewSet):
 class CourseProgressView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Semester"],
+        operation_id="semester_course_progress",
+        responses={200: CourseProgressSerializer, 403: OpenApiResponse(description="Progress blocked by plan/gate.")},
+    )
     def get(self, request, pk):
         course = get_object_or_404(Course, pk=pk, semester__user=request.user)
         allowed, message = gate_course_progress(course)
@@ -151,7 +236,14 @@ class CourseProgressView(APIView):
 
 class FinishSemesterView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EmptySerializer
 
+    @extend_schema(
+        tags=["Semester"],
+        operation_id="semester_finish",
+        request=None,
+        responses={200: SemesterFinishResponseSerializer, 403: OpenApiResponse(description="Semester cannot be finished yet.")},
+    )
     def post(self, request, semester_id):
         semester = get_object_or_404(Semester, pk=semester_id, user=request.user)
         allowed, message = gate_finish_semester(semester)

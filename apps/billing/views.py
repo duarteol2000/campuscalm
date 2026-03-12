@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from billing.models import Plan, UserSubscription
-from billing.serializers import PlanSerializer, SetPlanSerializer, UserSubscriptionSerializer
+from billing.serializers import CurrentPlanResponseSerializer, PlanSerializer, SetPlanSerializer, UserSubscriptionSerializer
 from utils.constants import PLAN_LITE
 
 User = get_user_model()
@@ -13,6 +14,11 @@ User = get_user_model()
 class CurrentPlanView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Billing"],
+        operation_id="billing_current_plan",
+        responses={200: CurrentPlanResponseSerializer, 404: OpenApiResponse(description="Plano padrão não configurado.")},
+    )
     def get(self, request):
         subscription = UserSubscription.objects.filter(user=request.user, is_active=True).select_related("plan").first()
         if subscription:
@@ -25,7 +31,14 @@ class CurrentPlanView(APIView):
 
 class SetPlanView(APIView):
     permission_classes = [permissions.IsAdminUser]
+    serializer_class = SetPlanSerializer
 
+    @extend_schema(
+        tags=["Billing"],
+        operation_id="billing_set_plan",
+        request=SetPlanSerializer,
+        responses={200: UserSubscriptionSerializer},
+    )
     def post(self, request):
         serializer = SetPlanSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

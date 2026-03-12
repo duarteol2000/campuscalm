@@ -1,12 +1,13 @@
 from datetime import datetime, time, timedelta
 
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from agenda.models import CalendarEvent, ReminderRule
-from agenda.serializers import CalendarEventSerializer, ReminderRuleSerializer
+from agenda.serializers import CalendarEventSerializer, EmptySerializer, ReminderGenerationSerializer, ReminderRuleSerializer
 from notifications.models import NotificationQueue
 from notifications.services.reminder_queue import create_notifications_for_user
 from planner.models import Task
@@ -22,6 +23,30 @@ from utils.features import require_feature
 from utils.gating import gate_generate_reminders
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_events_retrieve",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    update=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_events_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    partial_update=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_events_partial_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    destroy=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_events_destroy",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    list=extend_schema(tags=["Agenda"], operation_id="agenda_events_list"),
+    create=extend_schema(tags=["Agenda"], operation_id="agenda_events_create"),
+)
 class CalendarEventViewSet(viewsets.ModelViewSet):
     serializer_class = CalendarEventSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -37,6 +62,30 @@ class CalendarEventViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_reminder_rules_retrieve",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    update=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_reminder_rules_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    partial_update=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_reminder_rules_partial_update",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    destroy=extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_reminder_rules_destroy",
+        parameters=[OpenApiParameter("id", OpenApiTypes.INT, OpenApiParameter.PATH)],
+    ),
+    list=extend_schema(tags=["Agenda"], operation_id="agenda_reminder_rules_list"),
+    create=extend_schema(tags=["Agenda"], operation_id="agenda_reminder_rules_create"),
+)
 class ReminderRuleViewSet(viewsets.ModelViewSet):
     serializer_class = ReminderRuleSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -55,6 +104,11 @@ class ReminderRuleViewSet(viewsets.ModelViewSet):
 class AgendaWeekView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_week",
+        responses={200: CalendarEventSerializer(many=True)},
+    )
     def get(self, request):
         require_feature(request.user, FEATURE_AGENDA_BASIC)
         now = timezone.now()
@@ -70,7 +124,14 @@ class AgendaWeekView(APIView):
 
 class GenerateRemindersView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EmptySerializer
 
+    @extend_schema(
+        tags=["Agenda"],
+        operation_id="agenda_generate_reminders",
+        request=None,
+        responses={200: ReminderGenerationSerializer, 403: OpenApiTypes.OBJECT},
+    )
     def post(self, request):
         require_feature(request.user, FEATURE_IN_APP_REMINDERS)
         allowed, message = gate_generate_reminders(request.user)

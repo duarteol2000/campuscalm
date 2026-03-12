@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,6 +13,11 @@ from utils.features import has_feature
 class GuidedContentListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Content"],
+        operation_id="content_guided_list",
+        responses={200: GuidedContentSerializer(many=True), 403: OpenApiResponse(description="Plano sem acesso a conteúdos.")},
+    )
     def get(self, request):
         if not has_feature(request.user, FEATURE_CONTENT_FULL) and not has_feature(request.user, FEATURE_CONTENT_LIMITED):
             return Response({"detail": "Plano atual nao permite conteudos."}, status=status.HTTP_403_FORBIDDEN)
@@ -24,6 +30,11 @@ class GuidedContentListView(APIView):
 class GuidedContentDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Content"],
+        operation_id="content_guided_detail",
+        responses={200: GuidedContentSerializer, 403: OpenApiResponse(description="Conteúdo premium indisponível.")},
+    )
     def get(self, request, pk):
         content = get_object_or_404(GuidedContent, pk=pk)
         if content.is_premium and not has_feature(request.user, FEATURE_CONTENT_FULL):

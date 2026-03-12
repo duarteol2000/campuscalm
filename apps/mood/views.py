@@ -1,13 +1,14 @@
 from datetime import timedelta
 
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView
 
 from mood.models import MoodEntry
-from mood.serializers import MoodEntrySerializer
+from mood.serializers import MoodEntrySerializer, MoodWeeklySummarySerializer
 from utils.constants import FEATURE_MOOD_BASIC, MOOD_VERY_BAD
 from utils.features import require_feature
 
@@ -41,6 +42,11 @@ class MoodEntryListCreateView(ListCreateAPIView):
 class MoodWeeklySummaryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Mood"],
+        operation_id="mood_weekly_summary",
+        responses={200: MoodWeeklySummarySerializer},
+    )
     def get(self, request):
         require_feature(request.user, FEATURE_MOOD_BASIC)
         week_ago = timezone.now() - timedelta(days=7)

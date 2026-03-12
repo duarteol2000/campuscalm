@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from semester.models import Assessment, Course, Semester, SemesterCheckin
@@ -40,14 +42,32 @@ class CourseSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "status", "final_grade", "current_average", "progress_percent", "needed_to_pass")
 
-    def get_current_average(self, obj):
+    @extend_schema_field(OpenApiTypes.NUMBER)
+    def get_current_average(self, obj) -> Decimal:
         return calculate_course_average(obj)
 
-    def get_progress_percent(self, obj):
+    @extend_schema_field(OpenApiTypes.NUMBER)
+    def get_progress_percent(self, obj) -> float:
         return calculate_progress_percent(obj)
 
-    def get_needed_to_pass(self, obj):
+    @extend_schema_field(OpenApiTypes.NUMBER)
+    def get_needed_to_pass(self, obj) -> Decimal:
         return calculate_needed_to_pass(obj)
+
+
+class CourseProgressSerializer(serializers.Serializer):
+    course_id = serializers.IntegerField()
+    current_average = serializers.DecimalField(max_digits=5, decimal_places=2)
+    progress_percent = serializers.FloatField()
+    needed_to_pass = serializers.DecimalField(max_digits=5, decimal_places=2)
+
+
+class SemesterFinishResponseSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+
+
+class EmptySerializer(serializers.Serializer):
+    pass
 
 
 class AssessmentSerializer(serializers.ModelSerializer):

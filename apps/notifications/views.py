@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema
 from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
@@ -15,7 +16,14 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from notifications.models import InAppNotification, IncomingMessage, NotificationQueue
-from notifications.serializers import InAppNotificationSerializer, NotificationQueueSerializer
+from notifications.serializers import (
+    DetailMessageSerializer,
+    EmptySerializer,
+    InAppNotificationSerializer,
+    NotificationQueueSerializer,
+    OperationStatusSerializer,
+    UnreadCountSerializer,
+)
 from notifications.services.whatsapp_service import send_whatsapp_message_raw
 from utils.constants import (
     ACTION_CANCELED,
@@ -33,7 +41,14 @@ from utils.constants import FEATURE_EMAIL_NOTIFICATIONS
 
 class TestEmailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EmptySerializer
 
+    @extend_schema(
+        tags=["Notifications"],
+        operation_id="notifications_test_email",
+        request=None,
+        responses={200: DetailMessageSerializer, 403: DetailMessageSerializer},
+    )
     def post(self, request):
         if not has_feature(request.user, FEATURE_EMAIL_NOTIFICATIONS):
             return Response({"detail": "Plano atual nao permite email."}, status=status.HTTP_403_FORBIDDEN)
@@ -46,6 +61,11 @@ class TestEmailView(APIView):
 class PendingNotificationsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Notifications"],
+        operation_id="notifications_pending",
+        responses={200: NotificationQueueSerializer(many=True)},
+    )
     def get(self, request):
         now = timezone.now()
         pending = NotificationQueue.objects.filter(
@@ -59,6 +79,11 @@ class InAppUnreadCountView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Notifications"],
+        operation_id="notifications_in_app_unread_count",
+        responses={200: UnreadCountSerializer},
+    )
     def get(self, request):
         unread_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
         return Response({"unread_count": unread_count})
@@ -69,6 +94,14 @@ class InAppLatestListView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        tags=["Notifications"],
+        operation_id="notifications_in_app_latest",
+        parameters=[
+            OpenApiParameter("limit", OpenApiTypes.INT, OpenApiParameter.QUERY, description="Máximo de notificações entre 1 e 20."),
+        ],
+        responses={200: InAppNotificationSerializer(many=True)},
+    )
     def get(self, request):
         try:
             limit = int(request.GET.get("limit", 5))
@@ -84,7 +117,14 @@ class InAppMarkReadView(APIView):
     # Bloco: API do sino (marcar uma notificacao como lida)
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EmptySerializer
 
+    @extend_schema(
+        tags=["Notifications"],
+        operation_id="notifications_in_app_mark_read",
+        request=None,
+        responses={200: OperationStatusSerializer},
+    )
     def post(self, request, pk: int):
         notification = get_object_or_404(InAppNotification, pk=pk, user=request.user)
         if not notification.is_read:
@@ -97,7 +137,14 @@ class InAppMarkAllReadView(APIView):
     # Bloco: API do sino (marcar todas como lidas)
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EmptySerializer
 
+    @extend_schema(
+        tags=["Notifications"],
+        operation_id="notifications_in_app_mark_all_read",
+        request=None,
+        responses={200: OperationStatusSerializer},
+    )
     def post(self, request):
         InAppNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
         return Response({"ok": True})

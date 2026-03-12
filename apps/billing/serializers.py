@@ -30,3 +30,9 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
 class SetPlanSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     plan_code = serializers.CharField()
+
+
+class CurrentPlanResponseSerializer(serializers.Serializer):
+    plan = PlanSerializer()
+    started_at = serializers.DateTimeField(allow_null=True)
+    is_active = serializers.BooleanField()

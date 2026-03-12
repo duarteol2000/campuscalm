@@ -23,3 +23,19 @@ class InAppNotificationSerializer(serializers.ModelSerializer):
         model = InAppNotification
         fields = ("id", "title", "body", "target_url", "is_read", "created_at")
         read_only_fields = ("id", "created_at")
+
+
+class DetailMessageSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+
+
+class UnreadCountSerializer(serializers.Serializer):
+    unread_count = serializers.IntegerField()
+
+
+class OperationStatusSerializer(serializers.Serializer):
+    ok = serializers.BooleanField()
+
+
+class EmptySerializer(serializers.Serializer):
+    pass

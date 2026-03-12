@@ -43,3 +43,7 @@ class AccessDecisionSerializer(serializers.Serializer):
         if value and value not in {"LITE", "PRO"}:
             raise serializers.ValidationError("Plano invalido")
         return value
+
+
+class EmptySerializer(serializers.Serializer):
+    pass

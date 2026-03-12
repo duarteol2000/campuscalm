@@ -150,6 +150,17 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Campus Calm API",
     "DESCRIPTION": "API do MVP Campus Calm",
     "VERSION": "0.1.0",
+    "ENUM_NAME_OVERRIDES": {
+        "PlanCodeEnum": "utils.constants.PLAN_CHOICES",
+        "NotificationStatusEnum": "utils.constants.NOTIFICATION_STATUS_CHOICES",
+        "TaskStatusEnum": "utils.constants.TASK_STATUS_CHOICES",
+        "PomodoroStatusEnum": "utils.constants.POMODORO_STATUS_CHOICES",
+        "SemesterStatusEnum": "utils.constants.SEMESTER_STATUS_CHOICES",
+        "CourseStatusEnum": "utils.constants.COURSE_STATUS_CHOICES",
+        "AccessRequestStatusEnum": "utils.constants.ACCESS_STATUS_CHOICES",
+        "InstitutionSubscriptionStatusEnum": "billing.models.InstitutionSubscription.STATUS_CHOICES",
+        "StudentProfileStatusEnum": "accounts.models.StudentProfile.STATUS_CHOICES",
+    },
 }
 
 CORS_ALLOW_ALL_ORIGINS = True

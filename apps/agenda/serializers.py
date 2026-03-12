@@ -24,3 +24,11 @@ class ReminderRuleSerializer(serializers.ModelSerializer):
         model = ReminderRule
         fields = ("id", "target_type", "remind_before_minutes", "channels", "is_active")
         read_only_fields = ("id",)
+
+
+class ReminderGenerationSerializer(serializers.Serializer):
+    created = serializers.IntegerField()
+
+
+class EmptySerializer(serializers.Serializer):
+    pass
