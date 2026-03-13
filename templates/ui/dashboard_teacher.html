@@ -23,7 +23,12 @@
   <form class="row g-2 mb-4" method="get">
     <div class="col-md-3">
       <label class="form-label small text-muted" for="teacher-class-group">{% trans "Turma" %}</label>
-      <input id="teacher-class-group" class="form-control form-control-sm" type="text" name="class_group" value="{{ teacher_class_group }}" placeholder="{% trans "Ex.: A" %}">
+      <select id="teacher-class-group" class="form-select form-select-sm" name="class_group">
+        <option value="">{% trans "Todas as turmas" %}</option>
+        {% for class_group_option in teacher_class_group_options %}
+          <option value="{{ class_group_option }}"{% if teacher_class_group == class_group_option %} selected{% endif %}>{{ class_group_option }}</option>
+        {% endfor %}
+      </select>
     </div>
     <div class="col-md-4">
       <label class="form-label small text-muted" for="teacher-search">{% trans "Buscar aluno" %}</label>
@@ -45,7 +50,7 @@
 
   <div class="learning-api-grid">
     <article class="learning-api-stat">
-      <div class="learning-api-label">{% trans "Média da turma" %}</div>
+      <div class="learning-api-label" data-teacher-average-label>{{ teacher_average_label }}</div>
       <div class="learning-api-value" data-teacher-class-average>--</div>
     </article>
     <article class="learning-api-stat">

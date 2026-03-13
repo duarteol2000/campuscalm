@@ -100,6 +100,11 @@
   }
 
   function renderTeacherDashboard(root, payload) {
+    setText(
+      root,
+      "[data-teacher-average-label]",
+      readValue(payload, ["ranking_filters", "class_group"], "") ? "Média da turma" : "Média geral"
+    );
     setText(root, "[data-teacher-class-average]", readValue(payload, ["class_average"], "--"));
     setText(root, "[data-teacher-at-risk]", arrayLength(payload.students_at_risk));
     setText(root, "[data-teacher-low-consistency]", arrayLength(payload.students_low_consistency));

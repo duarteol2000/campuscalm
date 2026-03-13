@@ -16,7 +16,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import UserProfile
+from accounts.models import StudentProfile, UserProfile
 from agenda.models import CalendarEvent, ReminderRule
 from billing.models import Plan, UserSubscription
 from brain.models import InteracaoAluno
@@ -301,6 +301,8 @@ def dashboard_view(request):
     teacher_class_group = request.GET.get("class_group", "").strip()
     teacher_search = request.GET.get("search", "").strip()
     teacher_page_size = request.GET.get("page_size", "10").strip() or "10"
+    teacher_class_group_options = []
+    teacher_average_label = _("Média geral")
     if user.role == user.ROLE_STUDENT:
         student_dashboard_api_url = reverse("learning-dashboard-student")
         show_learning_dashboard = True
@@ -310,6 +312,18 @@ def dashboard_view(request):
     elif user.role in {user.ROLE_TEACHER, user.ROLE_COORDINATOR, user.ROLE_INSTITUTION_ADMIN}:
         teacher_dashboard_api_url = reverse("learning-dashboard-teacher")
         show_teacher_dashboard = True
+        teacher_average_label = _("Média da turma") if teacher_class_group else _("Média geral")
+        teacher_class_group_options = list(
+            StudentProfile.objects.filter(
+                institution_id=user.institution_id,
+                status=StudentProfile.STATUS_ACTIVE,
+                account_type=StudentProfile.ACCOUNT_INSTITUTIONAL,
+            )
+            .exclude(class_group="")
+            .order_by("class_group")
+            .values_list("class_group", flat=True)
+            .distinct()
+        )
         if user.role in {user.ROLE_COORDINATOR, user.ROLE_INSTITUTION_ADMIN}:
             institution_dashboard_api_url = reverse("learning-dashboard-institution")
             show_institution_dashboard = True
@@ -327,6 +341,8 @@ def dashboard_view(request):
         "teacher_dashboard_api_url": teacher_dashboard_api_url,
         "institution_dashboard_api_url": institution_dashboard_api_url,
         "teacher_class_group": teacher_class_group,
+        "teacher_class_group_options": teacher_class_group_options,
+        "teacher_average_label": teacher_average_label,
         "teacher_search": teacher_search,
         "teacher_page_size": teacher_page_size,
         "study_assistant_api_url": reverse("study-assistant-ask"),
