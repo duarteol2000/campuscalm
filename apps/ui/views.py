@@ -16,7 +16,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import StudentProfile, UserProfile
+from accounts.models import ClassGroup, StudentProfile, UserProfile
 from agenda.models import CalendarEvent, ReminderRule
 from billing.models import Plan, UserSubscription
 from brain.models import InteracaoAluno
@@ -314,16 +314,23 @@ def dashboard_view(request):
         show_teacher_dashboard = True
         teacher_average_label = _("Média da turma") if teacher_class_group else _("Média geral")
         teacher_class_group_options = list(
-            StudentProfile.objects.filter(
-                institution_id=user.institution_id,
-                status=StudentProfile.STATUS_ACTIVE,
-                account_type=StudentProfile.ACCOUNT_INSTITUTIONAL,
-            )
-            .exclude(class_group="")
-            .order_by("class_group")
-            .values_list("class_group", flat=True)
+            ClassGroup.objects.filter(institution_id=user.institution_id)
+            .order_by("grade_level", "name")
+            .values_list("name", flat=True)
             .distinct()
         )
+        if not teacher_class_group_options:
+            teacher_class_group_options = list(
+                StudentProfile.objects.filter(
+                    institution_id=user.institution_id,
+                    status=StudentProfile.STATUS_ACTIVE,
+                    account_type=StudentProfile.ACCOUNT_INSTITUTIONAL,
+                )
+                .exclude(class_group="")
+                .order_by("class_group")
+                .values_list("class_group", flat=True)
+                .distinct()
+            )
         if user.role in {user.ROLE_COORDINATOR, user.ROLE_INSTITUTION_ADMIN}:
             institution_dashboard_api_url = reverse("learning-dashboard-institution")
             show_institution_dashboard = True

@@ -19,7 +19,7 @@ def active_institution_students(institution_id) -> QuerySet[StudentProfile]:
             status=StudentProfile.STATUS_ACTIVE,
             account_type=StudentProfile.ACCOUNT_INSTITUTIONAL,
         )
-        .select_related("user", "institution")
+        .select_related("user", "institution", "class_group_ref")
     )
 
 
@@ -28,7 +28,7 @@ def historical_students(institution_id) -> QuerySet[StudentProfile]:
     Retorna histórico completo de alunos vinculados à instituição
     (inclui formados e demais estados de inatividade).
     """
-    return StudentProfile.objects.filter(institution_id=institution_id).select_related("user", "institution")
+    return StudentProfile.objects.filter(institution_id=institution_id).select_related("user", "institution", "class_group_ref")
 
 
 def graduate_student(profile: StudentProfile, as_personal_account: bool = False, at=None) -> StudentProfile:

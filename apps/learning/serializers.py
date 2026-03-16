@@ -74,10 +74,20 @@ class DisciplineDistributionEntrySerializer(serializers.Serializer):
     total = serializers.IntegerField()
 
 
+class ClassAverageSerializer(serializers.Serializer):
+    class_id = serializers.IntegerField(allow_null=True)
+    class_name = serializers.CharField()
+    grade_level = serializers.CharField(allow_blank=True)
+    student_count = serializers.IntegerField()
+    avg_score = serializers.FloatField()
+
+
 class TeacherStudentRowSerializer(serializers.Serializer):
     student_id = serializers.IntegerField()
     student_name = serializers.CharField()
+    class_id = serializers.IntegerField(allow_null=True)
     class_group = serializers.CharField(allow_blank=True)
+    grade_level = serializers.CharField(allow_blank=True)
     score_value = serializers.IntegerField()
     classification = serializers.CharField()
     weekly_sessions = serializers.IntegerField()
@@ -100,6 +110,8 @@ class TeacherRankingFiltersSerializer(serializers.Serializer):
 
 
 class TeacherDashboardSerializer(serializers.Serializer):
+    my_classes = ClassAverageSerializer(many=True)
+    average_by_class = ClassAverageSerializer(many=True)
     class_average = serializers.FloatField()
     students_at_risk = TeacherStudentRowSerializer(many=True)
     students_low_consistency = TeacherStudentRowSerializer(many=True)
@@ -112,7 +124,9 @@ class TeacherDashboardSerializer(serializers.Serializer):
 
 
 class InstitutionClassRankingSerializer(serializers.Serializer):
+    class_id = serializers.IntegerField(allow_null=True)
     class_group = serializers.CharField()
+    grade_level = serializers.CharField(allow_blank=True)
     average_score = serializers.FloatField()
     students_total = serializers.IntegerField()
 
@@ -120,7 +134,9 @@ class InstitutionClassRankingSerializer(serializers.Serializer):
 class InstitutionStudentRowSerializer(serializers.Serializer):
     student_id = serializers.IntegerField()
     student_name = serializers.CharField()
+    class_id = serializers.IntegerField(allow_null=True)
     class_group = serializers.CharField()
+    grade_level = serializers.CharField(allow_blank=True)
     score_value = serializers.IntegerField()
     classification = serializers.CharField()
 
@@ -133,3 +149,17 @@ class InstitutionDashboardSerializer(serializers.Serializer):
     discipline_distribution = DisciplineDistributionEntrySerializer(many=True)
     top_students = InstitutionStudentRowSerializer(many=True)
     pedagogical_insights = serializers.ListField(child=serializers.CharField())
+
+
+class ClassTrendResponseSerializer(serializers.Serializer):
+    class_id = serializers.IntegerField()
+    class_name = serializers.CharField()
+    weeks = serializers.ListField(child=serializers.CharField())
+    avg_score = serializers.ListField(child=serializers.FloatField())
+
+
+class ClassHeatmapEntrySerializer(serializers.Serializer):
+    student_id = serializers.IntegerField()
+    name = serializers.CharField()
+    score = serializers.IntegerField()
+    level = serializers.CharField()

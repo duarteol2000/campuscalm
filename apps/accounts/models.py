@@ -121,6 +121,31 @@ class UserProfile(models.Model):
         return f"{self.user.email} profile"
 
 
+class ClassGroup(models.Model):
+    name = models.CharField(max_length=120)
+    grade_level = models.CharField(max_length=64, blank=True)
+    institution = models.ForeignKey(
+        "billing.Institution",
+        on_delete=models.CASCADE,
+        related_name="class_groups",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("grade_level", "name")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["institution", "name", "grade_level"],
+                name="unique_class_per_institution",
+            )
+        ]
+
+    def __str__(self):
+        if self.grade_level:
+            return f"{self.grade_level} · {self.name}"
+        return self.name
+
+
 # Bloco: Perfil acadêmico comportamental do aluno na instituição
 class StudentProfile(models.Model):
     STATUS_ACTIVE = "active"
@@ -152,6 +177,13 @@ class StudentProfile(models.Model):
     enrollment_number = models.CharField(max_length=40, blank=True)
     grade_level = models.CharField(max_length=64, blank=True)
     class_group = models.CharField(max_length=120, blank=True)
+    class_group_ref = models.ForeignKey(
+        "accounts.ClassGroup",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="students",
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE_CHOICES, default=ACCOUNT_INSTITUTIONAL)
     graduated_at = models.DateTimeField(null=True, blank=True)
@@ -173,6 +205,12 @@ class StudentProfile(models.Model):
             and self.account_type == self.ACCOUNT_INSTITUTIONAL
         ):
             raise ValidationError("O usuario do aluno deve pertencer a mesma instituicao do perfil estudantil.")
+        if self.class_group_ref_id and self.class_group_ref.institution_id != self.institution_id:
+            raise ValidationError("A turma estruturada do aluno deve pertencer a mesma instituicao do perfil.")
+
+    @property
+    def effective_class_group(self):
+        return self.class_group_ref.name if self.class_group_ref_id else self.class_group
 
     @property
     def is_active_for_institution(self):
@@ -242,6 +280,49 @@ class ParentProfile(models.Model):
             raise ValidationError("O aluno vinculado deve pertencer a mesma instituicao do relacionamento.")
         if self.user.institution_id and self.user.institution_id != self.institution_id:
             raise ValidationError("O responsavel deve pertencer a mesma instituicao do relacionamento.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+
+class TeacherAssignment(models.Model):
+    teacher = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.CASCADE,
+        related_name="class_assignments",
+    )
+    class_group = models.ForeignKey(
+        "accounts.ClassGroup",
+        on_delete=models.CASCADE,
+        related_name="teacher_assignments",
+    )
+    institution = models.ForeignKey(
+        "billing.Institution",
+        on_delete=models.CASCADE,
+        related_name="teacher_assignments",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("teacher__name", "class_group__grade_level", "class_group__name")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["teacher", "class_group"],
+                name="unique_teacher_class_assignment",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.teacher.email} -> {self.class_group}"
+
+    def clean(self):
+        if self.teacher.role != User.ROLE_TEACHER:
+            raise ValidationError("A atribuição pedagógica aceita apenas usuários com papel teacher.")
+        if self.teacher.institution_id != self.institution_id:
+            raise ValidationError("O professor precisa pertencer à mesma instituição da atribuição.")
+        if self.class_group.institution_id != self.institution_id:
+            raise ValidationError("A turma precisa pertencer à mesma instituição da atribuição.")
 
     def save(self, *args, **kwargs):
         self.full_clean()

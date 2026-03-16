@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from accounts.models import ParentProfile, StudentProfile, User, UserProfile
+from accounts.models import ClassGroup, ParentProfile, StudentProfile, TeacherAssignment, User, UserProfile
 
 
 @admin.register(User)
@@ -70,6 +70,7 @@ class StudentProfileAdmin(admin.ModelAdmin):
         "enrollment_number",
         "grade_level",
         "class_group",
+        "class_group_ref",
         "is_active_for_institution",
         "graduated_at",
     )
@@ -82,3 +83,17 @@ class ParentProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "student", "relationship_type", "institution", "created_at")
     list_filter = ("relationship_type", "institution")
     search_fields = ("user__email", "student__user__email", "student__user__name")
+
+
+@admin.register(ClassGroup)
+class ClassGroupAdmin(admin.ModelAdmin):
+    list_display = ("name", "grade_level", "institution", "created_at")
+    list_filter = ("institution", "grade_level")
+    search_fields = ("name", "grade_level", "institution__nome_fantasia", "institution__razao_social")
+
+
+@admin.register(TeacherAssignment)
+class TeacherAssignmentAdmin(admin.ModelAdmin):
+    list_display = ("teacher", "class_group", "institution", "created_at")
+    list_filter = ("institution", "class_group__grade_level")
+    search_fields = ("teacher__email", "teacher__name", "class_group__name", "class_group__grade_level")

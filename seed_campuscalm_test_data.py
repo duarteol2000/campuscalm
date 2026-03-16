@@ -10,7 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.text import slugify
 
-from accounts.models import ParentProfile, StudentProfile, UserProfile
+from accounts.models import ClassGroup, ParentProfile, StudentProfile, TeacherAssignment, UserProfile
 from billing.models import Institution, InstitutionSubscription, Plan, UserSubscription
 from learning.models import Achievement, AcademicDisciplineScore, EmotionalCheckin, StudySession, StudyTask
 from learning.services.discipline_score import classify_score
@@ -210,9 +210,32 @@ def clear_previous_institution_data(institution: Institution) -> None:
     EmotionalCheckin.objects.filter(institution=institution).delete()
     ParentProfile.objects.filter(institution=institution).delete()
     StudentProfile.objects.filter(institution=institution).delete()
+    TeacherAssignment.objects.filter(institution=institution).delete()
+    ClassGroup.objects.filter(institution=institution).delete()
 
 
-def create_student_profiles(student_users: dict[str, object], institution: Institution) -> dict[str, StudentProfile]:
+def create_class_groups(institution: Institution) -> dict[str, ClassGroup]:
+    log("Criando turmas estruturadas...")
+    groups = [
+        ClassGroup(
+            name=group_name,
+            grade_level="Ensino Medio",
+            institution=institution,
+        )
+        for group_name in CLASS_GROUPS
+    ]
+    ClassGroup.objects.bulk_create(groups)
+    return {
+        class_group.name: class_group
+        for class_group in ClassGroup.objects.filter(institution=institution)
+    }
+
+
+def create_student_profiles(
+    student_users: dict[str, object],
+    institution: Institution,
+    class_groups: dict[str, ClassGroup],
+) -> dict[str, StudentProfile]:
     log("Criando perfis de alunos...")
     profiles = [
         StudentProfile(
@@ -221,6 +244,7 @@ def create_student_profiles(student_users: dict[str, object], institution: Insti
             enrollment_number=student.enrollment_number,
             grade_level="Ensino Medio",
             class_group=student.class_group,
+            class_group_ref=class_groups[student.class_group],
             status=StudentProfile.STATUS_ACTIVE,
             account_type=StudentProfile.ACCOUNT_INSTITUTIONAL,
         )
@@ -231,6 +255,20 @@ def create_student_profiles(student_users: dict[str, object], institution: Insti
         profile.user.email: profile
         for profile in StudentProfile.objects.filter(institution=institution).select_related("user")
     }
+
+
+def create_teacher_assignments(teacher_user, institution: Institution, class_groups: dict[str, ClassGroup]) -> None:
+    log("Criando atribuicoes pedagógicas da professora...")
+    TeacherAssignment.objects.bulk_create(
+        [
+            TeacherAssignment(
+                teacher=teacher_user,
+                class_group=class_group,
+                institution=institution,
+            )
+            for class_group in class_groups.values()
+        ]
+    )
 
 
 def create_parent_links(parent_user, student_profiles: dict[str, StudentProfile], institution: Institution) -> None:
@@ -520,8 +558,10 @@ def main() -> None:
         parent.save(update_fields=["last_login"])
 
         clear_previous_institution_data(institution)
+        class_groups = create_class_groups(institution)
+        create_teacher_assignments(teacher, institution, class_groups)
         student_users = build_student_users(institution, plan)
-        student_profiles = create_student_profiles(student_users, institution)
+        student_profiles = create_student_profiles(student_users, institution, class_groups)
         create_parent_links(parent, student_profiles, institution)
         generate_learning_data(student_users, institution)
 
