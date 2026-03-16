@@ -141,9 +141,23 @@
   <div class="learning-api-columns">
     <div>
       <h3 class="student-list-title">{% trans "Ranking de turmas" %}</h3>
-      <ul class="student-list" data-institution-class-ranking>
-        <li class="student-list-item"><span class="student-list-meta">{% trans "Carregando..." %}</span></li>
-      </ul>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Colocação" %}</th>
+              <th>{% trans "Turma" %}</th>
+              <th>{% trans "Pontuação" %}</th>
+              <th>{% trans "Qtde. alunos" %}</th>
+            </tr>
+          </thead>
+          <tbody data-institution-class-ranking>
+            <tr>
+              <td colspan="4" class="text-muted">{% trans "Carregando..." %}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div>
       <h3 class="student-list-title">{% trans "Insights pedagógicos" %}</h3>

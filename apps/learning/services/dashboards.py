@@ -374,7 +374,13 @@ def _class_summary_from_rows(rows: list[dict]) -> list[dict]:
                 "avg_score": round(totals["score_total"] / totals["student_count"], 2) if totals["student_count"] else 0,
             }
         )
-    summaries.sort(key=lambda item: item["avg_score"], reverse=True)
+    summaries.sort(
+        key=lambda item: (
+            -item["avg_score"],
+            -item["student_count"],
+            item["class_name"] or "",
+        )
+    )
     return summaries
 
 

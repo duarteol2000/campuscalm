@@ -126,15 +126,31 @@
     setText(root, "[data-institution-average]", readValue(payload, ["institution_average"], "--"));
     setText(root, "[data-institution-at-risk]", arrayLength(payload.students_at_risk));
     setText(root, "[data-institution-class-count]", arrayLength(payload.class_ranking));
-    renderList(
-      root,
-      "[data-institution-class-ranking]",
-      (payload.class_ranking || []).map(function (entry) {
-        return entry.class_group + ": " + entry.average_score + " (" + entry.students_total + " alunos)";
-      }),
-      "Sem ranking de turmas."
-    );
+    renderInstitutionClassRanking(root, payload.class_ranking || []);
     renderList(root, "[data-institution-insights]", payload.pedagogical_insights, "Sem insights institucionais.");
+  }
+
+  function renderInstitutionClassRanking(root, rows) {
+    var target = root.querySelector("[data-institution-class-ranking]");
+    if (!target) {
+      return;
+    }
+    if (!rows.length) {
+      target.innerHTML = '<tr><td colspan="4" class="text-muted">Sem ranking de turmas.</td></tr>';
+      return;
+    }
+    target.innerHTML = rows
+      .map(function (row, index) {
+        return (
+          "<tr>" +
+          "<td>" + escapeHtml(String(index + 1)) + "º</td>" +
+          "<td>" + escapeHtml(row.class_group || "-") + "</td>" +
+          "<td>" + escapeHtml(String(row.average_score || 0)) + "</td>" +
+          "<td>" + escapeHtml(String(row.students_total || 0)) + "</td>" +
+          "</tr>"
+        );
+      })
+      .join("");
   }
 
   function renderTeacherRanking(root, rows) {
@@ -240,7 +256,7 @@
       renderTeacherRanking(root, []);
     }
     if (dashboardKind === "institution") {
-      renderList(root, "[data-institution-class-ranking]", [], "Não foi possível carregar o ranking de turmas.");
+      renderInstitutionClassRanking(root, []);
       renderList(root, "[data-institution-insights]", [], "Tente novamente em instantes.");
     }
   }
