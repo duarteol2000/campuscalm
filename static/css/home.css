@@ -273,6 +273,47 @@ a {
   border-color: var(--border);
 }
 
+.btn-demo-cta {
+  position: relative;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 22px;
+  background: linear-gradient(135deg, var(--brand) 0%, #355b86 100%);
+  color: #ffffff;
+  border-color: rgba(15, 42, 74, 0.24);
+  box-shadow: 0 18px 34px rgba(29, 59, 95, 0.24);
+}
+
+.btn-demo-cta::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  border: 1px solid rgba(29, 59, 95, 0.14);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.btn-demo-cta span,
+.btn-demo-cta small {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-demo-cta span {
+  font-size: 1rem;
+}
+
+.btn-demo-cta small {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--brand-strong);
@@ -283,6 +324,12 @@ a {
 .btn-primary:focus {
   transform: translateY(-1px);
   box-shadow: 0 12px 24px rgba(15, 42, 74, 0.2);
+}
+
+.btn-demo-cta:hover,
+.btn-demo-cta:focus {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 22px 40px rgba(29, 59, 95, 0.3);
 }
 
 .btn-secondary:hover,
@@ -492,6 +539,7 @@ a {
   box-shadow: 0 28px 80px rgba(7, 16, 31, 0.22);
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .demo-modal-close {
@@ -539,6 +587,9 @@ a {
 
 .demo-stage {
   padding: 0 34px 34px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
 }
 
 .demo-chat-shell {
@@ -547,6 +598,10 @@ a {
   background: linear-gradient(180deg, #f8fbfe 0%, #eef3f8 100%);
   overflow: hidden;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .demo-chat-topbar {
@@ -593,13 +648,14 @@ a {
 }
 
 .demo-chat-body {
-  min-height: 460px;
-  max-height: 60vh;
+  min-height: 0;
   padding: 24px 22px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  flex: 1;
+  scroll-padding-bottom: 28px;
 }
 
 .demo-chat-intro {
@@ -1120,8 +1176,7 @@ a {
   }
 
   .demo-chat-body {
-    min-height: 380px;
-    max-height: 52vh;
+    min-height: 0;
     padding: 18px 16px;
   }
 
