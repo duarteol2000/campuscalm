@@ -344,6 +344,117 @@ a {
   color: var(--muted);
 }
 
+/* Bloco Chat CampusCalm */
+.chat-showcase {
+  padding-top: 12px;
+}
+
+.chat-showcase-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 24px;
+  padding: 30px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f4f8fc 100%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.chat-showcase-copy,
+.chat-showcase-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-showcase-copy {
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.chat-showcase-header {
+  margin-bottom: 0;
+}
+
+.chat-showcase-eyebrow {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-bottom: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.chat-showcase-subtitle,
+.chat-showcase-text {
+  color: var(--muted);
+}
+
+.chat-showcase-text {
+  max-width: 58ch;
+}
+
+.chat-showcase-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.chat-showcase-content {
+  gap: 18px;
+}
+
+.chat-examples-card,
+.chat-benefits-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+}
+
+.chat-card-label {
+  margin-bottom: 14px;
+  color: var(--brand-strong);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.chat-example-list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.chat-example-list li {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid #dde6f1;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.chat-benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.chat-benefit-item {
+  min-height: 92px;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafd 100%);
+  border: 1px solid #dde6f1;
+  display: flex;
+  align-items: flex-end;
+  font-weight: 600;
+  color: var(--brand-strong);
+}
+
 /* Bloco Seções */
 .section {
   padding: 48px 0;
@@ -598,7 +709,8 @@ a {
 
 @media (max-width: 960px) {
   .hero-grid,
-  .link-grid {
+  .link-grid,
+  .chat-showcase-card {
     grid-template-columns: 1fr;
   }
 
@@ -655,6 +767,14 @@ a {
   .feature-grid,
   .pillar-grid,
   .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-showcase-card {
+    padding: 22px;
+  }
+
+  .chat-benefit-grid {
     grid-template-columns: 1fr;
   }
 
