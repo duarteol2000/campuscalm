@@ -109,7 +109,7 @@
                   ansiedade, rotina ou tarefas e receber orientação prática para agir com mais clareza.
                 </p>
                 <div class="chat-showcase-actions">
-                  <a class="btn btn-secondary" href="{% url 'ui-login' %}">Ver como funciona</a>
+                  <button class="btn btn-secondary" type="button" data-demo-open>Ver como funciona</button>
                 </div>
               </div>
               <div class="chat-showcase-content">
@@ -250,6 +250,59 @@
         </section>
       </main>
 
+      <!-- Bloco Modal Demo do Chat -->
+      <div class="demo-modal" data-demo-modal hidden>
+        <div class="demo-modal-backdrop" data-demo-close></div>
+        <div class="demo-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="demo-modal-title">
+          <button class="demo-modal-close" type="button" aria-label="Fechar demonstração" data-demo-close>
+            <span aria-hidden="true">&times;</span>
+          </button>
+
+          <!-- Bloco Cabeçalho da Demo -->
+          <div class="demo-modal-header">
+            <div>
+              <p class="demo-modal-eyebrow">Demonstração guiada</p>
+              <h2 id="demo-modal-title">CampusCalm em ação</h2>
+              <p class="demo-modal-subtitle">
+                Uma conversa simples para mostrar como o aluno recebe apoio, organização e clareza no dia a dia.
+              </p>
+            </div>
+          </div>
+
+          <!-- Bloco Interface da Demo -->
+          <div class="demo-stage">
+            <div class="demo-chat-shell">
+              <div class="demo-chat-topbar">
+                <div class="demo-chat-brand">
+                  <span class="demo-chat-brand-dot"></span>
+                  <div>
+                    <p class="demo-chat-brand-title">CampusCalm</p>
+                    <p class="demo-chat-brand-status">Chat de apoio ao aluno</p>
+                  </div>
+                </div>
+                <span class="demo-chat-badge">Demo interativa</span>
+              </div>
+
+              <div class="demo-chat-body" data-demo-chat-body>
+                <!-- Bloco Estado inicial da conversa -->
+                <div class="demo-chat-intro" data-demo-intro>
+                  <p class="demo-chat-intro-title">Acompanhe a conversa</p>
+                  <p class="demo-chat-intro-text">
+                    O CampusCalm ajuda o aluno a sair da sobrecarga para pequenas ações possíveis.
+                  </p>
+                </div>
+              </div>
+
+              <div class="demo-chat-footer">
+                <div class="demo-chat-input">
+                  <span class="demo-chat-placeholder">O aluno conversa, organiza e transforma em ação</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Bloco Rodapé -->
       <footer class="site-footer" id="contato">
         <div class="container footer-grid">
@@ -278,5 +331,6 @@
       </footer>
     </div>
   </div>
+  <script src="{% static 'js/home.js' %}?v=20260416-1"></script>
 </body>
 </html>
